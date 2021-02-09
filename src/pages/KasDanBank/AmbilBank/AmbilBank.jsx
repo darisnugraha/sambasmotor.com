@@ -1,0 +1,36 @@
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import { Panel, PanelBody, PanelHeader } from "../../../components/panel/panel";
+import HeadAmbilBank from "./HeadAmbilBank";
+
+class AmbilBank extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+  handleSubmit(hasil) {
+    console.log(hasil);
+  }
+  render() {
+    return (
+      <div>
+        <ol className="breadcrumb float-xl-right">
+          <li className="breadcrumb-item">
+            <Link to="#">Transaksi Bank</Link>
+          </li>
+          <li className="breadcrumb-item active">Ambil Saldo Bank</li>
+        </ol>
+        <h1 className="page-header">Ambil Saldo Bank </h1>
+        <Panel>
+          <PanelHeader>Ambil Saldo Bank</PanelHeader>
+          <PanelBody>
+            <HeadAmbilBank onSubmit={(data) => this.handleSubmit(data)} />
+          </PanelBody>
+        </Panel>
+      </div>
+    );
+  }
+}
+
+export default AmbilBank;

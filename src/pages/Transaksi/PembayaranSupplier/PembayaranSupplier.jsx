@@ -1,0 +1,138 @@
+import React from "react";
+import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import {
+  Panel,
+  PanelBody,
+  PanelHeader,
+} from "../../../components/panel/panel.jsx";
+import HeadPembayaranSupplier from "./HeadPembayaranSupplier.jsx";
+import ModalGlobal from "../../ModalGlobal.jsx";
+import ModalPembayaranSupplier from "./ModalPembayaranSupplier.jsx";
+import CetakNota from "../../Stoking/CetakNota.jsx";
+import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
+import { getToday } from "../../../components/helpers/function.jsx";
+import { NotifSucces } from "../../../components/notification/notification.jsx";
+
+const maptostate = (state) => {
+  return {
+    kunci_temp: state.stocking.kunci_temp,
+  };
+};
+
+class PembayaranSupplier extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isEdit: false,
+      modalDialog: false,
+      isLoading: false,
+      listTransaksi: [],
+    };
+  }
+
+  componentDidMount() {}
+  handleSubmit(hasil) {
+    let data = {
+      no_bayar_supplier: localStorage.getItem("no_bayar_supplier"),
+      tanggal: hasil.tanggal_terima,
+      no_bon: hasil.no_bon,
+      kode_supplier: hasil.kode_supplier,
+      total_pembayaran: hasil.total,
+      cash_rp: hasil.cash,
+      transfer_rp: hasil.transfer,
+      no_ac_asal: hasil.no_ac_asal.toString(),
+      no_ac_tujuan: hasil.no_ac_tujuan.toString(),
+      retur_rp: hasil.retur_supplier,
+    };
+    AxiosMasterPost("bayar-hutang-supplier/post-transaksi", data)
+      .then(() =>
+        CetakNota(
+          "Tanggal",
+          "01/30/2021",
+          "Nomor Bon",
+          "BN001",
+          "SUPPLIER",
+          "PANCA INDRA",
+          "",
+          "",
+          "ADMIN",
+          "01/30/2021",
+          "ADMIN",
+          ["NO", "JENIS BAYAR", "TOTAL"],
+          "BUKTI PEMBAYARAN HUTANG SUPPLIER",
+          [
+            [
+              "1",
+              "CASH",
+              "Rp. " + parseFloat(hasil.cash).toLocaleString("id-ID"),
+            ],
+            [
+              "2",
+              "TRANSFER",
+              "Rp. " + parseFloat(hasil.transfer).toLocaleString("id-ID"),
+            ],
+            [
+              "3",
+              "RETURN",
+              "Rp. " + parseFloat(hasil.retur_supplier).toLocaleString("id-ID"),
+            ],
+          ],
+          false
+        )
+      )
+      .then(() => NotifSucces("Berhasil"))
+      .then(() => localStorage.removeItem("tanggal"))
+      .then(() => localStorage.removeItem("no_bayar_supplier"));
+  }
+
+  handleCari(data) {
+    AxiosMasterGet(
+      "bayar-hutang-supplier/getDataHutangSupplier/" +
+        `${data.kode_supplier || "-"}&${data.tanggal || getToday}&${
+          data.no_bon || "-"
+        }`
+    ).then((res) =>
+      this.setState({
+        listTransaksi: res.data,
+      })
+    );
+  }
+
+  render() {
+    return (
+      <div>
+        <ol className="breadcrumb float-xl-right">
+          <li className="breadcrumb-item">
+            <Link to="#">Transaksi</Link>
+          </li>
+          <li className="breadcrumb-item active">Pembayaran Supplier</li>
+        </ol>
+        <h1 className="page-header">Pembayaran Supplier </h1>
+        <Panel>
+          <PanelHeader>Pembayaran Supplier</PanelHeader>
+          <PanelBody>
+            <br />
+            <HeadPembayaranSupplier
+              onSubmit={(data) => this.handleCari(data)}
+              listMerk={this.state.listMerk}
+              bayar={true}
+              listTransaksi={this.state.listTransaksi}
+            />
+            {/* End Tambah Master Kategori  */}
+          </PanelBody>
+        </Panel>
+        <ModalGlobal
+          content={
+            <ModalPembayaranSupplier
+              onSubmit={(data) => this.handleSubmit(data)}
+            />
+          }
+          title="Pembayaran Supplier"
+        />
+      </div>
+    );
+  }
+}
+
+export default connect(maptostate, null)(PembayaranSupplier);
