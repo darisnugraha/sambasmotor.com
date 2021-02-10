@@ -209,11 +209,11 @@ class MasterSelfing extends React.Component {
           <li className="breadcrumb-item">
             <Link to="#">Data Master</Link>
           </li>
-          <li className="breadcrumb-item active">Master Rak</li>
+          <li className="breadcrumb-item active">Master Selving</li>
         </ol>
-        <h1 className="page-header">Master Rak </h1>
+        <h1 className="page-header">Master Selving </h1>
         <Panel>
-          <PanelHeader>Master Rak</PanelHeader>
+          <PanelHeader>Master Selving</PanelHeader>
           <PanelBody>
             <br />
             {/* Master Kategori */}

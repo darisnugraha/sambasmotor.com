@@ -73,12 +73,12 @@ class MasterKwalitas extends React.Component {
       columns: [
         {
           dataField: "kode_kwalitas",
-          text: "Kode Kwalitas",
+          text: "Kode Kualitas",
           sort: true,
         },
         {
           dataField: "nama_kwalitas",
-          text: "Nama Kwalitas",
+          text: "Nama Kualitas",
         },
 
         {
@@ -195,11 +195,11 @@ class MasterKwalitas extends React.Component {
           <li className="breadcrumb-item">
             <Link to="#">Data Master</Link>
           </li>
-          <li className="breadcrumb-item active">Master Kwalitas</li>
+          <li className="breadcrumb-item active">Master Kualitas</li>
         </ol>
-        <h1 className="page-header">Master Kwalitas </h1>
+        <h1 className="page-header">Master Kualitas </h1>
         <Panel>
-          <PanelHeader>Master Kwalitas</PanelHeader>
+          <PanelHeader>Master Kualitas</PanelHeader>
           <PanelBody>
             <br />
             {/* Master Kategori */}
@@ -249,7 +249,7 @@ class MasterKwalitas extends React.Component {
           </PanelBody>
           <ModalGlobal
             title={
-              this.state.isEdit ? "Edit Data Kwalitas" : "Tambah Data Kwalitas"
+              this.state.isEdit ? "Edit Data Kualitas" : "Tambah Data Kualitas"
             }
             content={
               <Suspense

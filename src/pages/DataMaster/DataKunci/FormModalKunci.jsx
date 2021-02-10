@@ -58,7 +58,7 @@ class FormModalJenisKunci extends Component {
           options={this.state.listKunci.map((list) => {
             let data = {
               value: list.kode_jenis_kunci,
-              name: list.nama_jenis_kunci,
+              name: `${list.kode_jenis_kunci} - ( ${list.nama_jenis_kunci} )`,
             };
             return data;
           })}

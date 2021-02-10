@@ -9,8 +9,6 @@ import Content from "./components/content/content.jsx";
 import Footer from "./components/footer/footer.jsx";
 import FloatSubMenu from "./components/float-sub-menu/float-sub-menu.jsx";
 import Swal from "sweetalert2";
-import { Fab, Action } from "react-tiny-fab";
-import navigation from "./assets/navigation_toolbar_top.svg";
 import { Redirect } from "react-router-dom";
 import {
   getToday,
@@ -430,17 +428,17 @@ class App extends React.Component {
             (this.state.hasScroll ? "has-scroll " : "")
           }
         >
-          <Fab
+          {/* <Fab
             mainButtonStyles={{ backgroundColor: "#00ACAC" }}
             event="hover"
-            icon={<img src={navigation} width="60%"></img>}
+            icon={<img src={navigation} width="60%" alt="nav"></img>}
             text="Navigators"
           >
             <Action text="Email" onClick={() => alert("HELLO")} />
             <Action text="Help" onClick={() => alert("HELLO")}>
               <i className="fa fa-help" />
             </Action>
-          </Fab>
+          </Fab> */}
           {this.state.pageHeader && <Header />}
           {this.state.pageSidebar && <Sidebar />}
           {this.state.pageTwoSidebar && <SidebarRight />}

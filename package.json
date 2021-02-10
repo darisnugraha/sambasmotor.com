@@ -95,7 +95,7 @@
     "electron-build": "electron-builder",
     "release": "react-scripts build && electron-builder --publish=always",
     "pack:osx": "electron-packager && npm run codesign",
-    "build": "react-scripts build && npm electron-build",
+    "build": "react-scripts build && yarn electron-build",
     "start": "react-scripts start",
     "dekstop": "concurrently \"cross-env BROWSER=none npm react-start\" \"wait-on http://localhost:3000 && electron .\""
   },

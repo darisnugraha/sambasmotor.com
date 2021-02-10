@@ -15,12 +15,13 @@ const CetakPenerimaanSupplier = (
   const doc = new jsPDF();
   //   let data = JSON.parse(localStorage.getItem("tt_pengeluaran_barang")) || [];
   let tableRows = [];
+  let footRows = [];
   let finalY = 40;
   let sub_total = 0;
   let sub_qty = 0;
 
   doc.setFontSize(15);
-  doc.text("LAPORAN PENERIMAAN SUPPLIER", 14, 15);
+  doc.text("LAPORAN DETAIL PENERIMAAN SUPPLIER", 14, 15);
   doc.setFontSize(10);
   //row 1
   doc.text(`Supplier : ${row1isi}`, 14, 25);
@@ -35,7 +36,7 @@ const CetakPenerimaanSupplier = (
         },
         {
           content: `NO BON : ${item.no_bon}`,
-          colSpan: 4,
+          colSpan: 3,
         },
       ],
       [
@@ -45,19 +46,34 @@ const CetakPenerimaanSupplier = (
         },
         {
           content: `TANGGAL TERIMA : ${item.tanggal_terima}`,
-          colSpan: 4,
+          colSpan: 3,
         },
       ],
       [
-        "KODE BARCODE",
-        "NAMA JENIS",
-        "MERK",
-        "KWT",
-        "TYPE",
-        "SATUAN",
-        "QTY",
-        "H. SATUAN",
-        "TOTAL",
+        {
+          content: `BARCODE`,
+        },
+        {
+          content: `JENIS BARANG`,
+        },
+        {
+          content: `MERK`,
+        },
+        {
+          content: `KWT`,
+        },
+        {
+          content: `SATUAN`,
+        },
+        {
+          content: `QTY`,
+        },
+        {
+          content: `H. SATUAN`,
+        },
+        {
+          content: `TOTAL`,
+        },
       ],
     ];
     item.detail_barang.forEach((barang, index) => {
@@ -66,7 +82,6 @@ const CetakPenerimaanSupplier = (
         barang.nama_barang,
         barang.merk_barang,
         barang.kwalitas,
-        barang.type,
         barang.satuan,
         barang.qty,
         barang.harga_satuan,
@@ -82,24 +97,31 @@ const CetakPenerimaanSupplier = (
       "",
       "",
       "",
-      "",
       "Sub Total",
       `${sub_qty}`,
       "",
       `Rp. ${parseFloat(sub_total).toLocaleString("id-ID")}`,
     ];
-    tableRows.push(footer);
+    footRows.push(footer);
     doc.autoTable({
       head: tableColumn,
       body: tableRows,
+      foot: footRows,
       startY: index === 0 ? 35 : finalY + 5,
       theme: "plain",
       rowPageBreak: "avoid",
       pageBreak: "avoid",
       margin: { top: 20 },
+      bodyStyles: { lineWidth: 0.02, lineColor: "#000" },
+      headStyles: {
+        lineWidth: 0.02,
+        lineColor: "#000",
+        fillColor: [187, 187, 187],
+      },
     });
     finalY = doc.autoTableEndPosY() + 10;
     tableRows = [];
+    footRows = [];
     sub_total = 0;
     sub_qty = 0;
   });

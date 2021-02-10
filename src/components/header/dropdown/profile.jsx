@@ -12,7 +12,7 @@ import user_foto from "../../../assets/img/user/user-13.jpg";
 const logout = () => {
   Swal.fire({
     title: "Konfirmasi Keluar !!",
-    text: "Apkah anda ingin keluar ?",
+    text: "Apakah anda yakin ingin keluar ?",
     icon: "info",
     position: "top-center",
     cancelButtonText: "Tidak",
@@ -54,8 +54,8 @@ class DropdownProfile extends React.Component {
         <DropdownToggle tag="a">
           <img src={user_foto} alt="" />
           <span className="d-none d-md-inline" style={{ cursor: "pointer" }}>
-            Samsul Arifin
-          </span>{" "}
+            Sambas Motor
+          </span>
           <b className="caret"></b>
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu dropdown-menu-right" tag="ul">
@@ -65,8 +65,7 @@ class DropdownProfile extends React.Component {
           <DropdownItem>
             {/* <button onClick={() => logout()}>Log Out </button> */}
             <Link to="#" onClick={() => logout()}>
-              {" "}
-              Logout{" "}
+              Logout
             </Link>
           </DropdownItem>
         </DropdownMenu>

@@ -60,18 +60,6 @@ class HeadLaporanPembayaranSupplier extends Component {
               placeholder="Masukan Sampai Tanggal"
             />
           </div>
-          <div className="col-lg-3">
-            <Field
-              name="type"
-              component={ReanderSelect}
-              options={[
-                { value: "REKAP", name: "REKAP" },
-                { value: "DETAIL", name: "DETAIL" },
-              ]}
-              type="text"
-              label="Type"
-            />
-          </div>
           <div className="col-lg-12">
             <div className="text-right">
               <button className="btn btn-primary">

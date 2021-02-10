@@ -36,6 +36,7 @@ class FormModalWarna extends Component {
           label="Kode Warna"
           placeholder="Masukan Kode Warna"
           validate={required}
+          readOnly={this.props.isEdit}
         />
         <Field
           name="nama_warna"

@@ -1,56 +1,53 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { getToday } from "../../../../components/notification/function";
+import {
+  formatDateISO,
+  getToday,
+} from "../../../../components/notification/function";
 // Date Fns is used to format the dates we receive
 
 // define a generatePDF function that accepts a tickets argument
-const CetakHutangSupplier = (row2isi = "", data) => {
+const CetakKartuHutangSupplier = (row2isi = "", row1isi = "", data) => {
   // initialize jsPDF
   const doc = new jsPDF();
   doc.setFontSize(15);
   doc.text("LAPORAN HUTANG SUPPLIER", 14, 15);
   doc.setFontSize(10);
   doc.text(`Tanggal	: ${row2isi}`, 14, 22);
+  doc.text(`Supplier	: ${row1isi}`, 14, 29);
   let tableRows = [];
   let finalY = 40;
-  let sub_total = 0;
   let tableColumn = [
-    "KODE SUPPLIER",
-    "NAMA SUPPLIER",
-    "ALAMAT",
-    "SALDO HUTANG",
+    "TANGGAL",
+    "REFF",
+    "H.AWAL",
+    "BAYAR",
+    "SALDO",
+    "KETERANGAN",
   ];
   data.forEach((item, index) => {
     doc.setFontSize(10);
     let rows = [
-      item.kode_supplier,
-      item.nama_supplier,
-      item.alamat_supplier,
+      formatDateISO(item.tanggal),
+      item.no_ref,
+      "Rp. " + parseFloat(item.hutang_awal).toLocaleString("id-ID"),
+      "Rp. " + parseFloat(item.bayar).toLocaleString("id-ID"),
       "Rp. " + parseFloat(item.saldo_hutang).toLocaleString("id-ID"),
+      item.keterangan,
     ];
-    sub_total = sub_total + parseFloat(item.saldo_hutang);
     tableRows.push(rows);
-    let footer = [
-      "",
-      "",
-      "Total : ",
-      "Rp, " + parseInt(sub_total).toLocaleString("id-ID"),
-    ];
-    tableRows.push(footer);
-    doc.autoTable(tableColumn, tableRows, {
-      startY: index === 0 ? 30 : finalY,
-      theme: "plain",
-      bodyStyles: { lineWidth: 0.02, lineColor: "#000" },
-      headStyles: {
-        lineWidth: 0.02,
-        lineColor: "#000",
-        fillColor: [187, 187, 187],
-      },
-    });
-    finalY = doc.lastAutoTable.finalY + 10;
-    tableRows = [];
-    sub_total = 0;
   });
+  doc.autoTable(tableColumn, tableRows, {
+    startY: 45,
+    theme: "plain",
+    bodyStyles: { lineWidth: 0.02, lineColor: "#000" },
+    headStyles: {
+      lineWidth: 0.02,
+      lineColor: "#000",
+      fillColor: [187, 187, 187],
+    },
+  });
+  finalY = doc.lastAutoTable.finalY + 10;
 
   doc.text(`Printed on	: ${getToday()}`, 14, finalY + 22);
 
@@ -64,4 +61,4 @@ const CetakHutangSupplier = (row2isi = "", data) => {
   x.document.close();
 };
 
-export default CetakHutangSupplier;
+export default CetakKartuHutangSupplier;

@@ -27,29 +27,29 @@ class Content extends React.Component {
   }
 
   checkAcces() {
-    let array = [
-      "/dashboard",
-      "/master-jenis",
-      "/data-users",
-      "/master-group",
-      "/master-gudang",
-      "/master-baki",
-      "/master-bandrol",
-      "/master-sales",
-      "/master-tukang",
-      "/master-kode-transaksi",
-      "/master-kondisi-barang",
-      "/master-kondisi-pembelian",
-      "/master-kondisi-pinjaman",
-      "/master-kadar",
-      "/data-barang",
-      "/terima-barang",
-      "/laporan-terima-barang",
-      "/blank",
-      "/laporan-barang-detail",
-    ]; //ganti dengan hak akses dari API
+    // let array = [
+    //   "/dashboard",
+    //   "/master-jenis",
+    //   "/data-users",
+    //   "/master-group",
+    //   "/master-gudang",
+    //   "/master-baki",
+    //   "/master-bandrol",
+    //   "/master-sales",
+    //   "/master-tukang",
+    //   "/master-kode-transaksi",
+    //   "/master-kondisi-barang",
+    //   "/master-kondisi-pembelian",
+    //   "/master-kondisi-pinjaman",
+    //   "/master-kadar",
+    //   "/data-barang",
+    //   "/terima-barang",
+    //   "/laporan-terima-barang",
+    //   "/blank",
+    //   "/laporan-barang-detail",
+    // ]; //ganti dengan hak akses dari API
     let data = this.props.history.location.pathname;
-    let hasil = array.findIndex((res) => res === data);
+    // let hasil = array.findIndex((res) => res === data);
     return data === "/" ? 2 : 3;
   }
   render() {

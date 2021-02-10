@@ -14,6 +14,7 @@ import "react-perfect-scrollbar/dist/css/styles.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import "bootstrap-social/bootstrap-social.css";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
+import "react-dual-listbox/lib/react-dual-listbox.css";
 import "./index.css";
 import "react-tiny-fab/dist/styles.css";
 import "./scss/react.scss";

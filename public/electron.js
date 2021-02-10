@@ -15,7 +15,7 @@ function createWindow() {
   mainWindow.loadURL(
     isDev
       ? "http://localhost:3000"
-      : "https://peaceful-khorana-f4ee0b.netlify.app/"
+      : "https://octavian25.github.io/sambasmotor.com/"
   );
   mainWindow.on("closed", () => (mainWindow = null));
   mainWindow.setMenuBarVisibility(false);

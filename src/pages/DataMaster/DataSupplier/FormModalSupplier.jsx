@@ -1,10 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
-import {
-  ReanderField,
-  ReanderFieldInline,
-} from "../../../components/notification/notification";
+import { ReanderField } from "../../../components/notification/notification";
 import ValidasiMasterKategori from "../../../validasi/ValidasiMasterKategori";
 import Stepper from "react-stepper-horizontal";
 import { required } from "../../../validasi/normalize";
@@ -197,23 +194,32 @@ class FormModalSupplier extends Component {
                   placeholder="Masukan Email"
                 />
               </div>
-              <div className="col-lg-1">
-                <Field
-                  name="cash"
-                  component={ReanderFieldInline}
-                  type="checkbox"
-                  label="Cash"
-                  placeholder="Masukan Cash"
-                />
-              </div>
-              <div className="col-lg-1">
-                <Field
-                  name="kredit"
-                  component={ReanderFieldInline}
-                  type="checkbox"
-                  label="Kredit"
-                  placeholder="Masukan Kredit"
-                />
+              <div className="col-lg-2">
+                <label htmlFor="">Type Pembayaran</label>
+                <div className="row">
+                  <div className="col-lg-6 checkbox checkbox-css checkbox-inline ml-3 mt-2">
+                    <Field
+                      name="cash"
+                      component="input"
+                      type="checkbox"
+                      id="inlineCssCheckbox2"
+                      label="Kredit"
+                      placeholder="Masukan Kredit"
+                    />
+                    <label htmlFor="inlineCssCheckbox2">Cash</label>
+                  </div>
+                  <div className="col-lg-6 checkbox checkbox-css checkbox-inline mt-2 ml-3">
+                    <Field
+                      name="kredit"
+                      component="input"
+                      type="checkbox"
+                      id="inlineCssCheckbox1"
+                      label="Kredit"
+                      placeholder="Masukan Kredit"
+                    />
+                    <label htmlFor="inlineCssCheckbox1">Kredit</label>
+                  </div>
+                </div>
               </div>
 
               <div className="col-lg-3">

@@ -7,17 +7,26 @@ import {
   PanelBody,
   PanelHeader,
 } from "../../../../components/panel/panel";
-import CetakHutangSupplier from "./CetakHutangSupplier";
-import HeadLaporanHutangSupplier from "./HeadLaporanHutangSupplier";
+import CetakKartuHutangSupplier from "./CetakKartuHutangSupplier";
+import HeadLaporanKartuHutangSupplier from "./HeadLaporanKartuHutangSupplier";
 
-class LaporanHutangSupplier extends Component {
+class LaporanKartuHutangSupplier extends Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
-  handleSubmit() {
-    AxiosMasterGet("laporan/supplier/lap-saldo-hutang-supplier").then((res) =>
-      CetakHutangSupplier(getToday(), res.data)
+  handleSubmit(data) {
+    AxiosMasterGet(
+      "laporan/supplier/lap-card-hutang-supplier/" +
+        `${data.kode_supplier || "SEMUA"}&${data.tanggal_awal}&${
+          data.tanggal_akhir
+        }`
+    ).then((res) =>
+      CetakKartuHutangSupplier(
+        getToday(),
+        data.kode_supplier || "SEMUA",
+        res.data
+      )
     );
   }
   render() {
@@ -33,7 +42,7 @@ class LaporanHutangSupplier extends Component {
         <Panel>
           <PanelHeader>Laporan Hutang Supplier</PanelHeader>
           <PanelBody>
-            <HeadLaporanHutangSupplier
+            <HeadLaporanKartuHutangSupplier
               onSubmit={(data) => this.handleSubmit(data)}
             />
           </PanelBody>
@@ -43,4 +52,4 @@ class LaporanHutangSupplier extends Component {
   }
 }
 
-export default LaporanHutangSupplier;
+export default LaporanKartuHutangSupplier;

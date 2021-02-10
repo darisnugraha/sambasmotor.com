@@ -7,14 +7,13 @@ import {
   ReanderSelect,
 } from "../../../../components/notification/notification";
 
-class HeadLaporanKartuStock extends Component {
+class HeadLaporanKartuHutangSupplier extends Component {
   constructor(props) {
     super(props);
     this.state = {
       listSupplier: [],
     };
   }
-
   componentDidMount() {
     AxiosMasterGet("supplier/get/all").then((res) =>
       this.setState({
@@ -26,7 +25,7 @@ class HeadLaporanKartuStock extends Component {
     return (
       <form onSubmit={this.props.handleSubmit}>
         <div className="row">
-          <div className="col-lg-3">
+          <div className="col-lg-4">
             <Field
               name="kode_supplier"
               component={ReanderSelect}
@@ -42,35 +41,22 @@ class HeadLaporanKartuStock extends Component {
               placeholder="Masukan Kode Supplier"
             />
           </div>
-
-          <div className="col-lg-3">
+          <div className="col-lg-4">
             <Field
               name="tanggal_awal"
               component={ReanderField}
               type="date"
-              label="Dari Tanggal"
+              label="Tanggal Awal"
               placeholder="Masukan Tanggal Awal"
             />
           </div>
-          <div className="col-lg-3">
+          <div className="col-lg-4">
             <Field
               name="tanggal_akhir"
               component={ReanderField}
               type="date"
-              label="Sampai Tanggal"
-              placeholder="Masukan Sampai Tanggal"
-            />
-          </div>
-          <div className="col-lg-3">
-            <Field
-              name="type"
-              component={ReanderSelect}
-              options={[
-                { value: "REKAP", name: "REKAP" },
-                { value: "DETAIL", name: "DETAIL" },
-              ]}
-              type="text"
-              label="Type"
+              label="Tanggal Akhir"
+              placeholder="Masukan Tanggal Akhir"
             />
           </div>
           <div className="col-lg-12">
@@ -86,8 +72,8 @@ class HeadLaporanKartuStock extends Component {
   }
 }
 
-HeadLaporanKartuStock = reduxForm({
-  form: "HeadLaporanKartuStock",
+HeadLaporanKartuHutangSupplier = reduxForm({
+  form: "HeadLaporanKartuHutangSupplier",
   enableReinitialize: true,
-})(HeadLaporanKartuStock);
-export default connect()(HeadLaporanKartuStock);
+})(HeadLaporanKartuHutangSupplier);
+export default connect()(HeadLaporanKartuHutangSupplier);

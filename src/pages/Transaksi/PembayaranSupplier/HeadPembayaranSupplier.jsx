@@ -21,7 +21,7 @@ class HeadPembayaranSupplier extends Component {
           text: "Tanggal",
         },
         {
-          dataField: "no_bon",
+          dataField: "no_terima",
           text: "Nomor bon",
         },
         {
@@ -50,7 +50,7 @@ class HeadPembayaranSupplier extends Component {
               sisa_hutang: row.sisa_hutang,
               retur_rp: row.retur_rp,
               kode_supplier: row.kode_supplier,
-              no_bon: row.no_bon,
+              no_terima: row.no_terima,
               tanggal_terima: row.tanggal_terima,
             };
             return (

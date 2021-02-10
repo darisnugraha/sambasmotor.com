@@ -62,7 +62,8 @@ const hapusDataKategori = (params, dispatch) => {
         "kategori-service/delete/by-id-kategori-service/" + params
       )
         .then(() => dispatch(hideModal()))
-        .then(() => dispatch(getKategoriService()));
+        .then(() => dispatch(getKategoriService()))
+        .then(() => NotifSucces("Berhasil menghapus data"));
     }
   });
 };
@@ -114,7 +115,10 @@ class MasterKategoriService extends React.Component {
                   </button>
                   <button
                     onClick={() =>
-                      hapusDataKategori(row.kodeProvinsi, this.props.dispatch)
+                      hapusDataKategori(
+                        row.id_kategori_service,
+                        this.props.dispatch
+                      )
                     }
                     className="btn btn-danger"
                   >

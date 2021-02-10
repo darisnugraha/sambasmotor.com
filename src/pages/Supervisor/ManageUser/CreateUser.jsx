@@ -61,7 +61,7 @@ class CreateUser extends Component {
       .then(() => NotifSucces("Tambah User Berhasil"))
       .then(() => this.props.dispatch(reset("HeadCreateUser")))
       .then(() => this.props.dispatch(getListUser()))
-      .catch((err) => NotifError("Sepertinya ada kelasalah"));
+      .catch((err) => NotifError("Sepertinya ada kesalahan"));
   }
   render() {
     return (

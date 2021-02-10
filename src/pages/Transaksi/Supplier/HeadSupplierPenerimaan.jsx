@@ -15,7 +15,6 @@ import { AxiosMasterGet } from "../../../axios";
 const { SearchBar } = Search;
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
-  suffix: " ,-",
   decimalPlaces: 0,
   locale: "id-ID",
 });
@@ -69,9 +68,6 @@ class HeadSupplierPenerimaan extends Component {
   }
 
   componentDidMount() {
-    AxiosMasterGet("terima-barang-supplier/generate/no-trx").then((res) =>
-      this.props.change("kode_terima", res.data[0].no_terima)
-    );
     AxiosMasterGet("supplier/get/all").then((res) =>
       this.setState({
         listSupplier: res.data,
@@ -80,6 +76,18 @@ class HeadSupplierPenerimaan extends Component {
   }
   setTotal() {
     this.props.change("total", this.props.total);
+  }
+  setLocal(nama, data) {
+    localStorage.setItem(nama, data);
+  }
+  setCheckbox(nama) {
+    let data = localStorage.getItem(nama);
+    if (data) {
+      let hasil = data === "true" ? true : false;
+      localStorage.setItem(nama, !hasil);
+    } else {
+      localStorage.setItem(nama, true);
+    }
   }
   render() {
     return (
@@ -109,6 +117,7 @@ class HeadSupplierPenerimaan extends Component {
               type="text"
               label="Supplier"
               placeholder="Masukan Supplier"
+              onChange={(e) => this.setLocal("penerimaan_kode_supplier", e)}
             />
           </div>
           <div className="col-lg-3">
@@ -118,6 +127,9 @@ class HeadSupplierPenerimaan extends Component {
               type="date"
               label="Tanggal Invoice"
               placeholder="Masukan Tanggal Invoice"
+              onChange={(e) =>
+                this.setLocal("penerimaan_tanggal_invoice", e.target.value)
+              }
             />
           </div>
           <div className="col-lg-3">
@@ -127,6 +139,9 @@ class HeadSupplierPenerimaan extends Component {
               type="date"
               label="Tanggal Barang"
               placeholder="Masukan Tanggal Barang"
+              onChange={(e) =>
+                this.setLocal("penerimaan_tanggal_barang", e.target.value)
+              }
             />
           </div>
           <div className="col-lg-3">
@@ -136,6 +151,9 @@ class HeadSupplierPenerimaan extends Component {
               type="text"
               label="Keterangan"
               placeholder="Masukan Keterangan"
+              onChange={(e) =>
+                this.setLocal("penerimaan_keterangan", e.target.value)
+              }
             />
           </div>
           <div className="col-lg-3">
@@ -145,6 +163,9 @@ class HeadSupplierPenerimaan extends Component {
               type="text"
               label="Nomor Bon"
               placeholder="Masukan Nomor Bon"
+              onChange={(e) =>
+                this.setLocal("penerimaan_no_bon", e.target.value)
+              }
             />
           </div>
           <div className="col-lg-3">
@@ -157,6 +178,7 @@ class HeadSupplierPenerimaan extends Component {
                   type="checkbox"
                   value="tunai"
                   className="mr-3"
+                  onClick={() => this.setCheckbox("penerimaan_tunai")}
                 />
                 Tunai
               </label>
@@ -167,6 +189,7 @@ class HeadSupplierPenerimaan extends Component {
                   type="checkbox"
                   value="kredit"
                   className="mr-3"
+                  onClick={() => this.setCheckbox("penerimaan_kredit")}
                 />
                 Kredit
               </label>
@@ -272,6 +295,15 @@ export default connect((state) => {
     total: parseFloat(sub_total || 0) - parseFloat(discount || 0),
     initialValues: {
       sub_total: state.transaksi.sub_total,
+      kode_terima: localStorage.getItem("penerimaan_kode_terima") || null,
+      kode_supplier: localStorage.getItem("penerimaan_kode_supplier") || null,
+      tanggal_invoice:
+        localStorage.getItem("penerimaan_tanggal_invoice") || null,
+      tanggal_barang: localStorage.getItem("penerimaan_tanggal_barang") || null,
+      keterangan: localStorage.getItem("penerimaan_keterangan") || null,
+      no_bon: localStorage.getItem("penerimaan_no_bon") || null,
+      // tunai: localStorage.getItem("penerimaan_tunai") || false,
+      // kredit: localStorage.getItem("penerimaan_kredit") || false,
     },
   };
 })(HeadSupplierPenerimaan);

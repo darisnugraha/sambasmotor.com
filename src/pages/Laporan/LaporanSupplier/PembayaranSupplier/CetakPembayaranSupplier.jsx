@@ -8,38 +8,12 @@ const CetakPembayaranSupplier = (
   row2isi = "",
   username = "",
   tanggal = "",
-  validby = ""
+  validby = "",
+  data
 ) => {
   // initialize jsPDF
   const doc = new jsPDF();
   //   let data = JSON.parse(localStorage.getItem("tt_pengeluaran_barang")) || [];
-  let data = [
-    {
-      list_barang: [
-        {
-          kode_supplier: "PANCA INDRA",
-          tanggal_bayar: "3 FEBRUARI 2021",
-          no_faktur: "RS-20210302",
-          jenis_pembayaran: "CASH",
-          total: 1230000,
-        },
-        {
-          kode_supplier: "PANCA INDRA",
-          tanggal_bayar: "3 FEBRUARI 2021",
-          no_faktur: "RS-20210302",
-          jenis_pembayaran: "RETURN",
-          total: 238000,
-        },
-        {
-          kode_supplier: "PANCA INDRA",
-          tanggal_bayar: "3 FEBRUARI 2021",
-          no_faktur: "RS-20210302",
-          jenis_pembayaran: "CASH",
-          total: 1240000,
-        },
-      ],
-    },
-  ];
   let tableRows = [];
   let finalY = 40;
   let sub_total = 0;
@@ -51,34 +25,28 @@ const CetakPembayaranSupplier = (
     "TOTAL",
   ];
   data.forEach((item, index) => {
-    item.list_barang.forEach((barang, index) => {
-      let rows = [
-        barang.kode_supplier,
-        barang.tanggal_bayar,
-        barang.no_faktur,
-        barang.jenis_pembayaran,
-        "Rp. " + parseFloat(barang.total).toLocaleString("id-ID"),
-      ];
-      sub_total = sub_total + parseFloat(barang.total);
-      tableRows.push(rows);
-      console.log(tableRows);
-    });
-    let footer = [
-      "",
-      "",
-      "",
-      "Sub Total :",
-      "Rp. " + parseFloat(sub_total).toLocaleString("id-ID"),
+    let rows = [
+      item.kode_supplier,
+      item.tanggal_bayar,
+      item.no_faktur_bayar,
+      item.jenis_pembayaran,
+      "Rp. " + parseFloat(item.total_bayar).toLocaleString("id-ID"),
     ];
-    tableRows.push(footer);
-    doc.autoTable(tableColumn, tableRows, {
-      startY: index === 0 ? 40 : finalY + 15,
-      theme: "plain",
-    });
-    finalY = doc.lastAutoTable.finalY + 10;
-    tableRows = [];
-    sub_total = 0;
+    sub_total = sub_total + parseFloat(item.total_bayar);
+    tableRows.push(rows);
+    console.log(tableRows);
   });
+  doc.autoTable(tableColumn, tableRows, {
+    startY: 40,
+    theme: "plain",
+    bodyStyles: { lineWidth: 0.02, lineColor: "#000" },
+    headStyles: {
+      lineWidth: 0.02,
+      lineColor: "#000",
+      fillColor: [187, 187, 187],
+    },
+  });
+  finalY = doc.lastAutoTable.finalY + 10;
   // const date = Date().split(" ");
   // we use a date string to generate our filename.
   // const dateStr = date[2] + date[3] + date[4];

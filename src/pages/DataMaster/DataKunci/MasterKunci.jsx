@@ -67,7 +67,7 @@ class MasterKunci extends React.Component {
       columns: [
         {
           dataField: "kode_jenis_kunci",
-          text: "Kode Kunci",
+          text: "Kode Jenis Kunci",
           sort: true,
         },
         {

@@ -79,7 +79,7 @@ class MasterSales extends React.Component {
         },
         {
           dataField: "kode_pegawai",
-          text: "Nama Pegawai",
+          text: "Kode Pegawai",
         },
         {
           dataField: "nama_pegawai",

@@ -9,7 +9,7 @@ import {
 import { showModal } from "../../../actions/datamaster_action";
 import { createNumberMask } from "redux-form-input-masks";
 import { AxiosMasterGet } from "../../../axios";
-import { getToday } from "../../../components/notification/function";
+import { formatDateISO } from "../../../components/notification/function";
 import { TabelGlobal } from "../TabelGlobal";
 
 const currencyMask = createNumberMask({
@@ -68,11 +68,6 @@ class HeadReturnSupplier extends Component {
     };
   }
   componentDidMount() {
-    AxiosMasterGet("retur-barang-supplier/generate/no-trx")
-      .then((res) =>
-        this.props.change("kode_return", res.data[0].no_retur_supplier)
-      )
-      .catch((err) => console.log(err));
     AxiosMasterGet("supplier/get/all").then((res) =>
       this.setState({
         listSupplier: res.data,
@@ -86,13 +81,22 @@ class HeadReturnSupplier extends Component {
     AxiosMasterGet(
       "terima-barang-supplier/lihat-bukti-terima/" + hasil.target.value
     )
-      .then((res) =>
-        this.setState({
-          hasilTerimaBarang: res.data,
-        })
-      )
+      .then((res) => this.setLocal(res))
+      .then(() => localStorage.setItem("return_kode", hasil.target.value))
       .then(() => this.setPenjualan())
       .catch((err) => console.log(err));
+  }
+  setLocal(res) {
+    console.log("INI LOCAL");
+    this.setState({
+      hasilTerimaBarang: res.data,
+    });
+    localStorage.setItem("return_supplier", res.data.kode_supplier);
+    localStorage.setItem(
+      "return_tanggal_bon",
+      formatDateISO(res.data.tanggal_bon)
+    );
+    localStorage.setItem("return_keterangan", res.data.keterangan);
   }
   setPenjualan() {
     console.log(this.state.hasilTerimaBarang);
@@ -101,13 +105,12 @@ class HeadReturnSupplier extends Component {
       this.state.hasilTerimaBarang.kode_supplier
     );
     this.props.change("keterangan", this.state.hasilTerimaBarang.keterangan);
-    this.props.change("tanggal", getToday);
   }
   render() {
     return (
       <form onSubmit={this.props.handleSubmit}>
         <div className="row">
-          <div className="col-lg-3 d-none">
+          <div className="col-lg-3">
             <Field
               name="kode_return"
               component={ReanderField}
@@ -240,6 +243,11 @@ export default connect((state) => {
     total: parseFloat(sub_total || 0) - parseFloat(discount || 0),
     initialValues: {
       sub_total: state.transaksi.sub_total,
+      no_bon: localStorage.getItem("return_kode") || "",
+      kode_return: localStorage.getItem("kode_return") || "",
+      kode_supplier: localStorage.getItem("return_supplier") || "",
+      keterangan: localStorage.getItem("return_keterangan") || "",
+      tanggal: localStorage.getItem("return_tanggal_bon") || "",
     },
   };
 })(HeadReturnSupplier);

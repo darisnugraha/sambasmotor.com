@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import DropdownNotification from "./dropdown/notification.jsx";
 import DropdownLanguage from "./dropdown/language.jsx";
 import DropdownProfile from "./dropdown/profile.jsx";
 import SearchForm from "./search/form.jsx";
@@ -46,7 +45,7 @@ class Header extends React.Component {
                 </button>
               )}
               <Link to="/" className="navbar-brand">
-                <span className="navbar-logo"></span> Sambas Motor
+                <span className="navbar-logo"></span> <b>Sambas Motor</b>
               </Link>
 
               {pageHeaderMegaMenu && (
@@ -103,7 +102,7 @@ class Header extends React.Component {
 
             <ul className="navbar-nav navbar-right">
               <SearchForm />
-              <DropdownNotification />
+              {/* <DropdownNotification /> */}
 
               {pageHeaderLanguageBar && <DropdownLanguage />}
 

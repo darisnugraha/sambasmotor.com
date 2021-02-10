@@ -33,8 +33,8 @@ class FormModalKwalitas extends Component {
           name="kode_kwalitas"
           component={ReanderField}
           type="text"
-          label="Kode Kwalitas"
-          placeholder="Masukan kode Kwalitas"
+          label="Kode Kualitas"
+          placeholder="Masukan kode Kualitas"
           readOnly={this.props.isEdit}
           validate={required}
         />
@@ -42,8 +42,8 @@ class FormModalKwalitas extends Component {
           name="nama_kwalitas"
           component={ReanderField}
           type="text"
-          label="Nama Kwalitas"
-          placeholder="Masukan Nama Kwalitas"
+          label="Nama Kualitas"
+          placeholder="Masukan Nama Kualitas"
           validate={required}
         />
         <button className="btn btn-primary" disabled={this.props.onSend}>

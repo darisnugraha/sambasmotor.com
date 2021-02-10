@@ -1,4 +1,5 @@
 import React, { lazy } from "react";
+import LaporanKartuHutangSupplier from "../pages/Laporan/LaporanSupplier/KartuHutangSupplier/LaporanKartuHutangSupplier.jsx";
 const MasterUkuran = lazy(() =>
   import("../pages/DataMaster/DataUkurann/MasterUkuran.jsx")
 );
@@ -340,9 +341,9 @@ const routes = [
   },
   // Data Kwalitas
   {
-    path: "/master-kwalitas",
+    path: "/master-kualitas",
     exact: true,
-    title: "Master Kwalitas",
+    title: "Master Kualitas",
     component: () => <MasterKwalitas />,
   },
   // Data Jenis Kunci
@@ -669,6 +670,12 @@ const routes = [
     exact: true,
     title: "Laporan Hutang Supplier",
     component: () => <LaporanHutangSupplier />,
+  },
+  {
+    path: "/laporan-kartu-hutang-supplier",
+    exact: true,
+    title: "Laporan Kartu Hutang Supplier",
+    component: () => <LaporanKartuHutangSupplier />,
   },
   {
     path: "/laporan-pembayaran-supplier",

@@ -8,6 +8,7 @@ import {
   PanelHeader,
 } from "../../../../components/panel/panel";
 import CetakPenerimaanSupplier from "./CetakPenerimaanSupplier";
+import CetakPenerimaanSupplierRekap from "./CetakPenerimaanSupplierRekap";
 import HeadLaporanPenerimaanSupplier from "./HeadLaporanPenerimaanSupplier";
 
 class LaporanPenerimaanSupplier extends Component {
@@ -21,7 +22,9 @@ class LaporanPenerimaanSupplier extends Component {
   handleSubmit(data) {
     AxiosMasterGet(
       "laporan/supplier/lap-terima-supplier/" +
-        `${"SEMUA"}&${data.tanggal_awal}&${data.tanggal_akhir}`
+        `${data.kode_supplier || "SEMUA"}&${data.tanggal_awal}&${
+          data.tanggal_akhir
+        }`
     )
       .then((res) =>
         this.setState({
@@ -29,14 +32,23 @@ class LaporanPenerimaanSupplier extends Component {
         })
       )
       .then(() =>
-        CetakPenerimaanSupplier(
-          data.kode_supplier || "SEMUA",
-          getToday(),
-          "ADMIN",
-          getToday(),
-          "ADMIN",
-          this.state.hasilLaporan
-        )
+        data.type === "DETAIL"
+          ? CetakPenerimaanSupplier(
+              data.kode_supplier || "SEMUA",
+              getToday(),
+              "ADMIN",
+              getToday(),
+              "ADMIN",
+              this.state.hasilLaporan
+            )
+          : CetakPenerimaanSupplierRekap(
+              data.kode_supplier || "SEMUA",
+              getToday(),
+              "ADMIN",
+              getToday(),
+              "ADMIN",
+              this.state.hasilLaporan
+            )
       );
   }
   render() {

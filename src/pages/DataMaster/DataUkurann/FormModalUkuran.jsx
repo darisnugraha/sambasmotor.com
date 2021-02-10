@@ -36,6 +36,7 @@ class FormModalUkuran extends Component {
           label="Kode Ukuran"
           placeholder="Masukan Kode Ukuran"
           validate={required}
+          readOnly={this.props.isEdit}
         />
         <Field
           name="nama_ukuran"

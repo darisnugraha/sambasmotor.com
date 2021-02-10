@@ -4,6 +4,7 @@ import { Field, formValueSelector, reduxForm } from "redux-form";
 import { createNumberMask } from "redux-form-input-masks";
 import { AxiosMasterGet } from "../../../axios";
 import {
+  NotifError,
   ReanderField,
   ReanderSelect,
 } from "../../../components/notification/notification";
@@ -24,8 +25,12 @@ class ModalPembayaranSupplier extends Component {
     };
   }
   setTotal() {
+    if (this.props.total > this.props.total_cash) {
+      NotifError("Jumlah Cash Melebihi Tagihan");
+    }
+    this.props.change("total_ref", this.props.total_cash);
     this.props.change("total", this.props.total);
-    this.props.change("no_bon", this.props.no_bon);
+    this.props.change("no_bon", this.props.no_terima);
     this.props.change("kode_supplier", this.props.kode_supplier);
     this.props.change("tanggal_terima", localStorage.getItem("tanggal"));
   }
@@ -88,7 +93,7 @@ class ModalPembayaranSupplier extends Component {
                     placeholder="Masukan Tanggal Terima"
                   />
                 </div>
-                <div className="col-lg-3 d-none">
+                <div className="col-lg-3 ">
                   <Field
                     name="no_bon"
                     component={ReanderField}
@@ -176,7 +181,7 @@ class ModalPembayaranSupplier extends Component {
                     options={this.state.listBank.map((list) => {
                       let data = {
                         value: list.no_ac,
-                        name: list.atas_nama,
+                        name: `${list.no_ac} - ( ${list.atas_nama} )`,
                       };
                       return data;
                     })}
@@ -188,14 +193,7 @@ class ModalPembayaranSupplier extends Component {
                 <div className="col-lg-12">
                   <Field
                     name="no_ac_tujuan"
-                    component={ReanderSelect}
-                    options={this.state.listBank.map((list) => {
-                      let data = {
-                        value: list.no_ac,
-                        name: list.atas_nama,
-                      };
-                      return data;
-                    })}
+                    component={ReanderField}
                     type="text"
                     label="Nomor A/C Tujuan"
                     placeholder="Masukan Nomor A/C Tujuan"
@@ -204,6 +202,20 @@ class ModalPembayaranSupplier extends Component {
               </div>
             </div>
             <div className="col-lg-12">
+              <div className="row">
+                <div className="col-lg-3"></div>
+                <div className="col-lg-6">
+                  <Field
+                    name="total_ref"
+                    component={ReanderField}
+                    type="text"
+                    label="Total Harus Dibayar"
+                    placeholder="Masukan Total Harus Dibayar"
+                    readOnly
+                    {...currencyMask}
+                  />
+                </div>
+              </div>
               <div className="row">
                 <div className="col-lg-3"></div>
                 <div className="col-lg-6">
@@ -243,7 +255,10 @@ export default connect((state) => {
     sisa_hutang: state.transaksi.listPembayaran.sisa_hutang,
     retur_rp: state.transaksi.listPembayaran.retur_rp,
     kode_supplier: state.transaksi.listPembayaran.kode_supplier,
-    no_bon: state.transaksi.listPembayaran.no_bon,
+    no_terima: state.transaksi.listPembayaran.no_terima,
     tanggal_terima: state.transaksi.listPembayaran.tanggal_terima,
+    total_cash:
+      parseFloat(state.transaksi.listPembayaran.sisa_hutang) -
+      parseFloat(state.transaksi.listPembayaran.retur_rp),
   };
 })(ModalPembayaranSupplier);

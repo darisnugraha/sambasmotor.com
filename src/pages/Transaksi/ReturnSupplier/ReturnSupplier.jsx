@@ -13,7 +13,8 @@ import {
   NotifError,
   NotifSucces,
 } from "../../../components/notification/notification";
-import { AxiosMasterPost } from "../../../axios";
+import { AxiosMasterGet, AxiosMasterPost } from "../../../axios";
+import { multipleDeleteLocal } from "../../../components/notification/function";
 
 const maptostate = (state) => {
   return {
@@ -32,13 +33,6 @@ class SupplierPenerimaan extends Component {
   }
   handleHead(hasil) {
     let data = {
-      // keterangan: hasil.keterangan,
-      // kode_supplier: hasil.kode_supplier,
-      // no_bon: hasil.no_bon,
-      // pembayaran: hasil.pembayaran,
-      // tanggal_barang: hasil.tanggal_barang,
-      // tanggal_invoice: hasil.tanggal_invoice,
-      //
       no_retur_supplier: hasil.kode_return,
       tanggal_retur: hasil.tanggal,
       no_bon: hasil.no_bon,
@@ -115,10 +109,29 @@ class SupplierPenerimaan extends Component {
           true
         )
       )
-      .then(() => localStorage.removeItem("ReturnSupplier_temp"))
-      .then(() => localStorage.removeItem("ReturnSupplier_temp_kirim"))
+      .then(() =>
+        multipleDeleteLocal([
+          "ReturnSupplier_temp",
+          "ReturnSupplier_temp_kirim",
+          "return_supplier",
+          "return_keterangan",
+          "return_tanggal_bon",
+          "return_kode",
+        ])
+      )
       .then(() => this.props.dispatch(reset("HeadSupplierPenerimaan")))
+      .then(() => this.getKodeReturn())
+      .then(() => this.props.dispatch(getListReturnSupplier()))
+      .then(() => window.location.reload())
       .catch((err) => NotifError(err.response.data));
+  }
+
+  getKodeReturn() {
+    AxiosMasterGet("retur-barang-supplier/generate/no-trx")
+      .then((res) =>
+        localStorage.setItem("kode_return", res.data[0].no_retur_supplier)
+      )
+      .catch((err) => console.log(err));
   }
   handleModal(hasil) {
     let local =

@@ -88,3 +88,14 @@ export const parseIsoDatetime = (dtstr) => {
   let hasil = dtstr.substr(0, 10);
   return hasil;
 };
+
+export const multipleDeleteLocal = (data = []) => {
+  data.forEach((k) => localStorage.removeItem(k));
+};
+
+export const formatDateISO = (value) => {
+  let pattern = "####-##-##";
+  var i = 0,
+    date = value.toString();
+  return pattern.replace(/#/g, (_) => date[i++]);
+};

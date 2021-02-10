@@ -77,7 +77,7 @@ class MasterBank extends React.Component {
           sort: true,
         },
         {
-          dataField: "atas_nama",
+          dataField: "nama_bank",
           text: "Nama Bank",
         },
         {

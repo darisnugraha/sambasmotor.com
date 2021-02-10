@@ -62,6 +62,14 @@ const hapusDataKategori = (params, dispatch) => {
     }
   });
 };
+
+const expandRow = {
+  renderer: (row) => (
+    <div>
+      <p>{`Telepon : ${row.telepon} || FAX : ${row.fax} || KODE POS : ${row.kode_pos} || ALAMAT : ${row.alamat}`}</p>
+    </div>
+  ),
+};
 class MasterSupplier extends React.Component {
   constructor(props) {
     super(props);
@@ -84,28 +92,18 @@ class MasterSupplier extends React.Component {
           text: "CP",
         },
         {
-          dataField: "fax",
-          text: "Fax",
-        },
-        {
-          dataField: "telepon",
-          text: "Telepon",
-        },
-        {
-          dataField: "alamat",
-          text: "Alamat",
-        },
-        {
           dataField: "kota",
           text: "Kota",
         },
         {
-          dataField: "kode_pos",
-          text: "Kode Pos",
-        },
-        {
           dataField: "email",
           text: "Email",
+          headerStyle: () => {
+            return {
+              overflowWrap: "break-word",
+              whiteSpace: "unset",
+            };
+          },
         },
         {
           dataField: "action",
@@ -247,9 +245,10 @@ class MasterSupplier extends React.Component {
           .then(() => this.props.dispatch(reset("dataBarang")))
           .then(() => this.props.dispatch(hideModal()))
           .then(() => this.props.dispatch(getSupplier()))
-          .catch(() =>
+          .catch((err) =>
             NotifError(
-              "Sepertinya ada gangguan, Mohon ulang beberapa saat lagi"
+              "Sepertinya ada gangguan, Mohon ulang beberapa saat lagi \n" +
+                `Error Detail : \n ${err.response.data}`
             )
           )
       : AxiosMasterPost("supplier/add", data)
@@ -281,7 +280,7 @@ class MasterSupplier extends React.Component {
             {/* Master Kategori */}
             <div className="col-lg-12">
               <ToolkitProvider
-                keyField="kode_kategori"
+                keyField="kode_supplier"
                 data={this.props.listsupplier || []}
                 columns={this.state.columns}
                 search
@@ -310,6 +309,7 @@ class MasterSupplier extends React.Component {
                       <BootstrapTable
                         pagination={paginationFactory()}
                         {...props.baseProps}
+                        expandRow={expandRow}
                       />
                       <br />
                       <ExportCSVButton {...props.csvProps}>

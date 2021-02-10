@@ -201,11 +201,11 @@ class MasterWarna extends React.Component {
           <li className="breadcrumb-item">
             <Link to="#">Data Master</Link>
           </li>
-          <li className="breadcrumb-item active">Master Parameter Transaksi</li>
+          <li className="breadcrumb-item active">Master Warna</li>
         </ol>
-        <h1 className="page-header">Master Parameter Transaksi </h1>
+        <h1 className="page-header">Master Warna </h1>
         <Panel>
-          <PanelHeader>Master Parameter Transaksi</PanelHeader>
+          <PanelHeader>Master Warna</PanelHeader>
           <PanelBody>
             <br />
             {/* Master Kategori */}
@@ -254,11 +254,7 @@ class MasterWarna extends React.Component {
             {/* End Master Kategori */}
           </PanelBody>
           <ModalGlobal
-            title={
-              this.state.isEdit
-                ? "Edit Data Parameter Transaksi"
-                : "Tambah Data Parameter Transaksi"
-            }
+            title={this.state.isEdit ? "Edit Data Warna" : "Tambah Data Warna"}
             content={
               <Suspense
                 fallback={<Skeleton width={"100%"} height={50} count={2} />}

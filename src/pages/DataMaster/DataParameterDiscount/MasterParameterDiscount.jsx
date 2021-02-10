@@ -146,12 +146,6 @@ class MasterParameterDiscount extends React.Component {
     });
   }
   handleSubmit(hasil) {
-    let data = {
-      kode_discount: hasil.kode_discount || "-",
-      jenis_kategori: hasil.jenis_kategori || "-",
-      jenis_discount: hasil.jenis_discount || "-",
-      nominal_discount: hasil.nominal_discount || "-",
-    };
     this.state.isEdit
       ? AxiosMasterPut(
           "kategori/update-diskon/" + hasil.jenis_kategori || "-",

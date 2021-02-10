@@ -205,11 +205,11 @@ class MasterKendaraan extends React.Component {
           <li className="breadcrumb-item">
             <Link to="#">Data Master</Link>
           </li>
-          <li className="breadcrumb-item active">Master Kategori</li>
+          <li className="breadcrumb-item active">Master Merk Kendaraan</li>
         </ol>
-        <h1 className="page-header">Master Kategori </h1>
+        <h1 className="page-header">Master Merk Kendaraan </h1>
         <Panel>
-          <PanelHeader>Master Kategori</PanelHeader>
+          <PanelHeader>Master Merk Kendaraan</PanelHeader>
           <PanelBody>
             <br />
             {/* Master Kategori */}

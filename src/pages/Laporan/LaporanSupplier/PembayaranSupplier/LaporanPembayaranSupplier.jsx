@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { AxiosMasterGet } from "../../../../axios";
 import { getToday } from "../../../../components/notification/function";
+import { NotifError } from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
@@ -20,7 +21,7 @@ class LaporanPembayaranSupplier extends Component {
   handleSubmit(data) {
     AxiosMasterGet(
       "laporan/supplier/lap-bayar-hutang-supplier/" +
-        `${"SEMUA"}&${data.tanggal_awal}&${data.tanggal_akhir}`
+        `${data.kode_supplier}&${data.tanggal_awal}&${data.tanggal_akhir}`
     )
       .then((res) =>
         this.setState({
@@ -28,14 +29,18 @@ class LaporanPembayaranSupplier extends Component {
         })
       )
       .then(() =>
-        CetakPembayaranSupplier(
-          data.kode_supplier || "SEMUA",
-          getToday(),
-          "ADMIN",
-          getToday(),
-          "ADMIN",
-          this.state.hasilLaporan
-        )
+        this.state.hasilLaporan !== []
+          ? CetakPembayaranSupplier(
+              data.kode_supplier || "SEMUA",
+              getToday(),
+              "ADMIN",
+              getToday(),
+              "ADMIN",
+              this.state.hasilLaporan
+            )
+          : NotifError("Data Kosong").then(() => {
+              return false;
+            })
       );
   }
   render() {
@@ -53,7 +58,9 @@ class LaporanPembayaranSupplier extends Component {
         <Panel>
           <PanelHeader>Laporan Pembayaran Supplier</PanelHeader>
           <PanelBody>
-            <HeadLaporanPembayaranSupplier />
+            <HeadLaporanPembayaranSupplier
+              onSubmit={(data) => this.handleSubmit(data)}
+            />
           </PanelBody>
         </Panel>
       </div>

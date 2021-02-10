@@ -33,7 +33,7 @@ const Menu = [
         ],
       },
       { path: "master-satuan", title: "Satuan" },
-      { path: "master-kwalitas", title: "Kwalitas" },
+      { path: "master-kualitas", title: "Kualitas" },
       { path: "master-ukuran", title: "Ukuran" },
       { path: "master-warna", title: "Warna" },
       {
@@ -171,6 +171,10 @@ const Menu = [
           },
           { path: "laporan-return-supplier", title: "Laporan Retur Supplier" },
           { path: "laporan-hutang-supplier", title: "Laporan Hutang Supplier" },
+          {
+            path: "laporan-kartu-hutang-supplier",
+            title: "Laporan Kartu Hutang Supplier",
+          },
           // { path: "#", title: "Laporan Omset Supplier" },
           {
             path: "laporan-pembayaran-supplier",
