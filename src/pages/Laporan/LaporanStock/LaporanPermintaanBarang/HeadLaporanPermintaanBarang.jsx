@@ -12,6 +12,7 @@ class HeadLaporanPermintaan extends Component {
     super(props);
     this.state = {};
   }
+
   render() {
     return (
       <div className="row">

@@ -5,12 +5,6 @@ import {
   PanelBody,
   PanelHeader,
 } from "../../../components/panel/panel.jsx";
-import BootstrapTable from "react-bootstrap-table-next";
-import ToolkitProvider, {
-  Search,
-  CSVExport,
-} from "react-bootstrap-table2-toolkit";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import {
@@ -31,10 +25,8 @@ import {
   AxiosMasterPost,
   AxiosMasterPut,
 } from "../../../axios.js";
+import Tabel from "../../../components/Tabel/tabel.jsx";
 const FormModalSupplier = lazy(() => import("./FormModalSupplier.jsx"));
-
-const { SearchBar } = Search;
-const { ExportCSVButton } = CSVExport;
 
 const maptostate = (state) => {
   return {
@@ -197,6 +189,7 @@ class MasterSupplier extends React.Component {
     });
   }
   handleSubmit(hasil) {
+    let type = hasil.type_pembayaran === "cash" ? true : false;
     let data = {
       kode_supplier: hasil.kode_supplier || "-",
       nama_supplier: hasil.nama_supplier || "-",
@@ -205,9 +198,9 @@ class MasterSupplier extends React.Component {
       telepon: hasil.telepon || "-",
       alamat: hasil.alamat || "-",
       kota: hasil.kota || "-",
-      pembayaran_cash: hasil.cash || "-",
-      pembayaran_kredit: hasil.kredit || "-",
-      hari: hasil.tanggal_pembayaran || "-",
+      pembayaran_cash: type || "-",
+      pembayaran_kredit: type || "-",
+      hari: hasil.tanggal_pembayaran || 0,
       kode_pos: hasil.kode_pos || "-",
       email: hasil.email || "-",
       bank: hasil.nama_bank || "-",
@@ -224,9 +217,9 @@ class MasterSupplier extends React.Component {
       telepon: hasil.telepon || "-",
       alamat: hasil.alamat || "-",
       kota: hasil.kota || "-",
-      pembayaran_cash: hasil.cash || "-",
-      pembayaran_kredit: hasil.kredit || "-",
-      hari: hasil.tanggal_pembayaran || "-",
+      pembayaran_cash: type || "-",
+      pembayaran_kredit: type || "-",
+      hari: hasil.tanggal_pembayaran || 0,
       kode_pos: hasil.kode_pos || "-",
       email: hasil.email || "-",
       bank: hasil.nama_bank || "-",
@@ -256,9 +249,10 @@ class MasterSupplier extends React.Component {
           .then(() => this.props.dispatch(reset("dataBarang")))
           .then(() => this.props.dispatch(hideModal()))
           .then(() => this.props.dispatch(getSupplier()))
-          .catch(() =>
+          .catch((err) =>
             NotifError(
-              "Sepertinya ada gangguan, Mohon ulang beberapa saat lagi"
+              "Sepertinya ada gangguan, Mohon ulang beberapa saat lagi\n" +
+                `${err && err.response && err.response.data}`
             )
           );
   }
@@ -279,46 +273,15 @@ class MasterSupplier extends React.Component {
             <br />
             {/* Master Kategori */}
             <div className="col-lg-12">
-              <ToolkitProvider
+              <Tabel
                 keyField="kode_supplier"
                 data={this.props.listsupplier || []}
                 columns={this.state.columns}
-                search
-                exportCSV={{
-                  fileName: "Export Master Kategori.csv",
-                }}
-              >
-                {(props) => (
-                  <div className="row">
-                    <div className="col-6">
-                      <button
-                        onClick={() => this.tambahModal()}
-                        className="btn btn-primary"
-                      >
-                        Tambah Data
-                        <i className="fa fa-plus ml-3"></i>
-                      </button>
-                    </div>
-                    <div className="col-6">
-                      <div className="text-right">
-                        <SearchBar {...props.searchProps} />
-                      </div>
-                    </div>
-                    <hr />
-                    <div className="col-12">
-                      <BootstrapTable
-                        pagination={paginationFactory()}
-                        {...props.baseProps}
-                        expandRow={expandRow}
-                      />
-                      <br />
-                      <ExportCSVButton {...props.csvProps}>
-                        Export CSV!!
-                      </ExportCSVButton>
-                    </div>
-                  </div>
-                )}
-              </ToolkitProvider>
+                expandRow={expandRow}
+                CSVExport
+                tambahData={true}
+                handleClick={() => this.tambahModal()}
+              />
             </div>
             <br />
             {/* End Master Kategori */}

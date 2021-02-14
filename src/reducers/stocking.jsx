@@ -3,11 +3,13 @@ import {
   GET_KONVERSI_BARANG_TEMP,
   GET_KUNCI_BARANG_TEMP,
   GET_PENGELUARAN_BARANG_SELECTED,
+  GET_PENGELUARAN_BARANG_TEMP,
   GET_PERMINTAAN_TEMP,
 } from "../actions/stocking_action";
 
 const initialState = {
   permintaan_temp: false,
+  pengeluaran: false,
   pengeluaran_selected: false,
   konversi_temp: false,
   hancur_temp: false,
@@ -21,6 +23,10 @@ const stocking = (state = initialState, actions) => {
       return {
         ...state,
         permintaan_temp: actions.payload.data,
+      };
+    case GET_PENGELUARAN_BARANG_TEMP:
+      return {
+        pengeluaran: actions.payload.data,
       };
     case GET_PENGELUARAN_BARANG_SELECTED:
       return {

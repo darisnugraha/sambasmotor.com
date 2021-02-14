@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, lazy } from "react";
 import { Link } from "react-router-dom";
 import { Panel, PanelBody, PanelHeader } from "../../../components/panel/panel";
 import ModalGlobal from "../../ModalGlobal";
@@ -7,15 +7,18 @@ import { simpanLocal } from "../../../config/Helper";
 import { getListReturnSupplier } from "../../../actions/transaksi_action";
 import { connect } from "react-redux";
 import CetakNota from "../../Stoking/CetakNota";
-import HeadReturnSupplier from "../ReturnSupplier/HeadReturnSupplier";
-import ModalReturnSupplier from "./ModalReturnSupplier";
 import {
+  getUserData,
   NotifError,
   NotifSucces,
 } from "../../../components/notification/notification";
 import { AxiosMasterGet, AxiosMasterPost } from "../../../axios";
 import { multipleDeleteLocal } from "../../../components/notification/function";
 
+const HeadReturnSupplier = lazy(() =>
+  import("../ReturnSupplier/HeadReturnSupplier")
+);
+const ModalReturnSupplier = lazy(() => import("./ModalReturnSupplier"));
 const maptostate = (state) => {
   return {
     listreturnsupplier: state.transaksi.listreturnsupplier,
@@ -30,6 +33,7 @@ class SupplierPenerimaan extends Component {
 
   componentDidMount() {
     this.props.dispatch(getListReturnSupplier());
+    this.getKodeReturn();
   }
   handleHead(hasil) {
     let data = {
@@ -46,6 +50,7 @@ class SupplierPenerimaan extends Component {
     // return false;
     // INISIALISASI AUTOTABLE
     const tableRows = [];
+    const footerRows = [];
     let table = JSON.parse(localStorage.getItem("ReturnSupplier_temp"));
     table.forEach((data, i) => {
       const rows = [
@@ -57,8 +62,8 @@ class SupplierPenerimaan extends Component {
         data.type,
         data.satuan,
         data.qty,
-        data.harga_satuan,
-        data.total,
+        parseFloat(data.harga_satuan).toLocaleString("id-ID"),
+        parseFloat(data.total).toLocaleString("id-ID"),
       ];
       tableRows.push(rows);
     });
@@ -72,9 +77,11 @@ class SupplierPenerimaan extends Component {
       "",
       "",
       "TOTAL TAGIHAN",
-      table.map((data) => data.total).reduce((a, b) => a + b, 0),
+      parseFloat(
+        table.map((data) => data.total).reduce((a, b) => a + b, 0)
+      ).toLocaleString("id-ID"),
     ];
-    tableRows.push(footer);
+    footerRows.push(footer);
     let columnTabel = [
       "NO",
       "BARCODE",
@@ -92,20 +99,21 @@ class SupplierPenerimaan extends Component {
       .then(() => NotifSucces("Berhasil"))
       .then(() =>
         CetakNota(
-          "NO TERIMA",
-          "TERIMA0001",
+          "NO RETURN",
+          hasil.kode_return,
           "TANGGAL",
-          "02-02-2021",
+          hasil.tanggal,
           "NO BON",
-          "MB01282021-0001",
+          hasil.no_bon,
           "SUPP",
-          "PANCA JAYA",
-          "ADMIN",
+          hasil.kode_supplier,
+          getUserData().user_name,
           "01-28-2021",
-          "ADMIN",
+          getUserData().user_name,
           columnTabel,
           "BUKTI RETURN BARANG SUPPLIER",
           tableRows,
+          footerRows,
           true
         )
       )

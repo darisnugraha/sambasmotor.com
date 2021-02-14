@@ -1,11 +1,55 @@
 import React, { Component } from "react";
 import { Field, reduxForm } from "redux-form";
+import { AxiosMasterGet } from "../../../axios";
 import {
   ReanderField,
   ReanderSelect,
 } from "../../../components/notification/notification";
 
+const validate = (values) => {
+  const errors = {};
+  if (parseInt(values.qty) > parseInt(values.stock)) {
+    errors.qty = "Tidak Boleh Melebihi Stock";
+  }
+  return errors;
+};
 class ModalHancurBarang extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      listSupplier: [],
+    };
+  }
+  getBarcode(e) {
+    let lokasi_hancur = localStorage.getItem("lokasi_hancur") || "";
+    AxiosMasterGet(
+      "hancur-barang/get/BarangByBarcodeLokasi/" +
+        `${e.target.value}&${lokasi_hancur}`
+    ).then((res) => this.setBarang(res.data));
+  }
+  setBarang(res) {
+    console.log(res);
+    this.props.change("kode_barang", res[0].kode_barang);
+    this.props.change("nama_barang", res[0].nama_barang);
+    this.props.change("merk", res[0].merk_barang);
+    this.props.change("kwalitas", res[0].kwalitas);
+    this.props.change("satuan", res[0].satuan);
+    this.setState({
+      listSupplier:
+        res &&
+        res[0].data_supplier.map((list) => {
+          let data = {
+            value: `${list.kode_supplier}||${list.stock}`,
+            name: list.nama_supplier,
+          };
+          return data;
+        }),
+    });
+  }
+  setStock(hasil) {
+    let data = hasil.split("||");
+    this.props.change("stock", data[1]);
+  }
   render() {
     return (
       <div>
@@ -19,6 +63,18 @@ class ModalHancurBarang extends Component {
                   type="text"
                   label="Kode Barcode"
                   placeholder="Masukan Kode Barcode"
+                  onChange={(e) => this.getBarcode(e)}
+                  onBlur={(e) => this.getBarcode(e)}
+                />
+              </div>
+              <div className="col-lg-3 d-none">
+                <Field
+                  name="kode_barang"
+                  component={ReanderField}
+                  type="text"
+                  label="Nama Barang"
+                  placeholder="Masukan Nama Barang"
+                  readOnly
                 />
               </div>
               <div className="col-lg-3">
@@ -28,6 +84,7 @@ class ModalHancurBarang extends Component {
                   type="text"
                   label="Nama Barang"
                   placeholder="Masukan Nama Barang"
+                  readOnly
                 />
               </div>
               <div className="col-lg-3">
@@ -37,29 +94,16 @@ class ModalHancurBarang extends Component {
                   type="text"
                   label="Merk"
                   placeholder="Masukan Merk"
+                  readOnly
                 />
               </div>
               <div className="col-lg-3">
                 <Field
                   name="kwalitas"
-                  component={ReanderSelect}
-                  options={[
-                    { value: "KWALITAS01", name: "KWALITAS 01" },
-                    { value: "KWALITAS02", name: "KWALITAS 02" },
-                    { value: "KWALITAS03", name: "KWALITAS 03" },
-                    { value: "KWALITAS04", name: "KWALITAS 04" },
-                  ]}
+                  component={ReanderField}
                   label="Kwalitas"
                   placeholder="Masukan Kwalitas"
-                />
-              </div>
-              <div className="col-lg-3">
-                <Field
-                  name="type"
-                  component={ReanderField}
-                  type="text"
-                  label="Type"
-                  placeholder="Masukan Type"
+                  readOnly
                 />
               </div>
               <div className="col-lg-3">
@@ -69,9 +113,31 @@ class ModalHancurBarang extends Component {
                   type="text"
                   label="Satuan"
                   placeholder="Masukan Satuan"
+                  readOnly
                 />
               </div>
               <div className="col-lg-3">
+                <Field
+                  name="kode_supplier"
+                  component={ReanderSelect}
+                  options={this.state.listSupplier}
+                  type="text"
+                  label="Kode Supplier"
+                  placeholder="Masukan Kode Supplier"
+                  onChange={(e) => this.setStock(e)}
+                />
+              </div>
+              <div className="col-lg-2">
+                <Field
+                  name="stock"
+                  component={ReanderField}
+                  type="text"
+                  label="Stock"
+                  placeholder="Masukan Stock"
+                  readOnly
+                />
+              </div>
+              <div className="col-lg-2">
                 <Field
                   name="qty"
                   component={ReanderField}
@@ -80,7 +146,7 @@ class ModalHancurBarang extends Component {
                   placeholder="Masukan Qty"
                 />
               </div>
-              <div className="col-lg-3">
+              <div className="col-lg-2">
                 <Field
                   name="kondisi"
                   component={ReanderField}
@@ -107,5 +173,6 @@ class ModalHancurBarang extends Component {
 ModalHancurBarang = reduxForm({
   form: "ModalHancurBarang",
   enableReinitialize: true,
+  validate: validate,
 })(ModalHancurBarang);
 export default ModalHancurBarang;

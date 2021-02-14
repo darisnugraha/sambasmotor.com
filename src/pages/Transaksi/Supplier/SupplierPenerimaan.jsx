@@ -1,10 +1,8 @@
-import React, { Component } from "react";
+import React, { Component, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { Panel, PanelBody, PanelHeader } from "../../../components/panel/panel";
 import HeadSupplierPenerimaan from "./HeadSupplierPenerimaan";
-
 import ModalGlobal from "../../ModalGlobal";
-import ModalSupplierPenerimaan from "./ModalSupplierPenerimaan";
 import { reduxForm, reset } from "redux-form";
 import { simpanLocal } from "../../../config/Helper";
 import { getListTerimaSupplier } from "../../../actions/transaksi_action";
@@ -12,11 +10,16 @@ import { connect } from "react-redux";
 import CetakNota from "../../Stoking/CetakNota";
 import { AxiosMasterGet, AxiosMasterPost } from "../../../axios";
 import {
+  getUserData,
   NotifError,
   NotifSucces,
 } from "../../../components/notification/notification";
 import { multipleDeleteLocal } from "../../../components/notification/function";
+import Skeleton from "react-loading-skeleton";
+import { showModal } from "../../../actions/datamaster_action";
+import ModalBayarSupplierPenerimaan from "./ModalBayarSupplierPenerimaan";
 
+const ModalSupplierPenerimaan = lazy(() => import("./ModalSupplierPenerimaan"));
 const maptostate = (state) => {
   return {
     listterimasupplier: state.transaksi.listterimasupplier,
@@ -26,17 +29,25 @@ const maptostate = (state) => {
 class SupplierPenerimaan extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      bayar: false,
+    };
   }
 
   componentDidMount() {
     this.props.dispatch(getListTerimaSupplier());
+    this.getKodePenerimaan();
   }
   handleHead(hasil) {
-    if (hasil.tunai === undefined && hasil.kredit === undefined) {
-      NotifError("Mohon Isi Jenis Bayar Cash Atau Transfer");
+    if (localStorage.getItem("type_pembayaran") === "true") {
+      this.setState({
+        bayar: true,
+      });
+      this.props.dispatch(showModal());
+      return false;
     } else if (localStorage.getItem("PenerimaanSupplier_temp_kirim") === null) {
       NotifError("Data Barang Masih Kosong, Mohon isi barang dulu");
+      return false;
     } else {
       let data = {
         no_terima: hasil.kode_terima,
@@ -55,6 +66,7 @@ class SupplierPenerimaan extends Component {
 
       // INISIALISASI AUTOTABLE
       const tableRows = [];
+      const footerRows = [];
       let table = JSON.parse(localStorage.getItem("PenerimaanSupplier_temp"));
       table.forEach((data, i) => {
         const rows = [
@@ -66,8 +78,8 @@ class SupplierPenerimaan extends Component {
           data.type,
           data.satuan,
           data.qty,
-          data.harga_satuan,
-          data.total,
+          parseFloat(data.harga_satuan).toLocaleString("id-ID"),
+          parseFloat(data.total).toLocaleString("id-ID"),
         ];
         tableRows.push(rows);
       });
@@ -81,9 +93,11 @@ class SupplierPenerimaan extends Component {
         "",
         "",
         "TOTAL TAGIHAN",
-        table.map((data) => data.total).reduce((a, b) => a + b, 0),
+        parseFloat(
+          table.map((data) => data.total).reduce((a, b) => a + b, 0)
+        ).toLocaleString("id-ID"),
       ];
-      tableRows.push(footer);
+      footerRows.push(footer);
       let columnTabel = [
         "NO",
         "BARCODE",
@@ -103,19 +117,20 @@ class SupplierPenerimaan extends Component {
         .then(() =>
           CetakNota(
             "NO TERIMA",
-            "TERIMA0001",
+            hasil.kode_terima,
             "TANGGAL",
-            "02-02-2021",
+            hasil.tanggal_invoice,
             "NO BON",
-            "MB01282021-0001",
+            hasil.no_bon,
             "SUPP",
-            "PANCA JAYA",
-            "ADMIN",
+            hasil.kode_supplier,
+            getUserData().user_name,
             "01-28-2021",
-            "ADMIN",
+            getUserData().user_name,
             columnTabel,
             "BUKTI PENERIMAAN BARANG SUPPLIER",
             tableRows,
+            footerRows,
             true
           )
         )
@@ -137,7 +152,12 @@ class SupplierPenerimaan extends Component {
         .catch((err) => NotifError(err.response.data));
     }
   }
-
+  showTambah() {
+    this.setState({
+      bayar: false,
+    });
+    this.props.dispatch(showModal());
+  }
   getKodePenerimaan() {
     AxiosMasterGet("terima-barang-supplier/generate/no-trx").then((res) =>
       localStorage.setItem("penerimaan_kode_terima", res.data[0].no_terima)
@@ -211,6 +231,127 @@ class SupplierPenerimaan extends Component {
         .then(() => this.props.dispatch(getListTerimaSupplier()));
     }
   }
+  handleCash(hasil) {
+    if (localStorage.getItem("PenerimaanSupplier_temp_kirim") === null) {
+      NotifError("Data Barang Masih Kosong, Mohon isi barang dulu");
+      return false;
+    } else {
+      let data = {
+        no_terima: localStorage.getItem("kode_permintaan_barang"),
+        tanggal_terima: localStorage.getItem("penerimaan_tanggal_barang"),
+        no_bon: localStorage.getItem("penerimaan_no_bon"),
+        tanggal_bon: localStorage.getItem("penerimaan_tanggal_invoice"),
+        kode_supplier: localStorage.getItem("penerimaan_kode_supplier"),
+        pembayaran_cash:
+          localStorage.getItem("type_pembayaran") === "true"
+            ? true
+            : false || false,
+        pembayaran_kredit:
+          localStorage.getItem("type_pembayaran") === "true"
+            ? false
+            : true || false,
+        keterangan: localStorage.getItem("penerimaan_keterangan"),
+        diskon_rp: localStorage.getItem("penerimaan_discount"),
+        cash_rp: hasil.cash || 0,
+        transfer_rp: hasil.transfer || 0,
+        no_ac_asal: hasil.no_ac_asal.toString() || "-",
+        no_ac_tujuan: hasil.no_ac_tujuan || "-",
+        detail_barang:
+          JSON.parse(localStorage.getItem("PenerimaanSupplier_temp_kirim")) ||
+          [],
+        detail_bayar_retur:
+          JSON.parse(localStorage.getItem("list_return")) || [],
+      };
+      console.log(JSON.stringify(data));
+      // INISIALISASI AUTOTABLE
+      const tableRows = [];
+      const footerRows = [];
+      let table = JSON.parse(localStorage.getItem("PenerimaanSupplier_temp"));
+      table.forEach((data, i) => {
+        const rows = [
+          ++i,
+          data.kode_barcode,
+          data.nama_barang,
+          data.merk,
+          data.kwalitas,
+          data.type,
+          data.satuan,
+          data.qty,
+          parseFloat(data.harga_satuan).toLocaleString("id-ID"),
+          parseFloat(data.total).toLocaleString("id-ID"),
+        ];
+        tableRows.push(rows);
+      });
+      const footer = [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "TOTAL TAGIHAN",
+        parseFloat(
+          table.map((data) => data.total).reduce((a, b) => a + b, 0)
+        ).toLocaleString("id-ID"),
+      ];
+      footerRows.push(footer);
+      let columnTabel = [
+        "NO",
+        "BARCODE",
+        "JENIS BARANG",
+        "MERK",
+        "KW",
+        "TYPE",
+        "SATUAN",
+        "QTY",
+        "HARGA SATUAN",
+        "TOTAL",
+      ];
+      // INISIALISASI SELESAI -> PANGGIL AXIOS DAN PANGGIL PRINT SAAT AXIOS BERHASIL
+
+      AxiosMasterPost("terima-barang-supplier/post-transaksi-tunai", data)
+        .then(() => NotifSucces("Berhasil"))
+        .then(() =>
+          CetakNota(
+            "NO TERIMA",
+            hasil.kode_terima,
+            "TANGGAL",
+            hasil.tanggal_invoice,
+            "NO BON",
+            hasil.no_bon,
+            "SUPP",
+            hasil.kode_supplier,
+            getUserData().user_name,
+            "01-28-2021",
+            getUserData().user_name,
+            columnTabel,
+            "BUKTI PENERIMAAN BARANG SUPPLIER",
+            tableRows,
+            footerRows,
+            true
+          )
+        )
+        .then(() =>
+          multipleDeleteLocal([
+            "PenerimaanSupplier_temp",
+            "PenerimaanSupplier_temp_kirim",
+            "penerimaan_keterangan",
+            "penerimaan_kode_supplier",
+            "penerimaan_no_bon",
+            "penerimaan_kode_terima",
+            "penerimaan_tanggal_barang",
+            "penerimaan_tanggal_invoice",
+            "penerimaan_discount",
+          ])
+        )
+        .then(() => this.props.dispatch(reset("HeadSupplierPenerimaan")))
+        .then(() => this.getKodePenerimaan())
+        .then(() => window.location.reload())
+        .catch((err) => NotifError(err.response.data));
+    }
+  }
   render() {
     return (
       <div>
@@ -232,6 +373,7 @@ class SupplierPenerimaan extends Component {
                     onSubmit={(data) => this.handleHead(data)}
                     listterimasupplier={this.props.listterimasupplier}
                     sub_total={this.props.sub_total}
+                    showTambah={() => this.showTambah()}
                   />
                 </div>
                 <br />
@@ -241,11 +383,23 @@ class SupplierPenerimaan extends Component {
             </Panel>
             <ModalGlobal
               content={
-                <ModalSupplierPenerimaan
-                  onSubmit={(data) => this.handleModal(data)}
-                />
+                <Suspense fallback={<Skeleton width={"100%"} height={300} />}>
+                  {this.state.bayar ? (
+                    <ModalBayarSupplierPenerimaan
+                      onSubmit={(data) => this.handleCash(data)}
+                    />
+                  ) : (
+                    <ModalSupplierPenerimaan
+                      onSubmit={(data) => this.handleModal(data)}
+                    />
+                  )}
+                </Suspense>
               }
-              title="Tambah Barang Penerimaan Supplier"
+              title={
+                this.state.bayar
+                  ? "Pembayaran Cash"
+                  : "Tambah Barang Penerimaan Supplier"
+              }
             />
           </div>
         </div>

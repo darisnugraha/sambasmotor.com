@@ -2,12 +2,66 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
 import { showModal } from "../../../actions/datamaster_action";
+import { AxiosMasterGet } from "../../../axios";
 import {
   ReanderField,
   ReanderSelect,
 } from "../../../components/notification/notification";
 
+const maptostate = (state) => {
+  return {
+    initialValues: {
+      no_pindah: localStorage.getItem("no_pindah") || "",
+    },
+  };
+};
 class HeadKonversiBarang extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      listLokasi: [],
+      listSupplier: [],
+    };
+  }
+  componentDidMount() {
+    AxiosMasterGet("lokasi-gudang/get/all").then((res) =>
+      this.setState({
+        listLokasi: res.data.map((list) => {
+          let data = {
+            value: list.kode_lokasi_gudang,
+            name: `${list.nama_lokasi_gudang} - (${list.kode_lokasi_gudang})`,
+          };
+          return data;
+        }),
+      })
+    );
+    AxiosMasterGet("supplier/get/all").then((res) =>
+      this.setState({
+        listSupplier: res.data.map((list) => {
+          let data = {
+            value: list.kode_supplier,
+            name: `${list.nama_supplier} - (${list.kode_supplier})`,
+          };
+          return data;
+        }),
+      })
+    );
+    AxiosMasterGet("konversi-barang/generate/no-trx").then((res) =>
+      this.props.change("no_pindah", res.data[0].no_pindah)
+    );
+  }
+  setLokasi(e) {
+    this.setState({
+      lokasi_pilihan: e,
+    });
+    localStorage.setItem("lokasi_pilihan", e);
+  }
+  setSupplier(e) {
+    this.setState({
+      supplier_pilihan: e,
+    });
+    localStorage.setItem("supplier_pilihan", e);
+  }
   render() {
     return (
       <div>
@@ -20,6 +74,7 @@ class HeadKonversiBarang extends Component {
                 type="text"
                 label="Nomor Pindah"
                 placeholder="Masukan Nomor Pindah"
+                readOnly
               />
             </div>
             <div className="col-lg-3">
@@ -35,14 +90,20 @@ class HeadKonversiBarang extends Component {
               <Field
                 name="lokasi"
                 component={ReanderSelect}
-                options={[
-                  { value: "LOKASI001", name: "LOKASI 1" },
-                  { value: "LOKASI002", name: "LOKASI 2" },
-                  { value: "LOKASI003", name: "LOKASI 3" },
-                  { value: "LOKASI004", name: "LOKASI 4" },
-                ]}
+                options={this.state.listLokasi}
                 label="LOKASI"
                 placeholder="PILIH LOKASI"
+                onChange={(e) => this.setLokasi(e)}
+              />
+            </div>
+            <div className="col-lg-3">
+              <Field
+                name="supplier"
+                component={ReanderSelect}
+                options={this.state.listSupplier}
+                label="SUPPLIER"
+                placeholder="PILIH SUPPLIER"
+                onChange={(e) => this.setSupplier(e)}
               />
             </div>
           </div>
@@ -61,6 +122,13 @@ class HeadKonversiBarang extends Component {
                     type="button"
                     className="btn btn-warning"
                     onClick={() => this.props.dispatch(showModal())}
+                    disabled={
+                      this.state.lokasi_pilihan
+                        ? this.state.supplier_pilihan
+                          ? false
+                          : true
+                        : true
+                    }
                   >
                     Tambah Barang <i className="fa fa-plus ml-3"></i>
                   </button>
@@ -77,4 +145,4 @@ HeadKonversiBarang = reduxForm({
   form: "permintaanBarang",
   enableReinitialize: true,
 })(HeadKonversiBarang);
-export default connect()(HeadKonversiBarang);
+export default connect(maptostate, null)(HeadKonversiBarang);

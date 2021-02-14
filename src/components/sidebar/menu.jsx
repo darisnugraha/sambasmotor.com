@@ -29,7 +29,7 @@ const Menu = [
         children: [
           { path: "master-gudang", title: "Gudang" },
           { path: "master-rak", title: "Rak" },
-          { path: "master-selfing", title: "Selfing" },
+          { path: "master-selfing", title: "Shelving" },
         ],
       },
       { path: "master-satuan", title: "Satuan" },

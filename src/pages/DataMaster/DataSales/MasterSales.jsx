@@ -5,12 +5,6 @@ import {
   PanelBody,
   PanelHeader,
 } from "../../../components/panel/panel.jsx";
-import BootstrapTable from "react-bootstrap-table-next";
-import ToolkitProvider, {
-  Search,
-  CSVExport,
-} from "react-bootstrap-table2-toolkit";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import {
@@ -33,10 +27,8 @@ import {
 } from "../../../axios.js";
 import { reset } from "redux-form";
 import { parseIsoDatetime } from "../../../components/notification/function.jsx";
+import Tabel from "../../../components/Tabel/tabel.jsx";
 const FormModalSales = lazy(() => import("./FormModalSales.jsx"));
-
-const { SearchBar } = Search;
-const { ExportCSVButton } = CSVExport;
 
 const maptostate = (state) => {
   return {
@@ -106,10 +98,6 @@ class MasterSales extends React.Component {
           dataField: "tgl_keluar",
           text: "Tanggal Keluar",
           formatter: (data) => parseIsoDatetime(data),
-        },
-        {
-          dataField: "status_aktif",
-          text: "Status Aktif",
         },
         {
           dataField: "action",
@@ -263,45 +251,14 @@ class MasterSales extends React.Component {
             <br />
             {/* Master Kategori */}
             <div className="col-lg-12">
-              <ToolkitProvider
-                keyField="kode_kategori"
+              <Tabel
+                keyField="kode_pegawai"
                 data={this.props.listsales || []}
                 columns={this.state.columns}
-                search
-                exportCSV={{
-                  fileName: "Export Master Kategori.csv",
-                }}
-              >
-                {(props) => (
-                  <div className="row">
-                    <div className="col-6">
-                      <button
-                        onClick={() => this.tambahModal()}
-                        className="btn btn-primary"
-                      >
-                        Tambah Data
-                        <i className="fa fa-plus ml-3"></i>
-                      </button>
-                    </div>
-                    <div className="col-6">
-                      <div className="text-right">
-                        <SearchBar {...props.searchProps} />
-                      </div>
-                    </div>
-                    <hr />
-                    <div className="col-12">
-                      <BootstrapTable
-                        pagination={paginationFactory()}
-                        {...props.baseProps}
-                      />
-                      <br />
-                      <ExportCSVButton {...props.csvProps}>
-                        Export CSV!!
-                      </ExportCSVButton>
-                    </div>
-                  </div>
-                )}
-              </ToolkitProvider>
+                CSVExport
+                tambahData={true}
+                handleClick={() => this.tambahModal()}
+              />
             </div>
             <br />
             {/* End Master Kategori */}

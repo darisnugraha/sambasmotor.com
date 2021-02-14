@@ -134,17 +134,17 @@ class FormModalSales extends Component {
               placeholder="Masukan Tanggal Keluar"
             />
           </div>
-          <div className="col-lg-6">
+          {/* <div className="col-lg-6">
             <Field
               name="status_aktif"
               component={ReanderSelect}
               options={[
                 {
-                  value: true,
+                  value: "true",
                   name: "AKTIF",
                 },
                 {
-                  value: false,
+                  value: "false",
                   name: "NON-AKTIF",
                 },
               ]}
@@ -152,7 +152,7 @@ class FormModalSales extends Component {
               label="Status Aktif"
               placeholder="Masukan Status Aktif"
             />
-          </div>
+          </div> */}
         </div>
         <div className="col-lg-12">
           <button className="btn btn-primary" disabled={this.props.onSend}>

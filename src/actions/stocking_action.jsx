@@ -54,22 +54,27 @@ export const getKunciBarang = () => {
   };
 };
 
-export const getPengeluaranBarang = () => {
+export const getPengeluaranBarang = (kode) => {
   return (dispatch) => {
-    AxiosMasterGet("linknya")
-      .then((res) =>
+    AxiosMasterGet("pengeluaran-barang/get/FakturByNoPermintaan/" + kode)
+      .then((res) => {
+        let data = res.data;
+        let arrayBaru = [];
+        for (let i = 0; i < data.length; i++) {
+          arrayBaru.push(data[i].detail);
+        }
         dispatch({
           type: GET_PENGELUARAN_BARANG_TEMP,
           payload: {
-            data: res.data,
+            data: arrayBaru,
           },
-        })
-      )
+        });
+      })
       .catch((err) => console.log(err));
   };
 };
 export const getPengeluaranBarangSelected = () => {
-  let data = JSON.parse(localStorage.getItem("FakturTerpilih")) || [];
+  let data = JSON.parse(localStorage.getItem("FakturTerpilih_detail")) || [];
   return (dispatch) => {
     dispatch({
       type: GET_PENGELUARAN_BARANG_SELECTED,
@@ -79,3 +84,18 @@ export const getPengeluaranBarangSelected = () => {
     });
   };
 };
+
+// export const getPengeluaranBarang = (kode) => {
+//   return (dispatch) => {
+//     AxiosMasterGet("pengeluaran-barang/get/FakturByNoPermintaan/" + kode)
+//       .then((res) =>
+//         dispatch({
+//           type: GET_PENGELUARAN_BARANG_TEMP,
+//           payload: {
+//             data: res.data,
+//           },
+//         })
+//       )
+//       .catch((err) => console.log(err));
+//   };
+// };

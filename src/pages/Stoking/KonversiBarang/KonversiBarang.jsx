@@ -1,11 +1,5 @@
 import React, { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-import BootstrapTable from "react-bootstrap-table-next";
-import ToolkitProvider, {
-  Search,
-  CSVExport,
-} from "react-bootstrap-table2-toolkit";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import Skeleton from "react-loading-skeleton";
@@ -20,31 +14,17 @@ import HeadKonversiBarang from "./HeadKonversiBarang.jsx";
 import { hideModal } from "../../../actions/datamaster_action.jsx";
 import CetakNota from "../CetakNota.jsx";
 import { getKonversiTemp } from "../../../actions/stocking_action.jsx";
+import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
+import Tabel from "../../../components/Tabel/tabel.jsx";
+import { multipleDeleteLocal } from "../../../components/notification/function.jsx";
+import { reset } from "redux-form";
 
 const ModalKonversiBarang = lazy(() => import("./ModalKonversiBarang.jsx"));
-const { SearchBar } = Search;
-const { ExportCSVButton } = CSVExport;
 
 const maptostate = (state) => {
   return {
     konversi_temp: state.stocking.konversi_temp,
   };
-};
-const hapusDataKategori = (params, dispatch) => {
-  Swal.fire({
-    title: "Anda Yakin !!",
-    text: "Ingin Menghapus Data Ini ?",
-    icon: "warning",
-    position: "top-center",
-    cancelButtonText: "Tidak",
-    showCancelButton: true,
-    confirmButtonText: "OK",
-    showConfirmButton: true,
-  }).then((result) => {
-    if (result.isConfirmed) {
-      NotifSucces("Data Berhasil Di Hapus");
-    }
-  });
 };
 class KonversiBarang extends React.Component {
   constructor(props) {
@@ -59,34 +39,34 @@ class KonversiBarang extends React.Component {
           text: "Kode Asal",
           sort: true,
         },
-        {
-          dataField: "nama_barang_asal",
-          text: "Nama Barang",
-        },
+        // {
+        //   dataField: "nama_barang_asal",
+        //   text: "Nama Barang",
+        // },
         {
           dataField: "qty_asal",
           text: "Qty",
         },
-        {
-          dataField: "satuan_asal",
-          text: "Satuan",
-        },
+        // {
+        //   dataField: "satuan_asal",
+        //   text: "Satuan",
+        // },
         {
           dataField: "kode_tujuan",
           text: "Kode Tujuan",
         },
-        {
-          dataField: "nama_barang_tujuan",
-          text: "Nama Barang",
-        },
+        // {
+        //   dataField: "nama_barang_tujuan",
+        //   text: "Nama Barang",
+        // },
         {
           dataField: "qty_tujuan",
           text: "Qty",
         },
-        {
-          dataField: "satuan_tujuan",
-          text: "Satuan",
-        },
+        // {
+        //   dataField: "satuan_tujuan",
+        //   text: "Satuan",
+        // },
 
         {
           dataField: "action",
@@ -116,9 +96,7 @@ class KonversiBarang extends React.Component {
                     <i className="fa fa-edit ml-2"></i>
                   </button>
                   <button
-                    onClick={() =>
-                      hapusDataKategori(row.kodeProvinsi, this.props.dispatch)
-                    }
+                    onClick={() => this.deleteBarang(row)}
                     className="btn btn-danger"
                   >
                     Hapus
@@ -132,9 +110,33 @@ class KonversiBarang extends React.Component {
       ],
     };
   }
-
+  deleteBarang(row) {
+    Swal.fire({
+      title: "Anda Yakin !!",
+      text: "Ingin Menghapus Data Ini ?",
+      icon: "warning",
+      position: "top-center",
+      cancelButtonText: "Tidak",
+      showCancelButton: true,
+      confirmButtonText: "OK",
+      showConfirmButton: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let data =
+          JSON.parse(localStorage.getItem("KonversiBarang_temp")) || [];
+        let hasil = data.findIndex((item) => item.kode_asal === row.kode_asal);
+        data.splice(hasil, 1);
+        localStorage.setItem("KonversiBarang_temp", JSON.stringify(data) || []);
+        // deleteLocalItemBarcode("PermintaanBarang_temp", row.kode_barcode);
+        this.props.dispatch(getKonversiTemp());
+      }
+    });
+  }
   componentDidMount() {
     this.props.dispatch(getKonversiTemp());
+    AxiosMasterGet("konversi-barang/generate/no-trx").then((res) =>
+      localStorage.setItem("no_pindah", res.data[0].no_pindah)
+    );
   }
   handleSubmit(hasil) {
     let array = JSON.parse(localStorage.getItem("KonversiBarang_temp")) || [];
@@ -159,8 +161,10 @@ class KonversiBarang extends React.Component {
     let data = {
       no_pindah: hasil.no_pindah,
       tanggal: hasil.tanggal,
-      lokasi: hasil.lokasi,
-      list_barang: this.props.permintaan_temp,
+      kode_lokasi_gudang: hasil.lokasi,
+      kode_supplier: hasil.supplier,
+      detail_barang:
+        JSON.parse(localStorage.getItem("KonversiBarang_temp")) || [],
     };
     console.log(data);
     // INISIALISASI AUTOTABLE
@@ -170,45 +174,61 @@ class KonversiBarang extends React.Component {
       const rows = [
         ++i,
         data.kode_asal,
-        data.nama_barang_asal,
+        // data.nama_barang_asal,
         data.qty_asal,
-        data.satuan_asal,
+        // data.satuan_asal,
         data.kode_tujuan,
-        data.nama_barang_tujuan,
+        // data.nama_barang_tujuan,
         data.qty_tujuan,
-        data.satuan_tujuan,
+        // data.satuan_tujuan,
       ];
       tableRows.push(rows);
     });
     let columnTabel = [
       "NO",
       "KODE ASAL",
-      "NAMA BARANG",
+      // "NAMA BARANG",
       "QTY",
-      "SAT",
+      // "SAT",
       "KODE TUJUAN",
-      "NAMA BARANG",
+      // "NAMA BARANG",
       "QTY",
-      "SAT",
+      // "SAT",
     ];
     // INISIALISASI SELESAI -> PANGGIL AXIOS DAN PANGGIL PRINT SAAT AXIOS BERHASIL
-    CetakNota(
-      "Tanggal",
-      hasil.tanggal,
-      "",
-      "",
-      "No Bukti",
-      hasil.no_pindah,
-      "",
-      "",
-      "ADMIN",
-      "01-28-2021",
-      "ADMIN",
-      columnTabel,
-      "BUKTI PERMINTAAN BARANG",
-      tableRows,
-      false
-    );
+    AxiosMasterPost("konversi-barang/post-transaksi", data)
+      .then(() =>
+        CetakNota(
+          "Tanggal",
+          hasil.tanggal,
+          "",
+          "",
+          "No Bukti",
+          hasil.no_pindah,
+          "",
+          "",
+          "ADMIN",
+          "01-28-2021",
+          "ADMIN",
+          columnTabel,
+          "BUKTI PERMINTAAN BARANG",
+          tableRows,
+          [],
+          false
+        )
+      )
+      .then(() => NotifSucces("Berhasil Konversi barang"))
+      .then(() =>
+        multipleDeleteLocal([
+          "no_pindah",
+          "lokasi_pilihan",
+          "supplier_pilihan",
+          "KonversiBarang_temp",
+        ])
+      )
+      .then(() => this.props.dispatch(getKonversiTemp()))
+      .then(() => this.props.dispatch(reset("permintaanBarang")))
+      .catch((err) => `Error : ${err}`);
   }
   render() {
     return (
@@ -228,43 +248,17 @@ class KonversiBarang extends React.Component {
               <HeadKonversiBarang onSubmit={(data) => this.sendData(data)} />
             </div>
             {/* Master Kategori */}
-            {this.props.konversi_temp ? (
-              <div className="col-lg-12">
-                <ToolkitProvider
-                  keyField="no_acc"
-                  data={this.props.konversi_temp || []}
-                  columns={this.state.columns}
-                  search
-                  exportCSV={{
-                    fileName: "Export Master Kategori.csv",
-                  }}
-                >
-                  {(props) => (
-                    <div className="row">
-                      <div className="col-6">
-                        <div className="text-left">
-                          <SearchBar {...props.searchProps} />
-                        </div>
-                      </div>
-                      <div className="col-6"></div>
-                      <hr />
-                      <div className="col-12">
-                        <BootstrapTable
-                          pagination={paginationFactory()}
-                          {...props.baseProps}
-                        />
-                        <br />
-                        <ExportCSVButton {...props.csvProps}>
-                          Export CSV!!
-                        </ExportCSVButton>
-                      </div>
-                    </div>
-                  )}
-                </ToolkitProvider>
-              </div>
-            ) : (
-              <Skeleton width={"100%"} height={400} />
-            )}
+
+            <div className="col-lg-12">
+              <Tabel
+                empty={true}
+                data={this.props.konversi_temp}
+                columns={this.state.columns}
+                keyField="kode_asal"
+                textEmpty="Silahkan Lokasi -> lalu pilih Supplier -> lalu tambah barang"
+              />
+            </div>
+
             <br />
             {/* End Master Kategori */}
             <ModalGlobal

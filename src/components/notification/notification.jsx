@@ -6,6 +6,18 @@ import "react-datetime/css/react-datetime.css";
 import { AxiosMasterPut } from "../../axios";
 // import Select from "react-select";
 
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.addEventListener("mouseenter", Swal.stopTimer);
+    toast.addEventListener("mouseleave", Swal.resumeTimer);
+  },
+});
+
 export function NotifSucces(text) {
   return new Promise((resolve, reject) => {
     Swal.fire({
@@ -22,6 +34,17 @@ export function NotifSucces(text) {
       .catch(reject("error"));
   });
 }
+export function ToastSucces(text) {
+  return new Promise((resolve, reject) => {
+    Toast.fire({
+      icon: "success",
+      title: text,
+    })
+      .then(resolve("berhasil"))
+      .catch(reject("error"));
+  });
+}
+
 export function NotifError(text) {
   if (text.includes("Invalid token")) {
     Swal.fire({
@@ -52,6 +75,17 @@ export function NotifError(text) {
     });
   }
 }
+
+export function ToastError(text) {
+  return new Promise((resolve, reject) => {
+    Toast.fire({
+      icon: "error",
+      title: text,
+    })
+      .then(resolve("berhasil"))
+      .catch(reject("error"));
+  });
+}
 export function NotifWarning(text) {
   return new Promise((resolve, reject) => {
     Swal.fire({
@@ -61,6 +95,16 @@ export function NotifWarning(text) {
       position: "top-right",
       timer: 2000,
       showConfirmButton: false,
+    })
+      .then(resolve("berhasil"))
+      .catch(reject("error"));
+  });
+}
+export function ToastWarning(text) {
+  return new Promise((resolve, reject) => {
+    Toast.fire({
+      icon: "warning",
+      title: text,
     })
       .then(resolve("berhasil"))
       .catch(reject("error"));
@@ -76,6 +120,16 @@ export function NotifInfo(text) {
       position: "top-right",
       timer: 2000,
       showConfirmButton: false,
+    })
+      .then(resolve("berhasil"))
+      .catch(reject("error"));
+  });
+}
+export function ToastInfo(text) {
+  return new Promise((resolve, reject) => {
+    Toast.fire({
+      icon: "info",
+      title: text,
     })
       .then(resolve("berhasil"))
       .catch(reject("error"));
@@ -251,7 +305,6 @@ export const ReanderSelect = ({
   readOnly,
   placeholder,
   options,
-
   value,
   disabled,
   meta: { touched, error, warning },
@@ -262,9 +315,8 @@ export const ReanderSelect = ({
     </label>
     <SelectSearch
       {...input}
-      readOnly={readOnly}
       search
-      disabled={disabled}
+      disabled={readOnly}
       placeholder={placeholder}
       options={options}
     />
@@ -357,3 +409,15 @@ export const renderTextArea = ({
         (warning && <p>{warning}</p>))}
   </div>
 );
+
+export const deleteLocalItemBarcode = (nama, kode_barcode) => {
+  let data = JSON.parse(localStorage.getItem(nama)) || [];
+  let hasil = data.findIndex((item) => item.kode_barcode === kode_barcode);
+  data.splice(hasil, 1);
+  localStorage.setItem(nama, JSON.stringify(data) || []);
+};
+
+export const getUserData = () => {
+  let data = JSON.parse(localStorage.getItem("userdata")) || [];
+  return data;
+};

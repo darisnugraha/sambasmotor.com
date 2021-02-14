@@ -4,13 +4,18 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import Skeleton from "react-loading-skeleton";
 import ModalGlobal from "../../ModalGlobal.jsx";
-import { NotifSucces } from "../../../components/notification/notification.jsx";
+import {
+  NotifError,
+  NotifSucces,
+} from "../../../components/notification/notification.jsx";
 import { Panel, PanelHeader } from "../../../components/panel/panel.jsx";
 import HeadPermintaanBarang from "./HeadPermintaanBarang.jsx";
-import { hideModal } from "../../../actions/datamaster_action.jsx";
 import CetakNota from "../CetakNota.jsx";
 import { getPermintaanTemp } from "../../../actions/stocking_action.jsx";
 import { simpanLocal } from "../../../config/Helper.jsx";
+import { reset } from "redux-form";
+import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
+import { multipleDeleteLocal } from "../../../components/notification/function.jsx";
 
 const ModalPermintaanBarang = lazy(() => import("./ModalPermintaanBarang.jsx"));
 
@@ -39,34 +44,82 @@ class PermintaanBarang extends React.Component {
 
   componentDidMount() {
     this.props.dispatch(getPermintaanTemp());
+    AxiosMasterGet("permintaan-barang/generate/no-trx").then((res) =>
+      localStorage.setItem("kode_permintaan_barang", res.data[0].no_permintaan)
+    );
   }
-  handleSubmit(hasil) {
-    let array = JSON.parse(localStorage.getItem("PermintaanBarang_temp")) || [];
-    let data = {
-      kode_barcode: hasil.kode_barcode,
-      nama_barang: hasil.nama_barang,
-      merk: hasil.merk,
-      kwalitas: hasil.kwalitas,
-      ukuran: hasil.ukuran,
-      stock: hasil.stock,
-      qty: hasil.qty,
-    };
 
-    array.push(data);
-    localStorage.setItem("PermintaanBarang_temp", JSON.stringify(array));
-    NotifSucces("Berhasil Menambahan Data")
-      .then(() => this.props.dispatch(getPermintaanTemp()))
-      .then(() => this.props.dispatch(hideModal()));
+  handleModal(hasil) {
+    let local =
+      JSON.parse(localStorage.getItem("PermintaanBarang_temp_kirim")) || [];
+    let local2 =
+      JSON.parse(localStorage.getItem("PermintaanBarang_temp")) || [];
+    let filtered = local.findIndex(
+      (list) => list.kode_barcode === hasil.kode_barcode
+    );
+    let filtered2 = local2.findIndex(
+      (list) => list.kode_barcode === hasil.kode_barcode
+    );
+    if (filtered !== -1) {
+      let data = {
+        kode_barcode: hasil.kode_barcode,
+        qty: parseInt(hasil.qty) + parseFloat(local[filtered].qty),
+        kode_supplier: hasil.kode_supplier,
+      };
+      let dataTable = {
+        kode_barcode: hasil.kode_barcode,
+        nama_barang: hasil.nama_barang,
+        merk: hasil.merk,
+        kwalitas: hasil.kwalitas,
+        ukuran: hasil.ukuran,
+        stock: hasil.stock,
+        qty: parseInt(hasil.qty) + parseInt(local2[filtered2].qty),
+      };
+      local.splice(filtered, 1);
+      local2.splice(filtered2, 1);
+      local.push(data);
+      local2.push(dataTable);
+      localStorage.setItem("PermintaanBarang_temp", JSON.stringify(local2));
+      localStorage.setItem(
+        "PermintaanBarang_temp_kirim",
+        JSON.stringify(local)
+      );
+      NotifSucces("Berhasil");
+      this.props.dispatch(reset("ModalReturnSupplier"));
+      this.props.dispatch(getPermintaanTemp());
+    } else {
+      let data = {
+        kode_barcode: hasil.kode_barcode,
+        qty: parseInt(hasil.qty),
+        kode_supplier: hasil.kode_supplier,
+      };
+      let dataTable = {
+        kode_barcode: hasil.kode_barcode,
+        nama_barang: hasil.nama_barang,
+        merk: hasil.merk,
+        kwalitas: hasil.kwalitas,
+        ukuran: hasil.ukuran,
+        stock: hasil.stock,
+        qty: hasil.qty,
+      };
+      simpanLocal("PermintaanBarang_temp", dataTable)
+        .then(() => this.props.dispatch(reset("ModalPermintaanBarang")))
+        .then(() => this.props.dispatch(getPermintaanTemp()));
+      simpanLocal("PermintaanBarang_temp_kirim", data)
+        .then(() => this.props.dispatch(reset("ModalPermintaanBarang")))
+        .then(() => this.props.dispatch(getPermintaanTemp()));
+    }
   }
   sendData(hasil) {
-    let data = {
+    let kirim = {
       no_permintaan: hasil.no_permintaan,
-      nama_customer: hasil.nama_customer,
-      divisi: hasil.divisi,
+      kode_divisi: hasil.divisi,
+      kode_pegawai: hasil.pegawai,
       tanggal: hasil.tanggal,
-      list_barang: this.props.permintaan_temp,
+      detail_barang: JSON.parse(
+        localStorage.getItem("PermintaanBarang_temp_kirim")
+      ),
     };
-    simpanLocal("tt_permintaan_barang", data);
     // INISIALISASI AUTOTABLE
     const tableRows = [];
     let table = JSON.parse(localStorage.getItem("PermintaanBarang_temp"));
@@ -83,23 +136,38 @@ class PermintaanBarang extends React.Component {
     });
     let columnTabel = ["NO", "BARCODE", "JENIS BARANG", "MERK", "KW", "QTY"];
     // INISIALISASI SELESAI -> PANGGIL AXIOS DAN PANGGIL PRINT SAAT AXIOS BERHASIL
-    CetakNota(
-      "Tanggal",
-      "01-28-2021",
-      "NAMA",
-      "OCTAVIAN",
-      "NO PERMINTAAN",
-      "MB01282021-0001",
-      "DIVISI",
-      "SALES",
-      "ADMIN",
-      "01-28-2021",
-      "ADMIN",
-      columnTabel,
-      "BUKTI PERMINTAAN BARANG",
-      tableRows,
-      true
-    );
+    AxiosMasterPost("permintaan-barang/post-transaksi", kirim)
+      .then(() => NotifSucces("Berhasil Menyimpan Data"))
+      .then(() =>
+        CetakNota(
+          "Tanggal",
+          hasil.tanggal,
+          "PEGAWAI",
+          hasil.pegawai,
+          "NO PERMINTAAN",
+          hasil.no_permintaan,
+          "DIVISI",
+          hasil.divisi,
+          "ADMIN",
+          "01-28-2021",
+          "ADMIN",
+          columnTabel,
+          "BUKTI PERMINTAAN BARANG",
+          tableRows,
+          [],
+          true
+        )
+      )
+      .then(() =>
+        multipleDeleteLocal([
+          "PermintaanBarang_temp_kirim",
+          "PermintaanBarang_temp",
+          "kode_permintaan_barang",
+        ])
+      )
+      .then(() => this.props.dispatch(reset("permintaanBarang")))
+      .then(() => this.props.dispatch(getPermintaanTemp()))
+      .catch((err) => NotifError(err.response.data));
   }
   render() {
     return (
@@ -135,7 +203,7 @@ class PermintaanBarang extends React.Component {
                 fallback={<Skeleton width={"100%"} height={50} count={2} />}
               >
                 <ModalPermintaanBarang
-                  onSubmit={(data) => this.handleSubmit(data)}
+                  onSubmit={(data) => this.handleModal(data)}
                   onSend={this.props.onSend}
                   isEdit={this.state.isEdit}
                 />

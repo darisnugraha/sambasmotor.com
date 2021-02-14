@@ -1,7 +1,10 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm } from "redux-form";
-import { ReanderField } from "../../../components/notification/notification";
+import { Field, reduxForm, formValueSelector } from "redux-form";
+import {
+  ReanderField,
+  ReanderSelect,
+} from "../../../components/notification/notification";
 import ValidasiMasterKategori from "../../../validasi/ValidasiMasterKategori";
 import Stepper from "react-stepper-horizontal";
 import { required } from "../../../validasi/normalize";
@@ -136,8 +139,8 @@ class FormModalSupplier extends Component {
                   name="contact_person"
                   component={ReanderField}
                   type="text"
-                  label="Contact Person"
-                  placeholder="Masukan Contact Person"
+                  label="Nomor Telepon"
+                  placeholder="Masukan Nomor Telepon"
                 />
               </div>
               <div className="col-lg-4">
@@ -194,41 +197,34 @@ class FormModalSupplier extends Component {
                   placeholder="Masukan Email"
                 />
               </div>
-              <div className="col-lg-2">
-                <label htmlFor="">Type Pembayaran</label>
-                <div className="row">
-                  <div className="col-lg-6 checkbox checkbox-css checkbox-inline ml-3 mt-2">
-                    <Field
-                      name="cash"
-                      component="input"
-                      type="checkbox"
-                      id="inlineCssCheckbox2"
-                      label="Kredit"
-                      placeholder="Masukan Kredit"
-                    />
-                    <label htmlFor="inlineCssCheckbox2">Cash</label>
-                  </div>
-                  <div className="col-lg-6 checkbox checkbox-css checkbox-inline mt-2 ml-3">
-                    <Field
-                      name="kredit"
-                      component="input"
-                      type="checkbox"
-                      id="inlineCssCheckbox1"
-                      label="Kredit"
-                      placeholder="Masukan Kredit"
-                    />
-                    <label htmlFor="inlineCssCheckbox1">Kredit</label>
-                  </div>
-                </div>
+              <div className="col-lg-3">
+                <Field
+                  name="type_pembayaran"
+                  component={ReanderSelect}
+                  options={[
+                    { value: "cash", name: "CASH" },
+                    { value: "kredit", name: "KREDIT" },
+                  ]}
+                  type="text"
+                  label="Type Pembayaran"
+                  placeholder="Masukan Type Pembayaran"
+                />
               </div>
 
-              <div className="col-lg-3">
+              <div className="col-lg-2">
                 <Field
                   name="tanggal_pembayaran"
                   component={ReanderField}
                   type="number"
-                  label="Tanggal Pembayaran ( 1-31 )"
-                  placeholder="Tanggal Pembayaran ( 1-31 )"
+                  label="Lama Pembayaran"
+                  placeholder="Lama Pembayaran"
+                  readOnly={
+                    this.props.jenis_bayar === "cash"
+                      ? true
+                      : this.props.jenis_bayar === undefined
+                      ? true
+                      : false
+                  }
                 />
               </div>
             </div>
@@ -348,4 +344,38 @@ FormModalSupplier = reduxForm({
   enableReinitialize: true,
   validate: ValidasiMasterKategori,
 })(FormModalSupplier);
-export default connect(maptostate, null)(FormModalSupplier);
+const selector = formValueSelector("dataBarang");
+export default connect((state) => {
+  if (state.datamaster.datasupplier !== undefined) {
+    return {
+      initialValues: {
+        kode_supplier: state.datamaster.datasupplier.kode_supplier,
+        nama_supplier: state.datamaster.datasupplier.nama_supplier,
+        contact_person: state.datamaster.datasupplier.contact_person,
+        fax: state.datamaster.datasupplier.fax,
+        telepon: state.datamaster.datasupplier.telepon,
+        alamat: state.datamaster.datasupplier.alamat,
+        kota: state.datamaster.datasupplier.kota,
+        kode_pos: state.datamaster.datasupplier.kode_pos,
+        email: state.datamaster.datasupplier.email,
+        nama_bank: state.datamaster.datasupplier.bank,
+        no_acc: state.datamaster.datasupplier.bank_ac,
+        nama_pemilik: state.datamaster.datasupplier.bank_atas_nama,
+        NPWP: state.datamaster.datasupplier.npwp,
+        nama_NPWP: state.datamaster.datasupplier.npwp_nama,
+        alamat_NPWP: state.datamaster.datasupplier.npwp_alamat,
+        cash: state.datamaster.datasupplier.cash,
+        kredit: state.datamaster.datasupplier.kredit,
+        type_pembayaran: state.datamaster.datasupplier.cash ? "cash" : "kredit",
+        tanggal_pembayaran: state.datamaster.datasupplier.hari,
+      },
+      jenis_bayar: selector(state, "type_pembayaran"),
+      onSend: state.datamaster.onSend,
+    };
+  } else {
+    return {
+      onSend: state.datamaster.onSend,
+      jenis_bayar: selector(state, "type_pembayaran"),
+    };
+  }
+})(FormModalSupplier);

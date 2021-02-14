@@ -1,16 +1,13 @@
 import React, { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-import BootstrapTable from "react-bootstrap-table-next";
-import ToolkitProvider, {
-  Search,
-  CSVExport,
-} from "react-bootstrap-table2-toolkit";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import Skeleton from "react-loading-skeleton";
 import ModalGlobal from "../../ModalGlobal.jsx";
-import { NotifSucces } from "../../../components/notification/notification.jsx";
+import {
+  NotifError,
+  NotifSucces,
+} from "../../../components/notification/notification.jsx";
 import {
   Panel,
   PanelBody,
@@ -20,10 +17,12 @@ import HeadHancurBarang from "./HeadHancurBarang.jsx";
 import { hideModal } from "../../../actions/datamaster_action.jsx";
 import CetakNota from "../CetakNota.jsx";
 import { getHancurTemp } from "../../../actions/stocking_action.jsx";
+import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
+import Tabel from "../../../components/Tabel/tabel.jsx";
+import { multipleDeleteLocal } from "../../../components/notification/function.jsx";
+import { reset } from "redux-form";
 
 const ModalHancurBarang = lazy(() => import("./ModalHancurBarang.jsx"));
-const { SearchBar } = Search;
-const { ExportCSVButton } = CSVExport;
 
 const maptostate = (state) => {
   return {
@@ -68,7 +67,7 @@ class HancurBarang extends React.Component {
           text: "Merk",
         },
         {
-          dataField: "kwalitas ",
+          dataField: "kwalitas",
           text: "Kwalitas",
         },
         {
@@ -79,15 +78,6 @@ class HancurBarang extends React.Component {
           dataField: "qty",
           text: "Qty",
         },
-        {
-          dataField: "harga_satuan",
-          text: "harga Satuan",
-        },
-        {
-          dataField: "total",
-          text: "Total",
-        },
-
         {
           dataField: "action",
           text: "Action",
@@ -135,30 +125,50 @@ class HancurBarang extends React.Component {
 
   componentDidMount() {
     this.props.dispatch(getHancurTemp());
+    AxiosMasterGet("hancur-barang/generate/no-trx").then((res) =>
+      localStorage.setItem("kode_hancur", res.data[0].no_hancur)
+    );
   }
   handleSubmit(hasil) {
+    let supplier = hasil.kode_supplier && hasil.kode_supplier.split("||");
     let array = JSON.parse(localStorage.getItem("HancurBarang_temp")) || [];
+    let array_kirim =
+      JSON.parse(localStorage.getItem("HancurBarang_temp_kirim")) || [];
     let data = {
       kode_barcode: hasil.kode_barcode,
       nama_barang: hasil.nama_barang,
       merk: hasil.merk,
       kwalitas: hasil.kwalitas,
-      qty: hasil.qty,
       satuan: hasil.satuan,
+      kode_supplier: supplier[0],
+      qty: hasil.qty,
+      kondisi: hasil.kondisi,
+    };
+    let data_kirim = {
+      kode_barcode: hasil.kode_barcode,
+      kode_supplier: supplier[0],
+      qty: hasil.qty,
+      kondisi: hasil.kondisi,
     };
 
     array.push(data);
+    array_kirim.push(data_kirim);
     localStorage.setItem("HancurBarang_temp", JSON.stringify(array));
+    localStorage.setItem(
+      "HancurBarang_temp_kirim",
+      JSON.stringify(array_kirim)
+    );
     NotifSucces("Berhasil Menambahan Data")
       .then(() => this.props.dispatch(getHancurTemp()))
       .then(() => this.props.dispatch(hideModal()));
   }
   sendData(hasil) {
     let data = {
-      no_hancur: hasil.no_hancur,
+      no_hancur: localStorage.getItem("kode_hancur") || undefined,
       tanggal: hasil.tanggal,
-      lokasi: hasil.lokasi,
-      list_barang: this.props.permintaan_temp,
+      kode_lokasi_gudang: hasil.lokasi,
+      detail_barang:
+        JSON.parse(localStorage.getItem("HancurBarang_temp_kirim")) || [],
     };
     console.log(data);
     // INISIALISASI AUTOTABLE
@@ -170,41 +180,57 @@ class HancurBarang extends React.Component {
         hasil.kode_barcode,
         hasil.nama_barang,
         hasil.merk,
-        hasil.type,
+        hasil.kwalitas,
+        hasil.kondisi,
         hasil.satuan,
         hasil.qty,
-        hasil.harga_satuan,
-        hasil.total,
       ];
       tableRows.push(rows);
     });
     let columnTabel = [
       "NO",
       "BARCODE",
-      "JENIS BARANG",
+      "NAMA BARANG",
       "MERK",
       "KW",
-      "QTY",
+      "KONDISI",
       "SATUAN",
+      "QTY",
     ];
     // INISIALISASI SELESAI -> PANGGIL AXIOS DAN PANGGIL PRINT SAAT AXIOS BERHASIL
-    CetakNota(
-      "Tanggal",
-      hasil.tanggal,
-      "Lokasi",
-      hasil.lokasi,
-      "No Bukti",
-      hasil.no_pindah,
-      "",
-      "",
-      "ADMIN",
-      "01-28-2021",
-      "ADMIN",
-      columnTabel,
-      "BUKTI HANCUR STOK",
-      tableRows,
-      false
-    );
+    AxiosMasterPost("hancur-barang/post-transaksi", data)
+      .then(() =>
+        CetakNota(
+          "Tanggal",
+          hasil.tanggal,
+          "Lokasi",
+          hasil.lokasi,
+          "No Bukti",
+          hasil.no_pindah,
+          "",
+          "",
+          "ADMIN",
+          "01-28-2021",
+          "ADMIN",
+          columnTabel,
+          "BUKTI HANCUR STOK",
+          tableRows,
+          [],
+          false
+        )
+      )
+      .then(() => NotifSucces("Berhasil Hancur Barang"))
+      .then(() =>
+        multipleDeleteLocal([
+          "HancurBarang_temp",
+          "HancurBarang_temp_kirim",
+          "kode_hancur",
+          "lokasi_hancur",
+        ])
+      )
+      .then(() => this.props.dispatch(reset("permintaanBarang")))
+      .then(() => this.props.dispatch(getHancurTemp()))
+      .catch((err) => NotifError(`Error: ${err}`));
   }
   render() {
     return (
@@ -224,43 +250,18 @@ class HancurBarang extends React.Component {
               <HeadHancurBarang onSubmit={(data) => this.sendData(data)} />
             </div>
             {/* Master Kategori */}
-            {this.props.hancur_temp ? (
-              <div className="col-lg-12">
-                <ToolkitProvider
-                  keyField="no_acc"
-                  data={this.props.hancur_temp || []}
-                  columns={this.state.columns}
-                  search
-                  exportCSV={{
-                    fileName: "Export Master Kategori.csv",
-                  }}
-                >
-                  {(props) => (
-                    <div className="row">
-                      <div className="col-6">
-                        <div className="text-left">
-                          <SearchBar {...props.searchProps} />
-                        </div>
-                      </div>
-                      <div className="col-6"></div>
-                      <hr />
-                      <div className="col-12">
-                        <BootstrapTable
-                          pagination={paginationFactory()}
-                          {...props.baseProps}
-                        />
-                        <br />
-                        <ExportCSVButton {...props.csvProps}>
-                          Export CSV!!
-                        </ExportCSVButton>
-                      </div>
-                    </div>
-                  )}
-                </ToolkitProvider>
-              </div>
-            ) : (
-              <Skeleton width={"100%"} height={400} />
-            )}
+
+            <div className="col-lg-12">
+              <Tabel
+                empty={true}
+                keyField="kode_barcode"
+                data={this.props.hancur_temp || []}
+                columns={this.state.columns}
+                CSVExport
+                textEmpty="Silahkan Piilih Lokasi Gudang dan Tekan Tombol Kuning Untuk Menambah Data"
+              />
+            </div>
+
             <br />
             {/* End Master Kategori */}
             <ModalGlobal

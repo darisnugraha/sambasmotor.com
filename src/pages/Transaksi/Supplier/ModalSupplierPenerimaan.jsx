@@ -42,7 +42,7 @@ class ModalSupplierPenerimaan extends Component {
     this.props.change("kwalitas", this.state.hasilBarcode[0].kode_kwalitas);
     this.props.change("type", this.state.hasilBarcode[0].type);
     this.props.change("satuan", this.state.hasilBarcode[0].kode_satuan);
-    this.props.change("harga_satuan", this.state.hasilBarcode[0].harga_beli);
+    this.props.change("harga_satuan", this.state.hasilBarcode[0].harga_jual);
   }
 
   componentDidMount() {
@@ -91,6 +91,7 @@ class ModalSupplierPenerimaan extends Component {
               type="text"
               label="Nama Barang"
               placeholder="Masukan Nama Barang"
+              readOnly
             />
           </div>
           <div className="col-lg-3">
@@ -107,6 +108,7 @@ class ModalSupplierPenerimaan extends Component {
               type="text"
               label="Merk"
               placeholder="Masukan Merk"
+              readOnly
             />
           </div>
           <div className="col-lg-3">
@@ -123,6 +125,7 @@ class ModalSupplierPenerimaan extends Component {
               type="text"
               label="Kwalitas"
               placeholder="Masukan Kwalitas"
+              readOnly
             />
           </div>
           <div className="col-lg-3">
@@ -132,6 +135,7 @@ class ModalSupplierPenerimaan extends Component {
               type="text"
               label="Type"
               placeholder="Masukan Type"
+              readOnly
             />
           </div>
           <div className="col-lg-3">
@@ -148,6 +152,7 @@ class ModalSupplierPenerimaan extends Component {
               type="text"
               label="Satuan"
               placeholder="Masukan Satuan"
+              readOnly
             />
           </div>
           <div className="col-lg-3">
@@ -179,6 +184,7 @@ class ModalSupplierPenerimaan extends Component {
               label="Total"
               placeholder="Masukan Total"
               {...currencyMask}
+              readOnly
             />
           </div>
           <div className="col-lg-12">

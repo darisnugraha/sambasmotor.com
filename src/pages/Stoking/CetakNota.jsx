@@ -18,6 +18,7 @@ const CetakNota = (
   tableColumn = [],
   title = "",
   tableRows,
+  footerRows,
   tandatangan
 ) => {
   // initialize jsPDF
@@ -26,7 +27,17 @@ const CetakNota = (
   // define the columns we want and their titles
 
   // startY is basically margin-top
-  doc.autoTable(tableColumn, tableRows, { startY: 40, theme: "plain" });
+  doc.autoTable(tableColumn, tableRows, {
+    foot: footerRows,
+    startY: 40,
+    theme: "plain",
+    bodyStyles: { lineWidth: 0.02, lineColor: "#000" },
+    headStyles: {
+      lineWidth: 0.02,
+      lineColor: "#000",
+      fillColor: [187, 187, 187],
+    },
+  });
   let finalY = doc.lastAutoTable.finalY + 10;
   // const date = Date().split(" ");
   // we use a date string to generate our filename.

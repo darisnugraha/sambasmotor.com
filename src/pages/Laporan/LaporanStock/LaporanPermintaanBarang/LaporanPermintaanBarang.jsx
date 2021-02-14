@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import { AxiosMasterGet } from "../../../../axios";
 import {
   Panel,
   PanelBody,
@@ -11,6 +12,9 @@ class LaporanPermintaanBarang extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+  }
+  getLaporan() {
+    AxiosMasterGet("laporan/stocking/lap-permintaan-barang/" + `$`);
   }
   render() {
     return (

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, formValueSelector, reduxForm } from "redux-form";
 import {
+  deleteLocalItemBarcode,
   ReanderField,
   ReanderSelect,
 } from "../../../components/notification/notification";
@@ -11,6 +12,8 @@ import { createNumberMask } from "redux-form-input-masks";
 import { AxiosMasterGet } from "../../../axios";
 import { formatDateISO } from "../../../components/notification/function";
 import { TabelGlobal } from "../TabelGlobal";
+import { getListReturnSupplier } from "../../../actions/transaksi_action";
+import Swal from "sweetalert2";
 
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
@@ -64,10 +67,55 @@ class HeadReturnSupplier extends Component {
             return "Rp. " + data.toLocaleString("id-ID");
           },
         },
+        {
+          dataField: "action",
+          text: "Action",
+          csvExport: false,
+          headerClasses: "text-center",
+          formatter: (rowcontent, row) => {
+            this.setState({});
+            return (
+              <div className="row text-center">
+                <div className="col-12">
+                  <button
+                    type="button"
+                    onClick={() => this.deleteBarang(row)}
+                    className="btn btn-danger"
+                  >
+                    Hapus
+                    <i className="fa fa-trash ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            );
+          },
+        },
       ],
     };
   }
+
+  deleteBarang(row) {
+    Swal.fire({
+      title: "Anda Yakin !!",
+      text: "Ingin Menghapus Data Ini ?",
+      icon: "warning",
+      position: "top-center",
+      cancelButtonText: "Tidak",
+      showCancelButton: true,
+      confirmButtonText: "OK",
+      showConfirmButton: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteLocalItemBarcode("ReturnSupplier_temp_kirim", row.kode_barcode);
+        deleteLocalItemBarcode("ReturnSupplier_temp", row.kode_barcode);
+        this.props.dispatch(getListReturnSupplier());
+      }
+    });
+  }
   componentDidMount() {
+    AxiosMasterGet("retur-barang-supplier/generate/no-trx").then((res) =>
+      localStorage.setItem("kode_return", res.data[0].no_retur_supplier)
+    );
     AxiosMasterGet("supplier/get/all").then((res) =>
       this.setState({
         listSupplier: res.data,

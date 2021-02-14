@@ -1,14 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import BootstrapTable from "react-bootstrap-table-next";
-import ToolkitProvider, {
-  Search,
-  CSVExport,
-} from "react-bootstrap-table2-toolkit";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import { connect } from "react-redux";
-import Skeleton from "react-loading-skeleton";
-import { NotifError } from "../../../components/notification/notification.jsx";
+import {
+  NotifError,
+  NotifSucces,
+} from "../../../components/notification/notification.jsx";
 import {
   Panel,
   PanelBody,
@@ -21,15 +17,18 @@ import {
 import Stepper from "react-stepper-horizontal/lib/Stepper";
 import NavigationStepper from "../../../components/content/NavigationStepper.jsx";
 import CetakNota from "../CetakNota.jsx";
-import { simpanLocal } from "../../../config/Helper.jsx";
-
-const { SearchBar } = Search;
-const { ExportCSVButton } = CSVExport;
+import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
+import {
+  getToday,
+  multipleDeleteLocal,
+} from "../../../components/notification/function.jsx";
+import Tabel from "../../../components/Tabel/tabel.jsx";
 
 const maptostate = (state) => {
   return {
     permintaan_temp: state.stocking.permintaan_temp,
     pengeluaran_selected: state.stocking.pengeluaran_selected,
+    pengeluaran: state.stocking.pengeluaran,
   };
 };
 
@@ -40,13 +39,19 @@ class PengeluaranBarang extends React.Component {
       isEdit: false,
       modalDialog: false,
       isLoading: false,
+      listPengeluaran: "",
+      listPenerimaan: [],
       step: 0,
       step1: "row",
       step2: "row d-none",
       columns: [
         {
           dataField: "kode_barcode",
-          text: "Kode barcode",
+          text: "Kode Barcode",
+        },
+        {
+          dataField: "kode_supplier",
+          text: "Kode Supplier",
           sort: true,
         },
         {
@@ -54,54 +59,50 @@ class PengeluaranBarang extends React.Component {
           text: "Nama Barang",
         },
         {
-          dataField: "merk",
-          text: "Merk",
+          dataField: "merk_barang",
+          text: "Merk barang",
         },
         {
           dataField: "kwalitas",
-          text: "kwalitas",
+          text: "Kwalitas",
         },
         {
           dataField: "ukuran",
           text: "Ukuran",
         },
         {
-          dataField: "stock",
-          text: "Stock",
+          dataField: "qty",
+          text: "Qty",
+        },
+      ],
+      columns2: [
+        {
+          dataField: "kode_barcode",
+          text: "Kode Barcode",
+        },
+        {
+          dataField: "kode_supplier",
+          text: "Kode Supplier",
+          sort: true,
         },
         {
           dataField: "qty",
           text: "Qty",
         },
       ],
-      dataPermintaan: [
-        {
-          no_permintaan: "PB-01282021-0001",
-          kode_barcode: "BARCODE1234",
-          nama_barang: "BARANG1",
-          merk: "YAMAHA",
-          kwalitas: "ORI",
-          ukuran: "20L",
-          stock: 100,
-          qty: 80,
-        },
-        {
-          no_permintaan: "PB-01282021-0002",
-          kode_barcode: "BARCODE12345",
-          nama_barang: "BARANG2",
-          merk: "YAMAHA",
-          kwalitas: "ORI",
-          ukuran: "20L",
-          stock: 100,
-          qty: 80,
-        },
-      ],
     };
   }
 
   componentDidMount() {
-    this.props.dispatch(getPengeluaranBarang());
-    localStorage.removeItem("FakturTerpilih");
+    localStorage.setItem("FakturTerpilih", "[]");
+    localStorage.setItem("FakturTerpilih_detail", "[]");
+    AxiosMasterGet("pengeluaran-barang/generate/no-trx").then((res) =>
+      this.setState({
+        listPengeluaran: res.data[0].no_pengeluaran,
+        tanggal: getToday(),
+      })
+    );
+
     this.props.dispatch(getPengeluaranBarangSelected());
   }
   nextStep() {
@@ -136,44 +137,70 @@ class PengeluaranBarang extends React.Component {
       NotifError("Faktur Terpilih Kosong");
       return false;
     }
-    let data = JSON.parse(localStorage.getItem("FakturTerpilih")) || [];
+    let data = JSON.parse(localStorage.getItem("FakturTerpilih_detail")) || [];
     let array = {
-      nomor_pengeluaran: this.state.nomor_pengeluaran,
+      no_pengeluaran: this.state.listPengeluaran,
       tanggal: this.state.tanggal,
-      nomor_pb: this.state.nomor_pb,
-      list_barang: data,
+      no_bon: this.state.nomor_pb,
+      detail_barang: JSON.parse(localStorage.getItem("FakturTerpilih")),
     };
-    simpanLocal("tt_pengeluaran_barang", array);
     let tableRows = [];
     data.forEach((list, index) => {
       let rows = [
         ++index,
         list.kode_barcode,
         list.nama_barang,
-        list.merk,
+        list.merk_barang,
         list.kwalitas,
+        list.ukuran,
         list.qty,
       ];
       tableRows.push(rows);
     });
-    let columnTabel = ["NO", "BARCODE", "JENIS BARANG", "MERK", "KW", "QTY"];
-    CetakNota(
-      "Tanggal",
-      "01-28-2021",
-      "NAMA",
-      "OCTAVIAN",
-      "NO PERMINTAAN",
-      "MB01282021-0001",
-      "DIVISI",
-      "SALES",
-      "ADMIN",
-      "01-28-2021",
-      "ADMIN",
-      columnTabel,
-      "BUKTI PERMINTAAN BARANG",
-      tableRows,
-      true
-    );
+    let columnTabel = [
+      "NO",
+      "BARCODE",
+      "NAMA BARANG",
+      "MERK",
+      "KW",
+      "UKURAN",
+      "QTY",
+    ];
+    AxiosMasterPost("pengeluaran-barang/post-transaksi", array)
+      .then(() => NotifSucces("Berhasil Menyimpan data"))
+      .then(() =>
+        CetakNota(
+          "Tanggal",
+          this.state.tanggal,
+          "",
+          "",
+          "NO PENGELUARAN",
+          this.state.listPengeluaran,
+          "",
+          "",
+          "ADMIN",
+          "01-28-2021",
+          "ADMIN",
+          columnTabel,
+          "BUKTI PENGELUARAN BARANG",
+          tableRows,
+          [],
+          true
+        )
+      )
+      .then(() =>
+        multipleDeleteLocal(["FakturTerpilih", "FakturTerpilih_detail"])
+      )
+      .then(() => this.props.dispatch(getPengeluaranBarang()))
+      .then(() => this.prevStep())
+      .then(() =>
+        this.setState({
+          step: 0,
+        })
+      );
+  }
+  getPermintaan(e) {
+    this.props.dispatch(getPengeluaranBarang(this.state.nomor_pb));
   }
   render() {
     const selectRow = {
@@ -182,53 +209,87 @@ class PengeluaranBarang extends React.Component {
       onSelect: (row, isSelect, rowIndex, e) => {
         console.log(row.noFaktur);
         let array = JSON.parse(localStorage.getItem("FakturTerpilih")) || [];
+        let array_detail =
+          JSON.parse(localStorage.getItem("FakturTerpilih_detail")) || [];
         const data = {
-          nomor_permintaan: row.no_permintaan,
+          kode_supplier: row.kode_supplier,
           kode_barcode: row.kode_barcode,
+          qty: row.qty,
+        };
+        const data_detail = {
+          kode_barcode: row.kode_barcode,
+          kode_supplier: row.kode_supplier,
           nama_barang: row.nama_barang,
-          merk: row.merk,
+          merk_barang: row.merk_barang,
           kwalitas: row.kwalitas,
           ukuran: row.ukuran,
-          stock: row.stock,
           qty: row.qty,
         };
         if (isSelect) {
           var index1 = array.findIndex((item, i) => {
-            return item.no_permintaan === row.no_permintaan;
+            return item.kode_barcode === row.kode_barcode;
+          });
+          var index2 = array_detail.findIndex((item, i) => {
+            return item.kode_barcode === row.kode_barcode;
           });
           if (index1 < 0) {
             array.push(data);
+            array_detail.push(data_detail);
           } else {
             array.splice(index1, 1);
+            array_detail.splice(index2, 1);
           }
           localStorage.setItem("FakturTerpilih", JSON.stringify(array));
+          localStorage.setItem(
+            "FakturTerpilih_detail",
+            JSON.stringify(array_detail)
+          );
         } else {
           var index = array.findIndex((item, i) => {
-            return item.no_permintaan === row.no_permintaan;
+            return item.kode_barcode === row.kode_barcode;
+          });
+          var index3 = array_detail.findIndex((item, i) => {
+            return item.kode_barcode === row.kode_barcode;
           });
           array.splice(index, 1);
+          array_detail.splice(index3, 1);
           localStorage.setItem("FakturTerpilih", JSON.stringify(array));
+          localStorage.setItem(
+            "FakturTerpilih_detail",
+            JSON.stringify(array_detail)
+          );
         }
       },
       onSelectAll: (isSelect, rows, e) => {
         var array = [];
+        var array_detail = [];
         rows.forEach(function (list) {
           const data = {
-            no_permintaan: list.no_permintaan,
+            kode_supplier: list.kode_supplier,
             kode_barcode: list.kode_barcode,
+            qty: list.qty,
+          };
+          const data_detail = {
+            kode_barcode: list.kode_barcode,
+            kode_supplier: list.kode_supplier,
             nama_barang: list.nama_barang,
-            merk: list.merk,
+            merk_barang: list.merk_barang,
             kwalitas: list.kwalitas,
             ukuran: list.ukuran,
-            stock: list.stock,
             qty: list.qty,
           };
           array.push(data);
+          array_detail.push(data_detail);
         });
         if (isSelect) {
           localStorage.setItem("FakturTerpilih", JSON.stringify(array));
+          localStorage.setItem(
+            "FakturTerpilih_detail",
+            JSON.stringify(array_detail)
+          );
         } else {
           localStorage.removeItem("FakturTerpilih");
+          localStorage.removeItem("FakturTerpilih_detail");
         }
       },
     };
@@ -248,7 +309,7 @@ class PengeluaranBarang extends React.Component {
             <div className="mb-3">
               <Stepper
                 steps={[{ title: "Pilih Faktur" }, { title: "Data Terpilih" }]}
-                activeStep={0}
+                activeStep={this.state.step}
               />
             </div>
             <div className={this.state.step1}>
@@ -260,11 +321,8 @@ class PengeluaranBarang extends React.Component {
                       <input
                         type="text"
                         className="form-control"
-                        onChange={(e) =>
-                          this.setState({
-                            nomor_pengeluaran: e.target.value,
-                          })
-                        }
+                        value={this.state.listPengeluaran}
+                        readOnly
                       />
                     </div>
                   </div>
@@ -274,6 +332,7 @@ class PengeluaranBarang extends React.Component {
                       <input
                         type="date"
                         className="form-control"
+                        value={this.state.tanggal}
                         onChange={(e) =>
                           this.setState({
                             tanggal: e.target.value,
@@ -296,52 +355,28 @@ class PengeluaranBarang extends React.Component {
                       />
                     </div>
                   </div>
-                </div>
-                <div className="col-lg-12">
-                  <div className="text-right">
-                    <button className="btn btn-primary">CARI DATA</button>
+                  <div className="col-lg-12 text-right">
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => this.getPermintaan()}
+                    >
+                      CARI DATA
+                    </button>
                   </div>
                 </div>
               </div>
+
               {/* Master Kategori */}
-              {this.state.dataPermintaan ? (
-                <div className="col-lg-12">
-                  <ToolkitProvider
-                    keyField="no_permintaan"
-                    data={this.state.dataPermintaan || []}
-                    columns={this.state.columns}
-                    search
-                    exportCSV={{
-                      fileName: "Export Master Kategori.csv",
-                    }}
-                  >
-                    {(props) => (
-                      <div className="row">
-                        <div className="col-6">
-                          <div className="text-left">
-                            <SearchBar {...props.searchProps} />
-                          </div>
-                        </div>
-                        <div className="col-6"></div>
-                        <hr />
-                        <div className="col-12">
-                          <BootstrapTable
-                            pagination={paginationFactory()}
-                            selectRow={selectRow}
-                            {...props.baseProps}
-                          />
-                          <br />
-                          <ExportCSVButton {...props.csvProps}>
-                            Export CSV!!
-                          </ExportCSVButton>
-                        </div>
-                      </div>
-                    )}
-                  </ToolkitProvider>
-                </div>
-              ) : (
-                <Skeleton width={"100%"} height={400} />
-              )}
+              <div className="col-lg-12">
+                <Tabel
+                  empty={true}
+                  data={this.props.pengeluaran}
+                  columns={this.state.columns}
+                  keyField="kode_barcode"
+                  selectRow={selectRow}
+                  textEmpty="Silahkan Isi Nomor PB diatas, dan klik tombol biru yang dibawahnya"
+                />
+              </div>
               <br />
               {/* End Master Kategori */}
               <NavigationStepper
@@ -353,43 +388,17 @@ class PengeluaranBarang extends React.Component {
             </div>
             <div className={this.state.step2}>
               {/* Master Kategori */}
-              {this.props.pengeluaran_selected ? (
-                <div className="col-lg-12">
-                  <ToolkitProvider
-                    keyField="no_permintaan"
-                    data={this.props.pengeluaran_selected || []}
-                    columns={this.state.columns}
-                    search
-                    exportCSV={{
-                      fileName: "Export Master Kategori.csv",
-                    }}
-                  >
-                    {(props) => (
-                      <div className="row">
-                        <div className="col-6">
-                          <div className="text-left">
-                            <SearchBar {...props.searchProps} />
-                          </div>
-                        </div>
-                        <div className="col-6"></div>
-                        <hr />
-                        <div className="col-12">
-                          <BootstrapTable
-                            pagination={paginationFactory()}
-                            {...props.baseProps}
-                          />
-                          <br />
-                          <ExportCSVButton {...props.csvProps}>
-                            Export CSV!!
-                          </ExportCSVButton>
-                        </div>
-                      </div>
-                    )}
-                  </ToolkitProvider>
-                </div>
-              ) : (
-                <Skeleton width={"100%"} height={400} />
-              )}
+
+              <div className="col-lg-12">
+                <Tabel
+                  empty={true}
+                  data={this.props.pengeluaran_selected}
+                  columns={this.state.columns2}
+                  keyField="kode_barcode"
+                  selectRow={selectRow}
+                  textEmpty="Silahkan Pilih Barang di Step 1"
+                />
+              </div>
               <br />
               <NavigationStepper
                 nextName="Simpan"

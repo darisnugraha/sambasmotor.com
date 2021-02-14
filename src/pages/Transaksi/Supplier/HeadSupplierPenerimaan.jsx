@@ -2,17 +2,17 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, formValueSelector, reduxForm } from "redux-form";
 import {
+  deleteLocalItemBarcode,
   ReanderField,
   ReanderSelect,
 } from "../../../components/notification/notification";
-import BootstrapTable from "react-bootstrap-table-next";
-import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import { showModal } from "../../../actions/datamaster_action";
 import { createNumberMask } from "redux-form-input-masks";
 import { AxiosMasterGet } from "../../../axios";
+import { getListTerimaSupplier } from "../../../actions/transaksi_action";
+import Swal from "sweetalert2";
+import Tabel from "../../../components/Tabel/tabel";
 
-const { SearchBar } = Search;
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
   decimalPlaces: 0,
@@ -63,11 +63,58 @@ class HeadSupplierPenerimaan extends Component {
             return "Rp. " + parseFloat(data).toLocaleString("id-ID");
           },
         },
+        {
+          dataField: "action",
+          text: "Action",
+          csvExport: false,
+          headerClasses: "text-center",
+          formatter: (rowcontent, row) => {
+            this.setState({});
+            return (
+              <div className="row text-center">
+                <div className="col-12">
+                  <button
+                    type="button"
+                    onClick={() => this.deleteBarang(row)}
+                    className="btn btn-danger"
+                  >
+                    Hapus
+                    <i className="fa fa-trash ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            );
+          },
+        },
       ],
     };
   }
 
+  deleteBarang(row) {
+    Swal.fire({
+      title: "Anda Yakin !!",
+      text: "Ingin Menghapus Data Ini ?",
+      icon: "warning",
+      position: "top-center",
+      cancelButtonText: "Tidak",
+      showCancelButton: true,
+      confirmButtonText: "OK",
+      showConfirmButton: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteLocalItemBarcode(
+          "PenerimaanSupplier_temp_kirim",
+          row.kode_barcode
+        );
+        deleteLocalItemBarcode("PenerimaanSupplier_temp", row.kode_barcode);
+        this.props.dispatch(getListTerimaSupplier());
+      }
+    });
+  }
   componentDidMount() {
+    AxiosMasterGet("terima-barang-supplier/generate/no-trx").then((res) =>
+      localStorage.setItem("penerimaan_kode_terima", res.data[0].no_terima)
+    );
     AxiosMasterGet("supplier/get/all").then((res) =>
       this.setState({
         listSupplier: res.data,
@@ -89,6 +136,11 @@ class HeadSupplierPenerimaan extends Component {
       localStorage.setItem(nama, true);
     }
   }
+  setSupplier(e) {
+    let hasil = e && e.split("||");
+    this.setLocal("penerimaan_kode_supplier", hasil[0]);
+    this.setLocal("type_pembayaran", hasil[1]);
+  }
   render() {
     return (
       <form onSubmit={this.props.handleSubmit}>
@@ -109,7 +161,7 @@ class HeadSupplierPenerimaan extends Component {
               component={ReanderSelect}
               options={this.state.listSupplier.map((list) => {
                 let data = {
-                  value: list.kode_supplier,
+                  value: `${list.kode_supplier}||${list.pembayaran_cash}`,
                   name: list.nama_supplier,
                 };
                 return data;
@@ -117,7 +169,7 @@ class HeadSupplierPenerimaan extends Component {
               type="text"
               label="Supplier"
               placeholder="Masukan Supplier"
-              onChange={(e) => this.setLocal("penerimaan_kode_supplier", e)}
+              onChange={(e) => this.setSupplier(e)}
             />
           </div>
           <div className="col-lg-3">
@@ -169,71 +221,34 @@ class HeadSupplierPenerimaan extends Component {
             />
           </div>
           <div className="col-lg-3">
-            <label className="mb-4">Pembayaran</label>
-            <div>
-              <label className="mr-3">
-                <Field
-                  name="tunai"
-                  component="input"
-                  type="checkbox"
-                  value="tunai"
-                  className="mr-3"
-                  onClick={() => this.setCheckbox("penerimaan_tunai")}
-                />
-                Tunai
-              </label>
-              <label className="mr-3">
-                <Field
-                  name="kredit"
-                  component="input"
-                  type="checkbox"
-                  value="kredit"
-                  className="mr-3"
-                  onClick={() => this.setCheckbox("penerimaan_kredit")}
-                />
-                Kredit
-              </label>
-            </div>
+            <Field
+              name="type_pembayaran"
+              component={ReanderField}
+              type="text"
+              label="Type Pembayaran"
+              placeholder="Masukan Type Pembayaran"
+              readOnly
+            />
           </div>
           <div className="col-lg-12">
             <div className="text-right">
               <button
                 className="btn btn-warning"
                 type="button"
-                onClick={() => this.props.dispatch(showModal())}
+                onClick={this.props.showTambah}
               >
                 Tambah Data <i className="fa fa-plus ml-3"></i>
               </button>
             </div>
           </div>
           <div className="col-lg-12">
-            <ToolkitProvider
+            <Tabel
               keyField="kode_barcode"
               data={this.props.listterimasupplier || []}
               columns={this.state.columns}
-              search
-              exportCSV={{
-                fileName: "Export Master Kategori.csv",
-              }}
-            >
-              {(props) => (
-                <div className="row">
-                  <div className="col-6">
-                    <div className="text-left">
-                      <SearchBar {...props.searchProps} />
-                    </div>
-                  </div>
-                  <hr />
-                  <div className="col-12">
-                    <BootstrapTable
-                      pagination={paginationFactory()}
-                      {...props.baseProps}
-                    />
-                    <br />
-                  </div>
-                </div>
-              )}
-            </ToolkitProvider>
+              CSVExport
+              textEmpty="Silahkan klik Tombol Kuning Untuk Tambah Barang"
+            />
           </div>
           <div className="col-lg-12">
             <div className="row">
@@ -291,18 +306,26 @@ HeadSupplierPenerimaan = reduxForm({
 const selector = formValueSelector("HeadSupplierPenerimaan"); // <-- same as form name
 export default connect((state) => {
   const { sub_total, discount } = selector(state, "sub_total", "discount");
+  localStorage.setItem("penerimaan_discount", discount || 0);
   return {
     total: parseFloat(sub_total || 0) - parseFloat(discount || 0),
     initialValues: {
       sub_total: state.transaksi.sub_total,
       kode_terima: localStorage.getItem("penerimaan_kode_terima") || null,
-      kode_supplier: localStorage.getItem("penerimaan_kode_supplier") || null,
+      kode_supplier:
+        `${localStorage.getItem(
+          "penerimaan_kode_supplier"
+        )}||${localStorage.getItem("type_pembayaran")}` || null,
       tanggal_invoice:
         localStorage.getItem("penerimaan_tanggal_invoice") || null,
       tanggal_barang: localStorage.getItem("penerimaan_tanggal_barang") || null,
       keterangan: localStorage.getItem("penerimaan_keterangan") || null,
       no_bon: localStorage.getItem("penerimaan_no_bon") || null,
-      // tunai: localStorage.getItem("penerimaan_tunai") || false,
+      discount: localStorage.getItem("penerimaan_discount") || 0,
+      type_pembayaran:
+        localStorage.getItem("type_pembayaran") === "true"
+          ? "CASH"
+          : "KREDIT" || null,
       // kredit: localStorage.getItem("penerimaan_kredit") || false,
     },
   };
