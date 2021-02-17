@@ -171,6 +171,7 @@ class MasterCustomer extends React.Component {
           .then(() => this.props.dispatch(reset("dataBarang")))
           .then(() => this.props.dispatch(hideModal()))
           .then(() => this.props.dispatch(getCustomer()))
+          .then(() => this.props.dispatch(getFaktur()))
           .catch(() =>
             NotifError(
               "Sepertinya ada gangguan, Mohon ulang beberapa saat lagi"
@@ -181,6 +182,7 @@ class MasterCustomer extends React.Component {
           .then(() => this.props.dispatch(reset("dataBarang")))
           .then(() => this.props.dispatch(hideModal()))
           .then(() => this.props.dispatch(getCustomer()))
+          .then(() => this.props.dispatch(getFaktur()))
           .catch(() =>
             NotifError(
               "Sepertinya ada gangguan, Mohon ulang beberapa saat lagi"

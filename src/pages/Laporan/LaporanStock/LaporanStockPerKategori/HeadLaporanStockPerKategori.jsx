@@ -5,7 +5,6 @@ import {
   ReanderField,
   ReanderSelect,
 } from "../../../../components/notification/notification";
-import CetakStockPerKategori from "./CetakStockPerKategori";
 
 class HeadLaporanPengeluaranBarang extends Component {
   constructor(props) {

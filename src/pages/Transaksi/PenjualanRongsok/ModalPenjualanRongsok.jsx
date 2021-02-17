@@ -6,6 +6,7 @@ import {
   ReanderSelect,
 } from "../../../components/notification/notification";
 import { createNumberMask } from "redux-form-input-masks";
+import { AxiosMasterGet } from "../../../axios";
 
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
@@ -16,10 +17,27 @@ const currencyMask = createNumberMask({
 class ModalPenjualanRongsok extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      listSatuan: [],
+    };
   }
   setTotal() {
     this.props.change("total", this.props.total);
+  }
+  componentDidMount() {
+    AxiosMasterGet("satuan/get/all").then((res) =>
+      this.setState({
+        listSatuan:
+          res &&
+          res.data.map((list) => {
+            var data = {
+              value: list.kode_satuan,
+              name: list.nama_satuan,
+            };
+            return data;
+          }),
+      })
+    );
   }
   render() {
     return (
@@ -48,12 +66,7 @@ class ModalPenjualanRongsok extends Component {
             <Field
               name="satuan"
               component={ReanderSelect}
-              options={[
-                { value: "SATUAN01", name: "SATUAN 01" },
-                { value: "SATUAN02", name: "SATUAN 02" },
-                { value: "SATUAN03", name: "SATUAN 03" },
-                { value: "SATUAN04", name: "SATUAN 04" },
-              ]}
+              options={this.state.listSatuan}
               type="text"
               label="Satuan"
               placeholder="Masukan "

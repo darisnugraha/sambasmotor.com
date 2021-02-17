@@ -266,6 +266,7 @@ export const RenderFieldGroup = ({
   type,
   readOnly,
   placeholder,
+  handleClick,
   meta: { touched, error, warning },
 }) => (
   <div className="form-group">
@@ -281,9 +282,15 @@ export const RenderFieldGroup = ({
         placeholder={placeholder}
         aria-label="Recipient's username"
         aria-describedby="basic-addon2"
+        onKeyPress={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault(); //<===== This stops the form from being submitted
+          } else {
+          }
+        }}
       />
       <div class="input-group-append">
-        <button class="btn btn-primary" type="button">
+        <button class="btn btn-primary" type="button" onClick={handleClick}>
           <i className="fa fa-search mr-1"></i>
           Cari
         </button>
@@ -305,6 +312,7 @@ export const ReanderSelect = ({
   readOnly,
   placeholder,
   options,
+  getOptions,
   value,
   disabled,
   meta: { touched, error, warning },
@@ -319,6 +327,7 @@ export const ReanderSelect = ({
       disabled={readOnly}
       placeholder={placeholder}
       options={options}
+      getOptions={getOptions}
     />
 
     {touched &&

@@ -9,38 +9,6 @@ import ValidasiMasterKategori from "../../../validasi/ValidasiMasterKategori";
 import Stepper from "react-stepper-horizontal";
 import { required } from "../../../validasi/normalize";
 
-const maptostate = (state) => {
-  if (state.datamaster.datasupplier !== undefined) {
-    return {
-      initialValues: {
-        kode_supplier: state.datamaster.datasupplier.kode_supplier,
-        nama_supplier: state.datamaster.datasupplier.nama_supplier,
-        contact_person: state.datamaster.datasupplier.contact_person,
-        fax: state.datamaster.datasupplier.fax,
-        telepon: state.datamaster.datasupplier.telepon,
-        alamat: state.datamaster.datasupplier.alamat,
-        kota: state.datamaster.datasupplier.kota,
-        kode_pos: state.datamaster.datasupplier.kode_pos,
-        email: state.datamaster.datasupplier.email,
-        nama_bank: state.datamaster.datasupplier.bank,
-        no_acc: state.datamaster.datasupplier.bank_ac,
-        nama_pemilik: state.datamaster.datasupplier.bank_atas_nama,
-        NPWP: state.datamaster.datasupplier.npwp,
-        nama_NPWP: state.datamaster.datasupplier.npwp_nama,
-        alamat_NPWP: state.datamaster.datasupplier.npwp_alamat,
-        cash: state.datamaster.datasupplier.cash,
-        kredit: state.datamaster.datasupplier.kredit,
-        tanggal_pembayaran: state.datamaster.datasupplier.tanggal_pembayaran,
-      },
-      onSend: state.datamaster.onSend,
-    };
-  } else {
-    return {
-      onSend: state.datamaster.onSend,
-    };
-  }
-};
-
 class FormModalSupplier extends Component {
   constructor(props) {
     super(props);

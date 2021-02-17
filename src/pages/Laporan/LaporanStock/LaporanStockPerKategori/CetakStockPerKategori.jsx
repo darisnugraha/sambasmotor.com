@@ -5,7 +5,6 @@ import "jspdf-autotable";
 // define a generatePDF function that accepts a tickets argument
 const CetakStockPerKategori = (
   row1isi = "",
-  row2isi = "",
   username = "",
   tanggal = "",
   validby = "",
@@ -23,7 +22,7 @@ const CetakStockPerKategori = (
   doc.text("LAPORAN STOCK PER KATEGORI", 14, 15);
   doc.setFontSize(10);
   //row 1
-  doc.text(`Tanggal : ${row1isi} s/d ${row2isi}`, 14, 25);
+  doc.text(`Tanggal : ${row1isi}`, 14, 25);
   //   row 2
   // doc.text(`Tanggal	: ${row2isi}`, 120, 25);
   data.forEach((item, index) => {

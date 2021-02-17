@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { reduxForm } from "redux-form";
 import { AxiosMasterGet } from "../../../axios";
 import {
-  NotifSucces,
   ToastError,
   ToastSucces,
 } from "../../../components/notification/notification";

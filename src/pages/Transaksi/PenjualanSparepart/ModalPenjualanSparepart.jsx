@@ -1,12 +1,23 @@
 import React, { Component } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
+import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
-import { RenderFieldGroup } from "../../../components/notification/notification";
+import {
+  editBarang,
+  getBarang,
+  getSupplier,
+} from "../../../actions/datamaster_action";
+import {
+  ReanderSelect,
+  ToastWarning,
+} from "../../../components/notification/notification";
+import { required } from "../../../validasi/normalize";
 
 class ModalPenjualanSparepart extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      supplier: false,
       columns: [
         {
           dataField: "kode_barang",
@@ -17,15 +28,15 @@ class ModalPenjualanSparepart extends Component {
           text: "Nama Barang",
         },
         {
-          dataField: "merk",
+          dataField: "kode_merk_barang",
           text: "Merk",
         },
         {
-          dataField: "satuan",
+          dataField: "kode_satuan",
           text: "Satuan",
         },
         {
-          dataField: "harga",
+          dataField: "harga_jual",
           text: "Harga",
         },
         {
@@ -34,7 +45,21 @@ class ModalPenjualanSparepart extends Component {
           csvExport: false,
           headerClasses: "text-center",
           formatter: (rowcontent, row) => {
-            this.setState({});
+            let data = {
+              kode_barcode: row.kode_barcode,
+              kode_barang: row.kode_barang,
+              nama_barang: row.nama_barang,
+              kode_kategori: row.kode_kategori,
+              kode_jenis: row.kode_jenis,
+              kode_merk_barang: row.kode_merk_barang,
+              kode_kwalitas: row.kode_kwalitas,
+              kode_lokasi_rak: row.kode_lokasi_rak,
+              kode_lokasi_selving: row.kode_lokasi_selving,
+              kode_ukuran: row.kode_ukuran,
+              kode_satuan: row.kode_satuan,
+              type: row.type,
+              harga_jual: row.harga_jual,
+            };
             return (
               <div className="row text-center">
                 <div className="col-12">
@@ -44,10 +69,9 @@ class ModalPenjualanSparepart extends Component {
                   </button>
                   <button
                     className="btn btn-warning mr-3"
-                    onClick={this.props.showDetail}
+                    onClick={() => this.detail(data)}
                   >
-                    Detail
-                    <i className="fa fa-eye ml-2"></i>
+                    <i className="fa fa-eye"></i>
                   </button>
                 </div>
               </div>
@@ -56,6 +80,15 @@ class ModalPenjualanSparepart extends Component {
         },
       ],
     };
+  }
+
+  detail(data) {
+    this.props.showDetail();
+    this.props.dispatch(editBarang(data));
+  }
+  componentDidMount() {
+    this.props.dispatch(getBarang());
+    this.props.dispatch(getSupplier());
   }
   render() {
     return (
@@ -67,37 +100,50 @@ class ModalPenjualanSparepart extends Component {
             </button>
           </div>
         </div>
-        <div className="col-lg-2"> </div>
+        <div className="col-lg-2"></div>
         <div className="col-lg-4">
-          <label className="mb-3">Jenis Pecarian</label>
-          <div>
-            <label>
-              <Field
-                name="jenis_pencarian"
-                component="input"
-                type="radio"
-                value="kode_barang"
-                className="mr-3"
-              />
-              Kode Barang
-            </label>
-            <label className="ml-3">
-              <Field
-                name="jenis_pencarian"
-                component="input"
-                type="radio"
-                value="nama_barang"
-                className="mr-3"
-              />
-              Nama Barang
-            </label>
-          </div>
+          <Field
+            name="kode_supplier"
+            component={ReanderSelect}
+            options={this.props.listsupplier.map((list) => {
+              let data = {
+                value: list.kode_supplier,
+                name: list.nama_supplier,
+              };
+              return data;
+            })}
+            onChange={(e) => {
+              this.setState({
+                supplier: e,
+              });
+              this.props.change("search_value", "");
+              localStorage.setItem("supplier_barang_sparepart", e);
+            }}
+            type="text"
+            label="Kode Supplier"
+            validate={required}
+            placeholder="Masukan Kode Supplier"
+          />
         </div>
 
         <div className="col-lg-4">
           <Field
             name="search_value"
-            component={RenderFieldGroup}
+            component={ReanderSelect}
+            options={this.props.listbarang.map((list) => {
+              let data = {
+                value: list.kode_barang,
+                name: list.nama_barang,
+              };
+              return data;
+            })}
+            onChange={(e) => {
+              this.state.supplier
+                ? this.setState({
+                    kode_barang: e,
+                  })
+                : ToastWarning("Silahkan Pilih Supplier Terlebih Dahulu");
+            }}
             type="text"
             label="Pencarian"
             placeholder="Masukan Pencarian"
@@ -107,15 +153,9 @@ class ModalPenjualanSparepart extends Component {
           <BootstrapTable
             bootstrap4
             keyField="id"
-            data={[
-              {
-                kode_barang: "BR001",
-                nama_barang: "OIL YAMALUBE",
-                merk: "YAMAHA",
-                satuan: "PCS",
-                harga: 125000,
-              },
-            ]}
+            data={this.props.listbarang.filter(
+              (list) => list.kode_barang === this.state.kode_barang
+            )}
             columns={this.state.columns}
             noDataIndication="Belum ada Data"
           />
@@ -129,4 +169,9 @@ ModalPenjualanSparepart = reduxForm({
   form: "ModalPenjualanSparepart",
   enableReinitialize: true,
 })(ModalPenjualanSparepart);
-export default ModalPenjualanSparepart;
+export default connect((state) => {
+  return {
+    listbarang: state.datamaster.listbarang,
+    listsupplier: state.datamaster.listsupplier,
+  };
+})(ModalPenjualanSparepart);

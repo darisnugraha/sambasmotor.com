@@ -35,7 +35,11 @@ function Tabel(props) {
           <div className="col-6">
             <div className="text-right">
               {tambahData && (
-                <button onClick={handleClick} className="btn btn-primary">
+                <button
+                  onClick={handleClick}
+                  className="btn btn-primary"
+                  type="button"
+                >
                   Tambah Data
                   <i className="fa fa-plus ml-3"></i>
                 </button>

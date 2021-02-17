@@ -1,11 +1,14 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { AxiosMasterGet } from "../../../../axios";
+import { getToday } from "../../../../components/notification/function";
+import { getUserData } from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
   PanelHeader,
 } from "../../../../components/panel/panel";
+import CetakStockPerKategori from "../LaporanStockPerKategori/CetakStockPerKategori";
 import CetakKartuStock from "./CetakKartuStock";
 import HeadLaporanKartuStock from "./HeadLaporanKartuStock";
 
@@ -16,9 +19,10 @@ class LaporanKartuStock extends Component {
       Laporan: [],
     };
   }
-  getLaporan() {
+  getLaporan(hasil) {
     AxiosMasterGet(
-      "laporan/stocking/lap-kartu-barang/SPL01&2021-01-01&2021-02-30&s&SEMUA&SEMUA"
+      "laporan/stocking/lap-saldo-barang/" +
+        `${hasil.tanggal_awal}&${hasil.kode_kategori}&${hasil.kode_jenis}&${hasil.kode_lokasi}`
     )
       .then((res) =>
         this.setState({
@@ -26,12 +30,11 @@ class LaporanKartuStock extends Component {
         })
       )
       .then(() =>
-        CetakKartuStock(
-          "2 Januari 2021",
-          "2 Februari 2021",
-          "ADMIN",
-          "2 FEBRUARI 2021",
-          "ADMIN",
+        CetakStockPerKategori(
+          hasil.tanggal_awal,
+          getUserData().user_name,
+          getToday(),
+          getUserData().user_name,
           this.state.Laporan
         )
       );
@@ -43,11 +46,11 @@ class LaporanKartuStock extends Component {
           <li className="breadcrumb-item">
             <Link to="#">Laporan</Link>
           </li>
-          <li className="breadcrumb-item active">Laporan Kartu Stock</li>
+          <li className="breadcrumb-item active">Laporan Stock Per Kategori</li>
         </ol>
-        <h1 className="page-header">Laporan Kartu Stock </h1>
+        <h1 className="page-header">Laporan Stock Per Kategori </h1>
         <Panel>
-          <PanelHeader>Laporan Kartu Stock</PanelHeader>
+          <PanelHeader>Laporan Stock Per Kategori</PanelHeader>
           <PanelBody>
             <HeadLaporanKartuStock onSubmit={(data) => this.getLaporan(data)} />
           </PanelBody>

@@ -1,11 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
-import {
-  ReanderField,
-  ReanderSelect,
-} from "../../../../components/notification/notification";
-import CetakPengeluaranBarang from "./CetakPengeluaranBarang";
+import { ReanderField } from "../../../../components/notification/notification";
 
 class HeadLaporanPengeluaranBarang extends Component {
   constructor(props) {

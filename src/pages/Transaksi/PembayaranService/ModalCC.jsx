@@ -1,11 +1,19 @@
 import React, { Component } from "react";
 import Cards from "react-credit-cards";
 import "react-credit-cards/es/styles-compiled.css";
-import { Field, reduxForm } from "redux-form";
+import { connect } from "react-redux";
+import { Field, formValueSelector, reduxForm } from "redux-form";
+import { createNumberMask } from "redux-form-input-masks";
+import { AxiosMasterGet } from "../../../axios";
 import {
   ReanderField,
   ReanderSelect,
 } from "../../../components/notification/notification";
+
+const currencyMask = createNumberMask({
+  prefix: "Rp. ",
+  locale: "id-ID",
+});
 
 class ModalCC extends Component {
   constructor(props) {
@@ -16,6 +24,10 @@ class ModalCC extends Component {
       focus: "",
       name: "",
       no_card: "",
+      nav1: "nav-item nav-link active",
+      nav2: "nav-item nav-link",
+      nav3: "nav-item nav-link",
+      listBank: [],
     };
   }
   handleInputFocus = (e) => {
@@ -28,6 +40,27 @@ class ModalCC extends Component {
     this.setState({ [name]: value });
     this.props.change(name, value);
   };
+
+  componentDidMount() {
+    AxiosMasterGet("bank/get/all").then((res) =>
+      this.setState({
+        listBank:
+          res &&
+          res.data.map((list) => {
+            let data = {
+              value: list.no_ac,
+              name: `${list.atas_nama} / ${list.nama_bank}`,
+            };
+            return data;
+          }),
+      })
+    );
+  }
+
+  setTotal() {
+    this.props.change("fee_card", this.props.fee_card);
+    this.props.change("total_card", this.props.total);
+  }
   render() {
     return (
       <div className="col-lg-12">
@@ -40,7 +73,53 @@ class ModalCC extends Component {
         />
         <form onSubmit={this.props.handleSubmit} className="mt-3">
           <div className="row">
-            <div className="col-lg-12 mb-2">
+            <div className="col-lg-12">
+              <nav className="nav nav-pills nav-fill">
+                <a
+                  className={this.state.nav1}
+                  href="#"
+                  onClick={() => {
+                    this.setState({
+                      nav1: "nav-item nav-link active",
+                      nav2: "nav-item nav-link",
+                      nav3: "nav-item nav-link",
+                    });
+                    this.props.change("jenis_trx", "DEBIT");
+                  }}
+                >
+                  DEBIT
+                </a>
+                <a
+                  className={this.state.nav2}
+                  href="#"
+                  onClick={() => {
+                    this.setState({
+                      nav1: "nav-item nav-link ",
+                      nav2: "nav-item nav-link active",
+                      nav3: "nav-item nav-link",
+                    });
+                    this.props.change("jenis_trx", "CARD");
+                  }}
+                >
+                  CREDIT
+                </a>
+                <a
+                  className={this.state.nav3}
+                  href="#"
+                  onClick={() => {
+                    this.setState({
+                      nav1: "nav-item nav-link ",
+                      nav2: "nav-item nav-link",
+                      nav3: "nav-item nav-link active",
+                    });
+                    this.props.change("jenis_trx", "TRANSFER");
+                  }}
+                >
+                  TRANSFER
+                </a>
+              </nav>
+            </div>
+            <div className="col-lg-12 mb-2 mt-2">
               <h4>Data Kartu</h4>
             </div>
             <div className="col-lg-3">
@@ -160,6 +239,15 @@ class ModalCC extends Component {
                 placeholder="Masukan Alamat KTP"
               />
             </div>
+            <div className="col-lg-3 d-none">
+              <Field
+                name="jenis_trx"
+                component={ReanderField}
+                type="text"
+                label="Jenis Transaksi"
+                placeholder="Masukan Jenis Transaksi"
+              />
+            </div>
             <div className="col-lg-3">
               <Field
                 name="kota"
@@ -185,12 +273,7 @@ class ModalCC extends Component {
               <Field
                 name="bank"
                 component={ReanderSelect}
-                options={[
-                  { value: "BANK01", name: "BANK 01" },
-                  { value: "BANK02", name: "BANK 02" },
-                  { value: "BANK03", name: "BANK 03" },
-                  { value: "BANK04", name: "BANK 04" },
-                ]}
+                options={this.state.listBank}
                 label="Bank"
                 placeholder="Masukan Bank"
               />
@@ -199,9 +282,10 @@ class ModalCC extends Component {
               <Field
                 name="grand_total"
                 component={ReanderField}
-                type="number"
+                type="telp"
                 label="Grand Total"
                 placeholder="Masukan Grand Total"
+                {...currencyMask}
               />
             </div>
             <div className="col-lg-1">
@@ -211,24 +295,27 @@ class ModalCC extends Component {
                 type="number"
                 label="% Card"
                 placeholder="0"
+                onChange={this.setTotal()}
               />
             </div>
             <div className="col-lg-2">
               <Field
                 name="fee_card"
                 component={ReanderField}
-                type="number"
+                type="telp"
                 label="Fee Card"
                 placeholder="0"
+                {...currencyMask}
               />
             </div>
             <div className="col-lg-3">
               <Field
                 name="total_card"
                 component={ReanderField}
-                type="number"
+                type="telp"
                 label="Card + Fee"
                 placeholder="Masukan Card + Fee"
+                {...currencyMask}
               />
             </div>
             <div className="col-lg-12">
@@ -249,4 +336,18 @@ ModalCC = reduxForm({
   form: "ModalCC",
   enableReinitialize: true,
 })(ModalCC);
-export default ModalCC;
+const selector = formValueSelector("ModalCC");
+export default connect((state) => {
+  const { grand_total, fee_card_percent } = selector(
+    state,
+    "grand_total",
+    "fee_card_percent"
+  );
+  return {
+    fee_card:
+      parseFloat(grand_total || 0) * (parseFloat(fee_card_percent || 0) / 100),
+    total:
+      parseFloat(grand_total || 0) +
+      parseFloat(grand_total || 0) * (parseFloat(fee_card_percent || 0) / 100),
+  };
+})(ModalCC);

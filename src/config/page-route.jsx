@@ -645,13 +645,13 @@ const routes = [
     path: "/laporan-stock-perkategori",
     exact: true,
     title: "Laporan Stock Per Kategori",
-    component: () => <LaporanStockPerKategori />,
+    component: () => <LaporanKartuStock />,
   },
   {
     path: "/laporan-kartu-stock",
     exact: true,
     title: "Laporan Kartu Stock",
-    component: () => <LaporanKartuStock />,
+    component: () => <LaporanStockPerKategori />,
   },
   {
     path: "/laporan-penerimaan-supplier",

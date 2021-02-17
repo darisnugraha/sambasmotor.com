@@ -5,10 +5,22 @@ import ModalGlobal from "../../ModalGlobal";
 import HeadPenjualanSparepart from "./HeadPenjualanSparepart";
 import ModalDetailBarangSparepart from "./ModalDetailBarangSparepart";
 import ModalPenjualanSparepart from "./ModalPenjualanSparepart";
-import ModalBayarService from "../PembayaranService/ModalBayarService.jsx";
 import { showModal } from "../../../actions/datamaster_action";
 import { connect } from "react-redux";
 import ModalCC from "../PembayaranService/ModalCC";
+import {
+  AxiosMasterGet,
+  AxiosMasterPost,
+  AxiosMasterPut,
+} from "../../../axios";
+import {
+  ToastError,
+  ToastSucces,
+  ToastWarning,
+} from "../../../components/notification/notification";
+import { getListBarang } from "../../../actions/transaksi_action";
+import ModalBayarSparepart from "./ModalBayarSparepart";
+import { reset } from "redux-form";
 
 class PenjualanSparepart extends Component {
   constructor(props) {
@@ -40,12 +52,79 @@ class PenjualanSparepart extends Component {
     };
   }
 
-  handleSubmit(data) {
-    console.log(data);
+  handleSubmit(hasil) {
+    this.setState({
+      bayar: true,
+    });
+    let data = {
+      no_faktur_jual: hasil.no_faktur,
+      tanggal: hasil.tanggal,
+      sales_id: hasil.kode_sales,
+      nama_customer: hasil.nama_customer,
+      alamat: hasil.alamat,
+      telepon: hasil.telepon,
+      grand_total: hasil.no_faktur,
+      cash_rp: hasil.no_faktur,
+      tukar_rp: hasil.no_faktur,
+      status_masuk_piutang: hasil.no_faktur,
+      grand_total: this.props.grand_total_all,
+      tukar_rp: this.props.totalTukar,
+      detail_barang: JSON.parse(localStorage.getItem("barangSparepart_temp")),
+      detail_tukar: JSON.parse(localStorage.getItem("tukarSparepart_temp")),
+    };
+    localStorage.setItem("headSparepart", JSON.stringify(data));
   }
-  setCariBarang() {
+  sendData(hasil) {
+    let array = JSON.parse(localStorage.getItem("headSparepart")) || [];
+    array["cash_rp"] = hasil.bayar;
+    array["status_masuk_piutang"] = hasil.piutang;
+    array["detail_non_tunai"] =
+      localStorage.getItem("listPembayaran_temp") === "[]"
+        ? [
+            {
+              no_ref: "-",
+              no_ac: "-",
+              bayar_rp: 0,
+              fee_rp: 0,
+              no_card: "-",
+              valid_until: "-",
+              nama_pemilik: "-",
+              no_ktp: "-",
+              alamat_ktp: "-",
+              kota_ktp: "-",
+              telepon_ktp: "-",
+              jenis_trx: "-",
+            },
+          ]
+        : localStorage.getItem("listPembayaran_temp") !== null
+        ? JSON.parse(localStorage.getItem("listPembayaran_temp"))
+        : [
+            {
+              no_ref: "-",
+              no_ac: "-",
+              bayar_rp: 0,
+              fee_rp: 0,
+              no_card: "-",
+              valid_until: "-",
+              nama_pemilik: "-",
+              no_ktp: "-",
+              alamat_ktp: "-",
+              kota_ktp: "-",
+              telepon_ktp: "-",
+              jenis_trx: "-",
+            },
+          ];
+    AxiosMasterPost("penjualan/post-transaksi", array).then(() =>
+      ToastSucces("Berhasil Menambah Data").catch((err) =>
+        ToastError("Gagal Menambah Data")
+      )
+    );
+  }
+  setCariBarang(data) {
+    console.log(data);
     this.setState({
       cari_barang: true,
+      jenis_barang: data,
     });
   }
   setBack() {
@@ -53,11 +132,7 @@ class PenjualanSparepart extends Component {
       cari_barang: false,
     });
   }
-  setBayar() {
-    this.setState({
-      bayar: true,
-    });
-  }
+
   showCC() {
     this.props.dispatch(showModal());
     this.setState({
@@ -72,6 +147,104 @@ class PenjualanSparepart extends Component {
     this.setState({
       jenisModal: "DETAIL",
     });
+  }
+  componentDidMount() {
+    AxiosMasterGet("penjualan/generate/no-trx")
+      .then((res) =>
+        localStorage.setItem(
+          "no_penjualan_sparepart",
+          res.data[0].no_faktur_jual
+        )
+      )
+      .catch((err) => {
+        ToastWarning("Gagal Ambil Faktur, Mohon Refresh");
+        console.log(err);
+      });
+    this.props.dispatch(getListBarang());
+  }
+  handleTambahBarang(hasil) {
+    let nama_local = "";
+    if (this.state.jenis_barang === "TAMBAH") {
+      nama_local = "barangSparepart_temp";
+      let array = JSON.parse(localStorage.getItem(nama_local)) || [];
+      let indexnya = array.findIndex(
+        (list) => list.kode_barcode === hasil.kode_barcode
+      );
+      if (indexnya !== -1) {
+        let data = {
+          kode_supplier:
+            localStorage.getItem("supplier_barang_sparepart") || "",
+          kode_barcode: hasil.kode_barcode,
+          qty: parseFloat(hasil.jumlah) + parseFloat(array[indexnya].qty),
+          harga_satuan: parseFloat(hasil.harga_satuan),
+          diskon_rp: parseFloat(hasil.discount),
+          harga_total:
+            parseFloat(hasil.grand_total) +
+            parseFloat(array[indexnya].harga_total),
+        };
+        array.splice(indexnya, 1);
+        array.push(data);
+        localStorage.setItem(nama_local, JSON.stringify(array));
+        ToastSucces("Barang Berhasil Ditambahkan");
+        this.props.dispatch(getListBarang());
+        this.props.dispatch(reset("HeadPenjualanSparepart"));
+      } else {
+        let data = {
+          kode_supplier:
+            localStorage.getItem("supplier_barang_sparepart") || "",
+          kode_barcode: hasil.kode_barcode,
+          qty: parseFloat(hasil.jumlah),
+          harga_satuan: parseFloat(hasil.harga_satuan),
+          diskon_rp: parseFloat(hasil.discount),
+          harga_total: parseFloat(hasil.grand_total),
+        };
+        array.push(data);
+        localStorage.setItem(nama_local, JSON.stringify(array));
+        ToastSucces("Barang Berhasil Ditambahkan");
+        this.props.dispatch(getListBarang());
+        this.props.dispatch(reset("HeadPenjualanSparepart"));
+      }
+    } else {
+      nama_local = "tukarSparepart_temp";
+      let array = JSON.parse(localStorage.getItem(nama_local)) || [];
+      let indexnya = array.findIndex(
+        (list) => list.kode_barcode === hasil.kode_barcode
+      );
+      if (indexnya !== -1) {
+        let data = {
+          kode_supplier:
+            localStorage.getItem("supplier_barang_sparepart") || "",
+          kode_barcode: hasil.kode_barcode,
+          qty: parseFloat(hasil.jumlah) + parseFloat(array[indexnya].qty),
+          harga_satuan: parseFloat(hasil.harga_satuan),
+          potongan: parseFloat(hasil.discount),
+          harga_total:
+            parseFloat(hasil.grand_total) +
+            parseFloat(array[indexnya].harga_total),
+        };
+        array.splice(indexnya, 1);
+        array.push(data);
+        localStorage.setItem(nama_local, JSON.stringify(array));
+        ToastSucces("Barang Berhasil Ditambahkan");
+        this.props.dispatch(getListBarang());
+        this.props.dispatch(reset("HeadPenjualanSparepart"));
+      } else {
+        let data = {
+          kode_supplier:
+            localStorage.getItem("supplier_barang_sparepart") || "",
+          kode_barcode: hasil.kode_barcode,
+          qty: parseFloat(hasil.jumlah),
+          harga_satuan: parseFloat(hasil.harga_satuan),
+          potongan: parseFloat(hasil.discount),
+          harga_total: parseFloat(hasil.grand_total),
+        };
+        array.push(data);
+        localStorage.setItem(nama_local, JSON.stringify(array));
+        ToastSucces("Barang Berhasil Ditambahkan");
+        this.props.dispatch(getListBarang());
+        this.props.dispatch(reset("HeadPenjualanSparepart"));
+      }
+    }
   }
   render() {
     return (
@@ -95,7 +268,7 @@ class PenjualanSparepart extends Component {
                     showDetail={() => this.showDetail()}
                   />
                 ) : this.state.bayar ? (
-                  <ModalBayarService
+                  <ModalBayarSparepart
                     showCC={() => this.showCC()}
                     columns={this.state.columnsListBayar}
                     data={this.state.dataListBayar}
@@ -104,11 +277,12 @@ class PenjualanSparepart extends Component {
                         bayar: false,
                       })
                     }
+                    onSubmit={(data) => this.sendData(data)}
                   />
                 ) : (
                   <HeadPenjualanSparepart
                     onSubmit={(data) => this.handleSubmit(data)}
-                    setCariBarang={() => this.setCariBarang()}
+                    setCariBarang={(data) => this.setCariBarang(data)}
                     setBayar={() => this.setBayar()}
                   />
                 )}
@@ -127,7 +301,10 @@ class PenjualanSparepart extends Component {
               }
               content={
                 this.state.jenisModal === "DETAIL" ? (
-                  <ModalDetailBarangSparepart />
+                  <ModalDetailBarangSparepart
+                    jenis_barang={this.state.jenis_barang}
+                    onSubmit={(data) => this.handleTambahBarang(data)}
+                  />
                 ) : this.state.jenisModal === "CC" ? (
                   <ModalCC onSubmit={(data) => this.handleSimpanCC(data)} />
                 ) : null
@@ -140,4 +317,11 @@ class PenjualanSparepart extends Component {
   }
 }
 
-export default connect()(PenjualanSparepart);
+export default connect((state) => {
+  return {
+    listBarangSparepart: state.transaksi.listBarangSparepart,
+    grand_total_all: state.transaksi.sub_total,
+    sum_pembayaran: state.transaksi.sum_pembayaran,
+    totalTukar: state.transaksi.totalTukar,
+  };
+})(PenjualanSparepart);

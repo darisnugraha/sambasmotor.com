@@ -1,16 +1,65 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
+import { AxiosMasterGet } from "../../../../axios";
 import {
   ReanderField,
   ReanderSelect,
 } from "../../../../components/notification/notification";
-import CetakKartuStock from "./CetakKartuStock";
 
 class HeadLaporanKartuStock extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      listJenis: [],
+      listKategori: [],
+      listGudang: [],
+    };
+  }
+  componentDidMount() {
+    AxiosMasterGet("kategori/get/all").then((res) =>
+      this.setState({
+        listKategori:
+          res &&
+          res.data.map((list) => {
+            let data = {
+              value: list.kode_kategori,
+              name: list.nama_kategori,
+            };
+            return data;
+          }),
+      })
+    );
+
+    AxiosMasterGet("lokasi-gudang/get/all").then((res) =>
+      this.setState({
+        listGudang:
+          res &&
+          res.data.map((list) => {
+            let data = {
+              value: list.kode_lokasi_gudang,
+              name: list.nama_lokasi_gudang,
+            };
+            return data;
+          }),
+      })
+    );
+  }
+  getJenis(hasil) {
+    this.props.change("kode_jenis", "");
+    AxiosMasterGet("jenis/get/by-kode-kategori/" + hasil).then((res) =>
+      this.setState({
+        listJenis:
+          res &&
+          res.data.map((list) => {
+            let data = {
+              value: list.kode_jenis,
+              name: list.nama_jenis,
+            };
+            return data;
+          }),
+      })
+    );
   }
   render() {
     return (
@@ -18,17 +67,20 @@ class HeadLaporanKartuStock extends Component {
         <div className="row">
           <div className="col-lg-3">
             <Field
-              name="kode_supplier"
-              component={ReanderField}
+              name="kode_kategori"
+              component={ReanderSelect}
+              options={this.state.listKategori}
               type="text"
-              label="Kode Supplier"
-              placeholder="Masukan Kode Supplier"
+              label="Kategori"
+              placeholder="Masukan Kategori"
+              onChange={(data) => this.getJenis(data)}
             />
           </div>
           <div className="col-lg-3">
             <Field
-              name="jenis"
-              component={ReanderField}
+              name="kode_jenis"
+              component={ReanderSelect}
+              options={this.state.listJenis}
               type="text"
               label="Jenis"
               placeholder="Masukan Jenis"
@@ -36,17 +88,9 @@ class HeadLaporanKartuStock extends Component {
           </div>
           <div className="col-lg-3">
             <Field
-              name="kdde_merk"
-              component={ReanderField}
-              type="text"
-              label="Merk"
-              placeholder="Masukan Merk"
-            />
-          </div>
-          <div className="col-lg-3">
-            <Field
               name="kode_lokasi"
-              component={ReanderField}
+              component={ReanderSelect}
+              options={this.state.listGudang}
               type="text"
               label="Lokasi"
               placeholder="Masukan Lokasi"
@@ -59,30 +103,6 @@ class HeadLaporanKartuStock extends Component {
               type="date"
               label="Dari Tanggal"
               placeholder="Masukan Tanggal Awal"
-            />
-          </div>
-          <div className="col-lg-3">
-            <Field
-              name="tanggal_akhir"
-              component={ReanderField}
-              type="date"
-              label="Sampai Tanggal"
-              placeholder="Masukan Sampai Tanggal"
-            />
-          </div>
-          <div className="col-lg-3">
-            <Field
-              name="divisi"
-              component={ReanderSelect}
-              options={[
-                { value: "DIVISI01", name: "DIVISI 01" },
-                { value: "DIVISI02", name: "DIVISI 02" },
-                { value: "DIVISI03", name: "DIVISI 03" },
-                { value: "DIVISI04", name: "DIVISI 04" },
-              ]}
-              type="text"
-              label="Divisi"
-              placeholder="Masukan Divisi"
             />
           </div>
           <div className="col-lg-12">

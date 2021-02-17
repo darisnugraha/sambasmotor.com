@@ -10,7 +10,7 @@ const currencyMask = createNumberMask({
   locale: "id-ID",
 });
 
-class ModalBayar extends Component {
+class ModalBayarSparepart extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -50,6 +50,10 @@ class ModalBayar extends Component {
                       "id-ID"
                     )}
                   </p>
+                  <h3>Total Tukar</h3>
+                  <p style={{ fontSize: 32, fontWeight: 700 }}>
+                    {parseFloat(this.props.totalTukar).toLocaleString("id-ID")}
+                  </p>
                   <h3>Bayar</h3>
                   <div className="col-lg-12">
                     <div className="row">
@@ -63,6 +67,21 @@ class ModalBayar extends Component {
                           className=" form-control-lg"
                           onChange={(e) => this.setBayar(e)}
                           {...currencyMask}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-lg-12">
+                    <div className="row">
+                      <div className="col-lg-3"></div>
+                      <div className="col-lg-6 text-center">
+                        <label htmlFor="">Masuk Piutang ?</label>
+                        <Field
+                          name="piutang"
+                          component="input"
+                          type="checkbox"
+                          placeholder="Masukan Bayar"
+                          className="ml-3"
                         />
                       </div>
                     </div>
@@ -86,9 +105,9 @@ class ModalBayar extends Component {
               </div>
             </div>
           </div>
-          <div className="text-center col-lg-12">
+          <div className="text-center col-lg-6">
             <button
-              className="btn-lg btn-teal btn-block"
+              className="btn-lg btn-primary btn-block"
               disabled={this.props.onSend}
             >
               {this.props.onSend ? (
@@ -103,19 +122,23 @@ class ModalBayar extends Component {
   }
 }
 
-ModalBayar = reduxForm({
-  form: "ModalBayar",
+ModalBayarSparepart = reduxForm({
+  form: "ModalBayarSparepart",
   enableReinitialize: true,
-})(ModalBayar);
-const selector = formValueSelector("ModalBayar");
+})(ModalBayarSparepart);
+const selector = formValueSelector("ModalBayarSparepart");
 export default connect((state) => {
   localStorage.setItem("bayar_rp_rongsok", selector(state, "bayar") || 0);
   return {
     grand_total_all: state.transaksi.sub_total,
     listPembayaran_temp: state.transaksi.listpembayaran_temp,
     sum_pembayaran: state.transaksi.sum_pembayaran,
-    kembali: (selector(state, "bayar") || 0) - state.transaksi.sub_total,
+    totalTukar: state.transaksi.totalTukar,
+    kembali:
+      (selector(state, "bayar") || 0) -
+      state.transaksi.sub_total +
+      state.transaksi.totalTukar,
     bayar: selector(state, "bayar") || 0,
     onSend: state.datamaster.onSend,
   };
-})(ModalBayar);
+})(ModalBayarSparepart);
