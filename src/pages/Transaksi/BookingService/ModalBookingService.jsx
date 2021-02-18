@@ -6,174 +6,63 @@ import {
   ReanderSelect,
   RenderTime,
 } from "../../../components/notification/notification";
-import Stepper from "react-stepper-horizontal";
-import NavigationStepper from "../../../components/content/NavigationStepper";
+import {
+  getCustomer,
+  getKategoriService,
+  getSales,
+} from "../../../actions/datamaster_action";
 
 class ModalBookingService extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      step: 0,
-      step1: "row",
-      step2: "row d-none",
-    };
+    this.state = {};
   }
   handleChange(nama, data) {
     let split = data || "DEFAULT|DEFAULT";
     let hasil = split.split("|");
     this.props.change(nama, hasil[1]);
   }
-  nextStep() {
-    switch (this.state.step) {
-      case 0:
-        this.setState({
-          step: this.state.step + 1,
-          step1: "row d-none",
-          step2: "row",
-        });
-        break;
-      default:
-        break;
-    }
+  componentDidMount() {
+    this.props.dispatch(getCustomer());
+    this.props.dispatch(getKategoriService());
+    this.props.dispatch(getSales());
   }
-  prevStep() {
-    switch (this.state.step) {
-      case 1:
-        this.setState({
-          step: this.state.step - 1,
-          step1: "row ",
-          step2: "row d-none",
-        });
-        break;
-      default:
-        break;
-    }
+  setCustomerDetail(data) {
+    let hasil = data.split("||");
   }
   render() {
     return (
       <div>
         <form onSubmit={this.props.handleSubmit}>
           <div className="col-lg-12">
-            <div className="col-lg-12 mb-5">
-              <Stepper
-                steps={[
-                  {
-                    title: "Data Customer",
-                    onClick: () => {
-                      this.prevStep(1);
-                    },
-                  },
-                  {
-                    title: "Data Kendaraan",
-                  },
-                ]}
-                activeStep={this.state.step}
-              />
-            </div>
-            <div className={this.state.step1}>
+            <div className="row">
               <div className="col-lg-3">
                 <Field
-                  name="nama"
-                  component={ReanderField}
-                  type="text"
-                  label="Nama"
-                  placeholder="Masukan Nama"
-                />
-              </div>
-              <div className="col-lg-3">
-                <Field
-                  name="alamat"
-                  component={ReanderField}
-                  type="text"
-                  label="Alamat"
-                  placeholder="Masukan Alamat"
-                />
-              </div>
-              <div className="col-lg-3">
-                <Field
-                  name="kota"
-                  component={ReanderField}
-                  type="text"
-                  label="Kota"
-                  placeholder="Masukan Kota"
-                />
-              </div>
-              <div className="col-lg-3">
-                <Field
-                  name="handphone"
-                  component={ReanderField}
-                  type="text"
-                  label="Handphone"
-                  placeholder="Masukan Handphone"
-                />
-              </div>
-              <NavigationStepper first nextStep={() => this.nextStep(0)} />
-            </div>
-            <div className={this.state.step2}>
-              <div className="col-lg-3">
-                <Field
-                  name="no_polisi"
-                  component={ReanderField}
-                  type="text"
-                  label="Nomor Polisi"
-                  placeholder="Masukan Nomor Polisi"
-                />
-              </div>
-              <div className="col-lg-3">
-                <Field
-                  name="merk"
+                  name="pelaggan"
                   component={ReanderSelect}
-                  options={[
-                    { value: "MERK01", name: "MERK 01" },
-                    { value: "MERK02", name: "MERK 02" },
-                    { value: "MERK03", name: "MERK 03" },
-                    { value: "MERK04", name: "MERK 04" },
-                  ]}
+                  options={this.props.listCustomer.map((list) => {
+                    let data = {
+                      value: `${list.kode_customer}||${list.nama_customer}||${list.alamat}||${list.handphone}||${list.nopol_kendaraan}||${list.merk_kendaraan}||${list.warna_kendaraann}`,
+                      name: list.nama_customer,
+                    };
+                    return data;
+                  })}
                   type="text"
-                  label="Merk"
-                  placeholder="Masukan Merk"
-                />
-              </div>
-              <div className="col-lg-3">
-                <Field
-                  name="model"
-                  component={ReanderSelect}
-                  options={[
-                    { value: "MODEL01", name: "MODEL 01" },
-                    { value: "MODEL02", name: "MODEL 02" },
-                    { value: "MODEL03", name: "MODEL 03" },
-                    { value: "MODEL04", name: "MODEL 04" },
-                  ]}
-                  type="text"
-                  label="Model"
-                  placeholder="Masukan Model"
-                />
-              </div>
-              <div className="col-lg-3">
-                <Field
-                  name="warna"
-                  component={ReanderSelect}
-                  options={[
-                    { value: "WARNA01", name: "WARNA 01" },
-                    { value: "WARNA02", name: "WARNA 02" },
-                    { value: "WARNA03", name: "WARNA 03" },
-                    { value: "WARNA04", name: "WARNA 04" },
-                  ]}
-                  type="text"
-                  label="Warna"
-                  placeholder="Masukan Warna"
+                  label="Nama customer"
+                  placeholder="Masukan Nama customer"
                 />
               </div>
               <div className="col-lg-3">
                 <Field
                   name="kategori_service"
                   component={ReanderSelect}
-                  options={[
-                    { value: "KATEGORI01", name: "KATEGORI 01" },
-                    { value: "KATEGORI02", name: "KATEGORI 02" },
-                    { value: "KATEGORI03", name: "KATEGORI 03" },
-                    { value: "KATEGORI04", name: "KATEGORI 04" },
-                  ]}
+                  options={this.props.listkategoriservice.map((list) => {
+                    let data = {
+                      value: list.id_kategori_service,
+                      name: list.kategori_service,
+                    };
+                    return data;
+                  })}
                   type="text"
                   label="Kategori Service"
                   placeholder="Masukan Kategori Service"
@@ -201,12 +90,15 @@ class ModalBookingService extends Component {
                 <Field
                   name="id_mekanik"
                   component={ReanderSelect}
-                  options={[
-                    { value: "MEKANIK01", name: "MEKANIK 01" },
-                    { value: "MEKANIK02", name: "MEKANIK 02" },
-                    { value: "MEKANIK03", name: "MEKANIK 03" },
-                    { value: "MEKANIK04", name: "MEKANIK 04" },
-                  ]}
+                  options={this.props.listsales
+                    .filter((list) => list.kode_divisi === "MKN")
+                    .map((list) => {
+                      let data = {
+                        value: list.kode_pegawai,
+                        name: list.nama_pegawai,
+                      };
+                      return data;
+                    })}
                   type="text"
                   label="ID Mekanik"
                   placeholder="Masukan ID Mekanik"
@@ -242,4 +134,10 @@ ModalBookingService = reduxForm({
   form: "ModalBookingService",
   enableReinitialize: true,
 })(ModalBookingService);
-export default connect()(ModalBookingService);
+export default connect((state) => {
+  return {
+    listCustomer: state.datamaster.listcustomer,
+    listkategoriservice: state.datamaster.listkategoriservice,
+    listsales: state.datamaster.listsales,
+  };
+})(ModalBookingService);

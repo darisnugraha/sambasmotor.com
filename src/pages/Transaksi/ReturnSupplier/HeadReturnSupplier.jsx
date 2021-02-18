@@ -14,6 +14,7 @@ import { formatDateISO } from "../../../components/notification/function";
 import { TabelGlobal } from "../TabelGlobal";
 import { getListReturnSupplier } from "../../../actions/transaksi_action";
 import Swal from "sweetalert2";
+import Tabel from "../../../components/Tabel/tabel";
 
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
@@ -226,9 +227,12 @@ class HeadReturnSupplier extends Component {
             </div>
           </div>
           <div className="col-lg-12">
-            <TabelGlobal
-              data={this.props.listreturnsupplier}
+            <Tabel
+              keyField="kode_barcode"
+              data={this.props.listreturnsupplier || []}
               columns={this.state.columns}
+              CSVExport
+              textEmpty="Silahkan klik Tombol Kuning Untuk Tambah Barang"
             />
           </div>
           <div className="col-lg-12">

@@ -42,13 +42,6 @@ class PenjualanSparepart extends Component {
           text: "Jumlah",
         },
       ],
-      dataListBayar: [
-        {
-          jenis_bayar: "CREDIT CARD",
-          bank: "BCA",
-          jumlah: 100000000,
-        },
-      ],
     };
   }
 

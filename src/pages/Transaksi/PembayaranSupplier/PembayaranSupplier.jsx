@@ -36,7 +36,6 @@ class PembayaranSupplier extends React.Component {
     };
   }
 
-  componentDidMount() {}
   handleSubmit(hasil) {
     let data = {
       no_bayar_supplier: localStorage.getItem("no_bayar_supplier"),

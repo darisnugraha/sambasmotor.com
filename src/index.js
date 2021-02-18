@@ -46,6 +46,7 @@ ReactDOM.render(
   </BrowserRouter>,
   document.getElementById("root")
 );
+
 serviceWorkerRegistration.register();
 
 reportWebVitals();

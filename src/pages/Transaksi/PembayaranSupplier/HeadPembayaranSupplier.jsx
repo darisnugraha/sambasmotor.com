@@ -9,6 +9,7 @@ import {
   ReanderField,
   ReanderSelect,
 } from "../../../components/notification/notification";
+import Tabel from "../../../components/Tabel/tabel";
 
 class HeadPembayaranSupplier extends Component {
   constructor(props) {
@@ -163,11 +164,12 @@ class HeadPembayaranSupplier extends Component {
               </div>
             </div>
             <div className="col-lg-12 mt-3">
-              <BootstrapTable
-                bootstrap4
-                keyField="id"
-                data={this.props.listTransaksi}
+              <Tabel
+                keyField="no_terima"
+                data={this.props.listTransaksi || []}
                 columns={this.state.columns}
+                CSVExport
+                textEmpty="Silahkan masukan nomor bon dan klik Tombol Cari Untuk melihat data"
               />
             </div>
           </div>
