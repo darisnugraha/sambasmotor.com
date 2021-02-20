@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "edbaf318daf2dd9688ea0d5272a013cc",
+    "revision": "129aa2b26832294360ffcea076c01251",
     "url": "/sambasmotor.com/index.html"
   },
   {
@@ -12,7 +12,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/sambasmotor.com/static/css/7.680a0b18.chunk.css"
   },
   {
-    "revision": "ad1c47cfe8efa1295544",
+    "revision": "cb2d4e90f109b9e1aef3",
     "url": "/sambasmotor.com/static/css/main.d2cf55cf.chunk.css"
   },
   {
@@ -32,8 +32,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/sambasmotor.com/static/js/100.93e2192a.chunk.js"
   },
   {
-    "revision": "a9eb1149148b4e5e03f9",
-    "url": "/sambasmotor.com/static/js/101.09020f66.chunk.js"
+    "revision": "4d006c4ca1b286fcbf62",
+    "url": "/sambasmotor.com/static/js/101.d306acf7.chunk.js"
   },
   {
     "revision": "fe2c5b723fe0e865ab9e",
@@ -500,8 +500,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/sambasmotor.com/static/js/92.e6604941.chunk.js"
   },
   {
-    "revision": "98a6ff3cc47808374409",
-    "url": "/sambasmotor.com/static/js/93.224bc7c5.chunk.js"
+    "revision": "fc8874a02aef792cc309",
+    "url": "/sambasmotor.com/static/js/93.f968f644.chunk.js"
   },
   {
     "revision": "80d914a591c91bb7165f",
@@ -528,12 +528,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/sambasmotor.com/static/js/99.dd2003eb.chunk.js"
   },
   {
-    "revision": "ad1c47cfe8efa1295544",
-    "url": "/sambasmotor.com/static/js/main.f51b7072.chunk.js"
+    "revision": "cb2d4e90f109b9e1aef3",
+    "url": "/sambasmotor.com/static/js/main.2b8c3b75.chunk.js"
   },
   {
-    "revision": "60ba203d915903590c15",
-    "url": "/sambasmotor.com/static/js/runtime~main.88d06057.js"
+    "revision": "a04e400777c4a0fdf047",
+    "url": "/sambasmotor.com/static/js/runtime~main.35923e51.js"
   },
   {
     "revision": "47d95ec491cadad20dddfd8580bb1ce8",
