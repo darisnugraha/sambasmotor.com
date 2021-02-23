@@ -81,6 +81,7 @@ class ModalSupplierPenerimaan extends Component {
               placeholder="Masukan Kode Barang"
               onChange={(hasil) => this.getBarcode(hasil)}
               onBlur={(hasil) => this.getBarcode(hasil)}
+              autoFocus
             />
           </div>
           <div className="col-lg-8"></div>
@@ -123,8 +124,8 @@ class ModalSupplierPenerimaan extends Component {
                 return data;
               })}
               type="text"
-              label="Kwalitas"
-              placeholder="Masukan Kwalitas"
+              label="Kualitas"
+              placeholder="Masukan Kualitas"
               readOnly
             />
           </div>

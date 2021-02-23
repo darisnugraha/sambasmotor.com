@@ -2,10 +2,10 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
 import { createNumberMask } from "redux-form-input-masks";
+import { getParameter } from "../../../actions/datamaster_action";
 import {
   ReanderField,
   ReanderSelect,
-  renderTextArea,
 } from "../../../components/notification/notification";
 
 const currencyMask = createNumberMask({
@@ -17,6 +17,9 @@ class HeadTambahKas extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+  }
+  componentDidMount() {
+    this.props.dispatch(getParameter());
   }
   render() {
     return (
@@ -45,21 +48,24 @@ class HeadTambahKas extends Component {
             <Field
               name="kategori"
               component={ReanderSelect}
-              options={[
-                { value: "KATEGORI01", name: "KATEGORI 01" },
-                { value: "KATEGORI02", name: "KATEGORI 02" },
-                { value: "KATEGORI03", name: "KATEGORI 03" },
-                { value: "KATEGORI04", name: "KATEGORI 04" },
-              ]}
+              options={this.props.listparameter.map((list) => {
+                let data = {
+                  value: list.kategori,
+                  name: list.kategori,
+                };
+                return data;
+              })}
               type="text"
               label="Kategori"
               placeholder="Masukan Kategori"
             />
           </div>
-          <div className="col-lg-12">
+          <div className="col-lg-12 mb-2">
+            <label htmlFor="">Keterangan</label>
             <Field
               name="keterangan"
-              component={renderTextArea}
+              component="textarea"
+              className="form-control"
               type="text"
               label="Keterangan"
               placeholder="Masukan Keterangan"
@@ -82,4 +88,8 @@ HeadTambahKas = reduxForm({
   form: "HeadTambahKas",
   enableReinitialize: true,
 })(HeadTambahKas);
-export default connect()(HeadTambahKas);
+export default connect((state) => {
+  return {
+    listparameter: state.datamaster.listparameter,
+  };
+})(HeadTambahKas);

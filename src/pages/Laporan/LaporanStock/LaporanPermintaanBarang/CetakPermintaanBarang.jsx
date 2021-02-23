@@ -58,7 +58,7 @@ const CetakPegeluaranBarang = (
           content: `MERK`,
         },
         {
-          content: `KWALITAS`,
+          content: `KUALITAS`,
         },
 
         {

@@ -1,16 +1,43 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import { AxiosMasterGet } from "../../../../axios";
+import { getToday } from "../../../../components/notification/function";
+import { getUserData } from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
   PanelHeader,
 } from "../../../../components/panel/panel";
+import CetakKeuanganKas from "./CetakKeuanganKas";
 import HeadLaporanKeuanganKas from "./HeadLaporanKeuanganKas";
 
 class LaporanKeuanganKas extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      listLaporan: [],
+    };
+  }
+  getLaporan(hasil) {
+    AxiosMasterGet(
+      "laporan/keuangan/lap-cash/" +
+        `${hasil.tanggal_awal}&${hasil.tanggal_akhir}`
+    )
+      .then((res) =>
+        this.setState({
+          listLaporan: res.data,
+        })
+      )
+      .then(() =>
+        CetakKeuanganKas(
+          hasil.tanggal_awal,
+          hasil.tanggal_akhir,
+          getUserData().user_name,
+          getToday(),
+          getUserData().level,
+          this.state.listLaporan
+        )
+      );
   }
   render() {
     return (
@@ -19,13 +46,15 @@ class LaporanKeuanganKas extends Component {
           <li className="breadcrumb-item">
             <Link to="#">Laporan</Link>
           </li>
-          <li className="breadcrumb-item active">Laporan KeuanganKas</li>
+          <li className="breadcrumb-item active">Laporan Keuangan Kas</li>
         </ol>
-        <h1 className="page-header">Laporan KeuanganKas </h1>
+        <h1 className="page-header">Laporan Keuangan Kas </h1>
         <Panel>
-          <PanelHeader>Laporan KeuanganKas</PanelHeader>
+          <PanelHeader>Laporan Keuangan Kas</PanelHeader>
           <PanelBody>
-            <HeadLaporanKeuanganKas />
+            <HeadLaporanKeuanganKas
+              onSubmit={(data) => this.getLaporan(data)}
+            />
           </PanelBody>
         </Panel>
       </div>

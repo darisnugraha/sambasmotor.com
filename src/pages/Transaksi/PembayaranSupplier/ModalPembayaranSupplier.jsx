@@ -8,13 +8,22 @@ import {
   ReanderField,
   ReanderSelect,
 } from "../../../components/notification/notification";
+import ComponentReturn from "../Supplier/ComponentReturn";
 
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
   locale: "id-ID",
 });
 
-class ModalPembayaranSupplier extends Component {
+const validate = (value) => {
+  const errors = {};
+  if (value.cash + value.transfer > value.sisa_hutang) {
+    errors.cash = "Total Bayar Tidak Boleh Lebih Dari Sisa Hutang";
+    errors.transfer = "Total Bayar Tidak Boleh Lebih Dari Sisa Hutang";
+  }
+  return errors;
+};
+class ModalBayarSupplierPenerimaan extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -22,7 +31,13 @@ class ModalPembayaranSupplier extends Component {
       cash: "col-lg-12 d-none",
       transfer: "col-lg-12 d-none",
       listBank: [],
+      bayar: true,
     };
+  }
+  reRender() {
+    this.setState({
+      bayar: !this.state.bayar,
+    });
   }
   setTotal() {
     if (this.props.total > this.props.total_cash) {
@@ -47,20 +62,21 @@ class ModalPembayaranSupplier extends Component {
         <div className="col-lg-12">
           <form onSubmit={this.props.handleSubmit}>
             <div className="row">
-              <div className="col-lg-3"></div>
               <div className="col-lg-6 text-center mb-3">
                 <h4>Total Hutang</h4>
                 <h1>{`Rp. ${parseFloat(this.props.sisa_hutang).toLocaleString(
                   "id-ID"
                 )}`}</h1>
+              </div>
+              <div className="col-lg-6 text-center mb-3">
                 <h4>Total Retur</h4>
                 <h1>{`Rp. ${parseFloat(this.props.retur_rp).toLocaleString(
                   "id-ID"
                 )}`}</h1>
               </div>
-              <div className="col-lg-6">
+              <div className="col-lg-4">
                 <div className="col-lg-12">
-                  <h2>Pembayaran Cash</h2>
+                  <h3>Pembayaran Cash</h3>
                   <br />
                 </div>
                 <div className="col-lg-12">
@@ -93,7 +109,7 @@ class ModalPembayaranSupplier extends Component {
                     placeholder="Masukan Tanggal Terima"
                   />
                 </div>
-                <div className="col-lg-3 ">
+                <div className="col-lg-3 d-none">
                   <Field
                     name="no_bon"
                     component={ReanderField}
@@ -126,40 +142,10 @@ class ModalPembayaranSupplier extends Component {
                     metode sekaligus
                   </p>
                 </div>
-                <div className="col-lg-12">
-                  <h2>Pembayaran Return</h2>
-                </div>
-                <div className="col-lg-12">
-                  <div>
-                    <br />
-                    <div>
-                      <label>
-                        <Field
-                          name="retur_supplier"
-                          component="input"
-                          type="radio"
-                          value={`${this.props.retur_rp}`}
-                          className="mr-3"
-                        />
-                        Bayar
-                      </label>
-                      <label className="ml-3">
-                        <Field
-                          name="retur_supplier"
-                          component="input"
-                          type="radio"
-                          value="0"
-                          className="mr-3"
-                        />
-                        Jangan Bayar
-                      </label>
-                    </div>
-                  </div>
-                </div>
               </div>
-              <div className="col-lg-6">
+              <div className="col-lg-4">
                 <div className="col-lg-12">
-                  <h2>Pembayaran Transfer</h2>
+                  <h3>Pembayaran Transfer</h3>
                   <br />
                 </div>
                 <div className="col-lg-12">
@@ -200,10 +186,18 @@ class ModalPembayaranSupplier extends Component {
                   />
                 </div>
               </div>
+              <div className="col-lg-4">
+                <div className="col-lg-12">
+                  <h3>Pembayaran Return</h3>
+                  <br />
+                </div>
+                <div className="col-lg-12">
+                  <ComponentReturn reRender={() => this.reRender()} />
+                </div>
+              </div>
             </div>
             <div className="col-lg-12">
               <div className="row">
-                <div className="col-lg-3"></div>
                 <div className="col-lg-6">
                   <Field
                     name="total_ref"
@@ -215,16 +209,13 @@ class ModalPembayaranSupplier extends Component {
                     {...currencyMask}
                   />
                 </div>
-              </div>
-              <div className="row">
-                <div className="col-lg-3"></div>
                 <div className="col-lg-6">
                   <Field
                     name="total"
                     component={ReanderField}
                     type="text"
-                    label="Total"
-                    placeholder="Masukan Total"
+                    label="Total Dibayar"
+                    placeholder="Masukan Total Dibayar"
                     readOnly
                     {...currencyMask}
                   />
@@ -243,22 +234,29 @@ class ModalPembayaranSupplier extends Component {
   }
 }
 
-ModalPembayaranSupplier = reduxForm({
-  form: "ModalPembayaranSupplier",
+ModalBayarSupplierPenerimaan = reduxForm({
+  form: "ModalBayarSupplierPenerimaan",
   enableReinitialize: true,
-})(ModalPembayaranSupplier);
-const selector = formValueSelector("ModalPembayaranSupplier");
+  validate: validate,
+})(ModalBayarSupplierPenerimaan);
+const selector = formValueSelector("ModalBayarSupplierPenerimaan");
 export default connect((state) => {
   const { cash, transfer } = selector(state, "cash", "transfer");
+  let retur = JSON.parse(localStorage.getItem("list_return")) || [];
+  let total_return =
+    retur && retur.map((list) => list.total_retur).reduce((a, b) => a + b, 0);
   return {
     total: parseFloat(cash || 0) + parseFloat(transfer || 0),
     sisa_hutang: state.transaksi.listPembayaran.sisa_hutang,
-    retur_rp: state.transaksi.listPembayaran.retur_rp,
+    retur_rp: total_return,
     kode_supplier: state.transaksi.listPembayaran.kode_supplier,
     no_terima: state.transaksi.listPembayaran.no_terima,
     tanggal_terima: state.transaksi.listPembayaran.tanggal_terima,
     total_cash:
       parseFloat(state.transaksi.listPembayaran.sisa_hutang) -
-      parseFloat(state.transaksi.listPembayaran.retur_rp),
+      parseFloat(total_return),
+    initialValues: {
+      sisa_hutang: state.transaksi.listPembayaran.sisa_hutang,
+    },
   };
-})(ModalPembayaranSupplier);
+})(ModalBayarSupplierPenerimaan);

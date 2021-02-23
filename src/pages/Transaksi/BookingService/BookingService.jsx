@@ -1,7 +1,10 @@
 import React, { lazy } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { NotifSucces } from "../../../components/notification/notification.jsx";
+import {
+  NotifError,
+  NotifSucces,
+} from "../../../components/notification/notification.jsx";
 import {
   Panel,
   PanelBody,
@@ -9,6 +12,8 @@ import {
 } from "../../../components/panel/panel.jsx";
 import { reset } from "redux-form";
 import axios from "axios";
+import { getToday } from "../../../components/helpers/function.jsx";
+import { AxiosMasterPost } from "../../../axios.js";
 
 const ModalBookingService = lazy(() => import("./ModalBookingService.jsx"));
 
@@ -36,27 +41,42 @@ class BookingService extends React.Component {
     );
   }
   handleSubmit(hasil) {
-    let array = JSON.parse(localStorage.getItem("BookingService_temp")) || [];
     let data = {
-      nama: hasil.nama,
-      alamat: hasil.alamat,
-      kota: hasil.kota,
-      handphone: hasil.handphone,
-      no_polisi: hasil.no_polisi,
-      merk: hasil.merk,
-      model: hasil.model,
-      warna: hasil.warna,
-      kategori_service: hasil.kategori_service,
-      tanggal: hasil.tanggal,
+      // nama: hasil.nama,
+      // alamat: hasil.alamat,
+      // kota: hasil.kota,
+      // handphone: hasil.handphone,
+      // no_polisi: hasil.no_polisi,
+      // merk: hasil.merk,
+      // model: hasil.model,
+      // warna: hasil.warna,
+      // kategori_service: hasil.kategori_service,
+      // tanggal: hasil.tanggal,
+      // jam: hasil.jam,
+      // catatan: hasil.catatan,
+      // KOLAH
+      no_booking: Math.floor(Math.random() * 100000000).toString(),
+      tgl_booking: getToday(),
+      nopol_kendaraan: hasil.nopol_kendaraan,
+      jenis_service: hasil.kategori_service,
+      tgl_layanan: hasil.tanggal,
       jam: hasil.jam,
+      kode_pegawai: hasil.id_mekanik,
       catatan: hasil.catatan,
     };
-
-    array.push(data);
-    localStorage.setItem("BookingService_temp", JSON.stringify(array));
-    NotifSucces("Berhasil Menambahan Data Booking").then(() =>
-      this.props.dispatch(reset("ModalBookingService"))
-    );
+    // console.log(data);
+    // return false;
+    AxiosMasterPost("service/booking/post-transaksi", data)
+      .then(() => NotifSucces("Booking Berhasil"))
+      .then(() => this.props.dispatch(reset("ModalBookingService")))
+      .catch((err) =>
+        NotifError(`Booking Gagal, Error : ${err.response.data}`)
+      );
+    // array.push(data);
+    // localStorage.setItem("BookingService_temp", JSON.stringify(array));
+    // NotifSucces("Berhasil Menambahan Data Booking").then(() =>
+    //   this.props.dispatch(reset("ModalBookingService"))
+    // );
   }
 
   render() {

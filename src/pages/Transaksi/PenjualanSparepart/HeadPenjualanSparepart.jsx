@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import BootstrapTable from "react-bootstrap-table-next";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
 import { AxiosMasterGet } from "../../../axios";
@@ -34,8 +33,7 @@ class HeadPenjualanSparepart extends Component {
         {
           dataField: "harga_satuan",
           text: "Harga Satuan",
-          formatter: (list) =>
-            `Rp. ${parseFloat(list).toLocaleString("id-ID")}`,
+          formatter: (list) => `${parseFloat(list).toLocaleString("id-ID")}`,
         },
         {
           dataField: "diskon_rp",
@@ -89,8 +87,12 @@ class HeadPenjualanSparepart extends Component {
   }
   setCustomer(hasil) {
     let data = hasil.split("||");
+    this.props.change("tanggal", getToday());
+    localStorage.setItem("penjualan_sparepart_nama_customer", data[0]);
     this.props.change("nama_customer", data[0]);
+    localStorage.setItem("penjualan_sparepart_alamat", data[1]);
     this.props.change("alamat", data[1]);
+    localStorage.setItem("penjualan_sparepart_telepon", data[2]);
     this.props.change("telepon", data[2]);
   }
   render() {
@@ -150,6 +152,9 @@ class HeadPenjualanSparepart extends Component {
               type="text"
               label="Sales"
               placeholder="Masukan Sales"
+              onChange={(data) =>
+                localStorage.setItem("penjualan_sparepart_kode_sales", data)
+              }
             />
           </div>
           <div className="col-lg-4">
@@ -223,7 +228,7 @@ class HeadPenjualanSparepart extends Component {
               keyField="kode_barang"
               data={this.props.listBarangSparepart || []}
               columns={this.state.columns}
-              emptyText={"Silahkan tambahkan Barang"}
+              emptyText="Silahkan tambahkan Barang"
               empty={true}
             />
           </div>
@@ -279,6 +284,17 @@ export default connect((state) => {
   return {
     initialValues: {
       no_faktur: localStorage.getItem("no_penjualan_sparepart") || "",
+      nama_customer:
+        localStorage.getItem("penjualan_sparepart_nama_customer") || "",
+      alamat: localStorage.getItem("penjualan_sparepart_alamat") || "",
+      telepon: localStorage.getItem("penjualan_sparepart_telepon") || "",
+      pelanggan:
+        `${localStorage.getItem(
+          "penjualan_sparepart_nama_customer"
+        )}||${localStorage.getItem(
+          "penjualan_sparepart_alamat"
+        )}||${localStorage.getItem("penjualan_sparepart_telepon")}` || "",
+      kode_sales: localStorage.getItem("penjualan_sparepart_kode_sales") || "",
     },
     listBarangSparepart: state.transaksi.listBarangSparepart,
     totalTukar: state.transaksi.totalTukar,

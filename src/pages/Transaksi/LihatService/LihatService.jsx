@@ -9,10 +9,10 @@ import {
 } from "../../../components/panel/panel.jsx";
 import { reset } from "redux-form";
 import ModalPencarianService from "./ModalPencarianService.jsx";
-import ModalGlobal from "../../ModalGlobal.jsx";
 import ModalBayarService from "../PembayaranService/ModalBayarService.jsx";
 import { showModal } from "../../../actions/datamaster_action.jsx";
-import ModalCC from "../PembayaranService/ModalCC.jsx";
+
+import { AxiosMasterGet } from "../../../axios.js";
 
 const ModalLihatService = lazy(() => import("./ModalLihatService.jsx"));
 
@@ -54,7 +54,6 @@ class LihatService extends React.Component {
     };
   }
 
-  componentDidMount() {}
   handleSubmit(hasil) {
     console.log(hasil);
     let array = JSON.parse(localStorage.getItem("DaftarService")) || [];
@@ -77,6 +76,16 @@ class LihatService extends React.Component {
       bayar: true,
     });
   }
+  setPencarian(hasil) {
+    AxiosMasterGet(
+      "bayar-service/getLihatDataService/" +
+        `${hasil.tanggal_awal}&${hasil.tanggal_akhir}`
+    ).then((res) =>
+      this.setState({
+        listService: res && res.data,
+      })
+    );
+  }
   render() {
     return (
       <div>
@@ -93,7 +102,9 @@ class LihatService extends React.Component {
               <PanelHeader>Pencarian</PanelHeader>
               <PanelBody>
                 <br />
-                <ModalPencarianService />
+                <ModalPencarianService
+                  onSubmit={(data) => this.setPencarian(data)}
+                />
                 {/* End Tambah Master Kategori  */}
               </PanelBody>
             </Panel>
@@ -115,16 +126,16 @@ class LihatService extends React.Component {
                     }
                   />
                 ) : (
-                  <ModalLihatService setBayar={() => this.setBayar()} />
+                  <ModalLihatService
+                    setBayar={() => this.setBayar()}
+                    data={this.state.listService}
+                  />
                 )}
                 {/* End Tambah Master Kategori  */}
               </PanelBody>
             </Panel>
           </div>
         </div>
-        <ModalGlobal
-          content={<ModalCC onSubmit={(data) => this.handleSimpanCC(data)} />}
-        />
       </div>
     );
   }

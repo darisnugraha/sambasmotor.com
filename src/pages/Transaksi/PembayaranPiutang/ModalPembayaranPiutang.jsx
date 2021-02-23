@@ -1,11 +1,32 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, CardBody } from "reactstrap";
-import { Field, reduxForm } from "redux-form";
-import Cash from "../../../assets/images/Cash.svg";
-import Transfer from "../../../assets/images/Transfer.svg";
-import { ReanderField } from "../../../components/notification/notification";
+import { Field, formValueSelector, reduxForm } from "redux-form";
+import { createNumberMask } from "redux-form-input-masks";
+import { getBank } from "../../../actions/datamaster_action";
+import {
+  ReanderFieldInline,
+  ReanderSelect,
+} from "../../../components/notification/notification";
 
+const validate = (values) => {
+  const errors = {};
+  if (!values.cash && !values.transfer) {
+    errors.cash = "Mohon isi Salah Satu / keduanya";
+    errors.transfer = "Mohon isi Salah Satu / keduanya";
+  }
+  if (values.cash + values.transfer > values.total_piutang) {
+    errors.cash = "Tidak Boleh Lebih Dari Total Piutang, Mohon Kurangi";
+    errors.transfer = "Tidak Boleh Lebih Dari Total Piutang, Mohon Kurangi";
+  }
+
+  return errors;
+};
+
+const currencyMask = createNumberMask({
+  prefix: "Rp. ",
+  suffix: " ,-",
+  locale: "id-ID",
+});
 class ModalPembayaranPiutang extends Component {
   constructor(props) {
     super(props);
@@ -15,154 +36,137 @@ class ModalPembayaranPiutang extends Component {
       transfer: "col-lg-12 d-none",
     };
   }
+  componentDidMount() {
+    this.props.dispatch(getBank());
+  }
   render() {
     return (
       <div className="col-lg-12">
-        <div className={this.state.type_bayar}>
-          <div className="col-lg-2"></div>
-          <div className="col-lg-4">
-            <Card
-              onClick={() =>
-                this.setState({
-                  cash: "col-lg-12",
-                  type_bayar: "row d-none",
-                })
-              }
-            >
-              <CardBody>
-                <div className="col-lg-12">
-                  <img src={Cash} alt="Cash" width={"100%"} />
-                  <div className="text-center">
-                    <h1>CASH</h1>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-          <div className="col-lg-4">
-            <Card
-              onClick={() =>
-                this.setState({
-                  transfer: "col-lg-12",
-                  type_bayar: "row d-none",
-                })
-              }
-            >
-              <CardBody>
-                <div className="col-lg-12">
-                  <img src={Transfer} alt="Transfer" width={"100%"} />
-                  <div className="text-center">
-                    <h1>Transfer</h1>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-          <div className="col-lg-2"></div>
-        </div>
-        <div className={this.state.cash}>
-          <form onSubmit={this.props.handleSubmit}>
-            <div className="row">
+        <form onSubmit={this.props.handleSubmit}>
+          <div className="row">
+            <div className="col-lg-6 text-center">
+              <h3>Total Piutang</h3>
+              <h2>{` ${parseFloat(this.props.total_piutang).toLocaleString(
+                "id-ID"
+              )}`}</h2>
+            </div>
+            <div className="col-lg-6 text-center">
+              <h3>Total Pembayaran</h3>
+              <h2>{` ${parseFloat(this.props.total_pembayaran).toLocaleString(
+                "id-ID"
+              )}`}</h2>
+            </div>
+            <div className="col-lg-6">
               <div className="col-lg-12">
-                <div className="text-left">
-                  <button
-                    type="button"
-                    className="btn btn-default"
-                    onClick={() =>
-                      this.setState({
-                        cash: "col-lg-12 d-none",
-                        type_bayar: "row",
-                      })
-                    }
-                  >
-                    <i className="fa fa-chevron-left mr-3"></i>Back
-                  </button>
-                </div>
+                <h4>Pembayaran Cash</h4>
               </div>
-              <div className="col-lg-4"></div>
-              <div className="col-lg-4 align-self-center">
+              <div className="col-lg-12 mt-2">
                 <Field
                   name="cash"
-                  component={ReanderField}
+                  component={ReanderFieldInline}
                   type="text"
                   label="Cash Rp"
                   placeholder="Masukan Cash Rp"
+                  {...currencyMask}
                 />
               </div>
-              <div className="col-lg-12">
-                <div className="text-right">
-                  <button className="btn btn-primary">
-                    Simpan <i className="fa fa-paper-plane ml-3"></i>
-                  </button>
-                </div>
+              <div className="col-lg-12 mt-2 d-none">
+                <Field
+                  name="total_piutang"
+                  component={ReanderFieldInline}
+                  type="text"
+                  label="Cash Rp"
+                  placeholder="Masukan Cash Rp"
+                  {...currencyMask}
+                />
               </div>
-              <div className="col-lg-4"></div>
             </div>
-          </form>
-        </div>
-        <div className={this.state.transfer}>
-          <form onSubmit={this.props.handleSubmit}>
-            <div className="row">
+            <div className="col-lg-6">
               <div className="col-lg-12">
-                <div className="text-left">
-                  <button
-                    type="button"
-                    className="btn btn-default"
-                    onClick={() =>
-                      this.setState({
-                        transfer: "col-lg-12 d-none",
-                        type_bayar: "row",
-                      })
-                    }
-                  >
-                    <i className="fa fa-chevron-left mr-3"></i>Back
-                  </button>
-                </div>
+                <h4>Pembayaran Transfer</h4>
               </div>
-              <div className="col-lg-4"></div>
-              <div className="col-lg-4 align-self-center">
+              <div className="col-lg-12 mt-2">
                 <Field
                   name="transfer"
-                  component={ReanderField}
+                  component={ReanderFieldInline}
                   type="telp"
                   label="Transfer Rp"
                   placeholder="Masukan Transfer Rp"
+                  {...currencyMask}
                 />
               </div>
-              <div className="col-lg-4"></div>
-              <div className="col-lg-4"></div>
-              <div className="col-lg-4 align-self-center">
+              <div className="col-lg-12">
                 <Field
                   name="ac_asal"
-                  component={ReanderField}
+                  component={ReanderFieldInline}
                   type="text"
                   label="A/C Asal"
-                  placeholder="Masukan A/C Asal"
+                  placeholder="Masukan AC Asal"
                 />
               </div>
-              <div className="col-lg-4"></div>
-              <div className="col-lg-4"></div>
-              <div className="col-lg-4 align-self-center">
+              <div className="col-lg-12">
                 <Field
                   name="ac_tujuan"
-                  component={ReanderField}
+                  component={ReanderSelect}
+                  options={this.props.listbank.map((list) => {
+                    let data = {
+                      value: list.no_ac,
+                      name: list.atas_nama,
+                    };
+                    return data;
+                  })}
                   type="text"
-                  label="A/C Tujuan"
-                  placeholder="Masukan A/C Tujuan"
+                  label="A/C tujuan"
+                  placeholder="Masukan A/C tujuan"
                 />
               </div>
-              <div className="col-lg-4"></div>
-              <div className="col-lg-12">
-                <div className="text-right">
-                  <button className="btn btn-primary">
-                    Simpan <i className="fa fa-paper-plane ml-3"></i>
-                  </button>
-                </div>
-              </div>
-              <div className="col-lg-4"></div>
             </div>
-          </form>
-        </div>
+            <div className="col-lg-3 d-none">
+              <Field
+                name="no_bon"
+                component={ReanderFieldInline}
+                type="text"
+                label="bon"
+                placeholder="Masukan bon"
+              />
+            </div>
+            <div className="col-lg-3 d-none">
+              <Field
+                name="tanggal"
+                component={ReanderFieldInline}
+                type="text"
+                label="Tanggal"
+                placeholder="Masukan Tanggal"
+              />
+            </div>
+            <div className="col-lg-3 d-none">
+              <Field
+                name="kode_customer"
+                component={ReanderFieldInline}
+                type="text"
+                label="customer"
+                placeholder="Masukan customer"
+              />
+            </div>
+            <div className="col-lg-12">
+              <div className="text-right">
+                <button
+                  className="btn btn-primary"
+                  disabled={
+                    this.props.total_pembayaran === this.props.total_piutang
+                      ? false
+                      : true
+                  }
+                >
+                  Simpan <i className="fa fa-paper-plane ml-3"></i>
+                </button>
+                <p className="text-red mt-1">
+                  Mohon Bayar Sesuai Nominal Piutang, agar Bisa disimpan
+                </p>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
     );
   }
@@ -171,5 +175,20 @@ class ModalPembayaranPiutang extends Component {
 ModalPembayaranPiutang = reduxForm({
   form: "ModalPembayaranPiutang",
   enableReinitialize: true,
+  validate: validate,
 })(ModalPembayaranPiutang);
-export default connect()(ModalPembayaranPiutang);
+const selector = formValueSelector("ModalPembayaranPiutang");
+export default connect((state) => {
+  const { cash, transfer } = selector(state, "cash", "transfer");
+  return {
+    total_piutang: state.transaksi.total_piutang.total_pembayaran,
+    total_pembayaran: parseFloat(cash || 0) + parseFloat(transfer || 0),
+    listbank: state.datamaster.listbank,
+    initialValues: {
+      total_piutang: state.transaksi.total_piutang.total_pembayaran,
+      kode_customer: state.transaksi.total_piutang.kode_customer,
+      no_bon: state.transaksi.total_piutang.no_bon,
+      tanggal: state.transaksi.total_piutang.tanggal,
+    },
+  };
+})(ModalPembayaranPiutang);

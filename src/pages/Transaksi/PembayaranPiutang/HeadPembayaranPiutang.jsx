@@ -1,30 +1,52 @@
 import React, { Component } from "react";
-import BootstrapTable from "react-bootstrap-table-next";
+import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
-import { showModal } from "../../../actions/datamaster_action";
-import { ReanderField } from "../../../components/notification/notification";
+import { getCustomer, showModal } from "../../../actions/datamaster_action";
+import {
+  getListPiutangCustomer,
+  setPembayaranPiutang,
+} from "../../../actions/transaksi_action";
+import { AxiosMasterGet } from "../../../axios";
+import { getToday } from "../../../components/notification/function";
+import {
+  ReanderField,
+  ReanderSelect,
+  ToastError,
+} from "../../../components/notification/notification";
+import Tabel from "../../../components/Tabel/tabel";
 
 class HeadPembayaranPiutang extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      nama_customer: false,
+      no_bon: false,
+
       columns: [
         {
-          dataField: "tanggal",
+          dataField: "tgl_transaksi",
           text: "Tanggal",
         },
         {
-          dataField: "nomor_bon",
+          dataField: "no_bon",
           text: "Nomor bon",
         },
         {
-          dataField: "kode_supplier",
-          text: "Kode Supplier",
+          dataField: "nama_customer",
+          text: "Nama Customer",
         },
         {
-          dataField: "total",
+          dataField: "alamat",
+          text: "Alamat",
+        },
+        {
+          dataField: "nopol",
+          text: "Nomor Polisi",
+        },
+        {
+          dataField: "saldo_piutang",
           text: "Total",
-          formatter: (data) => "Rp. " + data.toLocaleString("id-ID"),
+          formatter: (data) => data.toLocaleString("id-ID"),
         },
         {
           dataField: "action",
@@ -32,13 +54,19 @@ class HeadPembayaranPiutang extends Component {
           csvExport: false,
           headerClasses: "text-center",
           formatter: (rowcontent, row) => {
-            this.setState({});
+            let data = {
+              no_bayar_customer: localStorage.getItem("nomor_bayar") || "",
+              tanggal: row.tgl_transaksi,
+              no_bon: row.no_bon,
+              kode_customer: localStorage.getItem("kode_customer_piutang"),
+              total_pembayaran: row.saldo_piutang,
+            };
             return (
               <div className="row text-center">
                 <div className="col-12">
                   <button
                     type="button"
-                    onClick={() => this.props.dispatch(showModal())}
+                    onClick={() => this.showBayar(data)}
                     className="btn btn-success mr-3"
                   >
                     Bayar
@@ -50,16 +78,36 @@ class HeadPembayaranPiutang extends Component {
           },
         },
       ],
-      data: [
-        {
-          tanggal: "01/30/2021",
-          nomor_bon: "PS-00001",
-          kode_supplier: "SP001",
-          total: 1000000,
-        },
-      ],
     };
   }
+
+  showBayar(data) {
+    this.props.dispatch(showModal());
+    this.props.dispatch(setPembayaranPiutang(data));
+  }
+  componentDidMount() {
+    AxiosMasterGet("bayar-piutang-customer/generate/no-trx")
+      .then((res) =>
+        this.props.change("nomor_bayar", res.data[0].no_bayar_customer)
+      )
+      .catch((err) =>
+        ToastError(`Error Get Nomor bayar \nError : ${err.response.data}`)
+      );
+    this.props.dispatch(getCustomer());
+    this.props.change("tanggal", getToday());
+    this.props.dispatch(getListPiutangCustomer());
+  }
+  setCustomer(data) {
+    let hasil = data.split("||");
+    this.props.change("alamat", hasil[1]);
+    this.props.change("no_polisi", hasil[2]);
+    this.props.change("kode_customer", hasil[0]);
+    localStorage.setItem("kode_customer_piutang", hasil[0]);
+    this.setState({
+      nama_customer: hasil[3],
+    });
+  }
+
   render() {
     return (
       <form onSubmit={this.props.handleSubmit}>
@@ -82,6 +130,9 @@ class HeadPembayaranPiutang extends Component {
                 type="date"
                 label="Tanggal"
                 placeholder="Masukan Tanggal"
+                onChange={(e) =>
+                  localStorage.setItem("tanggal_bayar_piutang", e.target.value)
+                }
               />
             </div>
             <div className="col-lg-4">
@@ -91,15 +142,38 @@ class HeadPembayaranPiutang extends Component {
                 type="text"
                 label="Nomor Bon"
                 placeholder="Masukan Nomor Bon"
+                onChange={(e) =>
+                  this.setState({
+                    no_bon: e.target.value,
+                  })
+                }
               />
             </div>
             <div className="col-lg-4">
               <Field
                 name="nama_customer"
-                component={ReanderField}
+                component={ReanderSelect}
+                options={this.props.listCustomer.map((list) => {
+                  let data = {
+                    value: `${list.kode_customer}||${list.alamat}||${list.nopol_kendaraan}||${list.nama_customer}`,
+                    name: list.nama_customer,
+                  };
+                  return data;
+                })}
+                onChange={(e) => this.setCustomer(e)}
                 type="text"
                 label="Nama Customer"
                 placeholder="Masukan Nama Customer"
+              />
+            </div>
+            <div className="col-lg-4 d-none">
+              <Field
+                name="kode_customer"
+                component={ReanderField}
+                type="text"
+                label="Alamat"
+                placeholder="Masukan Alamat"
+                readOnly
               />
             </div>
             <div className="col-lg-4">
@@ -109,6 +183,7 @@ class HeadPembayaranPiutang extends Component {
                 type="text"
                 label="Alamat"
                 placeholder="Masukan Alamat"
+                readOnly
               />
             </div>
             <div className="col-lg-4">
@@ -118,6 +193,7 @@ class HeadPembayaranPiutang extends Component {
                 type="text"
                 label="Nomor Polisi"
                 placeholder="Masukan Nomor Polisi"
+                readOnly
               />
             </div>
             <div className="col-lg-12">
@@ -128,11 +204,21 @@ class HeadPembayaranPiutang extends Component {
               </div>
             </div>
             <div className="col-lg-12 mt-3">
-              <BootstrapTable
-                bootstrap4
-                keyField="id"
-                data={this.state.data}
+              <Tabel
+                keyField="no_bon"
+                data={
+                  this.state.nama_customer
+                    ? this.props.listpiutangcustomer.filter(
+                        (list) =>
+                          list.nama_customer === this.state.nama_customer
+                      )
+                    : this.props.listpiutangcustomer.filter(
+                        (list) => list.no_bon === this.state.no_bon
+                      )
+                }
                 columns={this.state.columns}
+                emptyText="Silahkan Isi Nomor Bon atau Pilih Customer Untuk Melihat Data"
+                empty={true}
               />
             </div>
           </div>
@@ -146,4 +232,12 @@ HeadPembayaranPiutang = reduxForm({
   form: "HeadPembayaranPiutang",
   enableReinitialize: true,
 })(HeadPembayaranPiutang);
-export default HeadPembayaranPiutang;
+export default connect((state) => {
+  return {
+    initialState: {
+      nomor_bayar: localStorage.getItem("nomor_bayar_piutang"),
+    },
+    listCustomer: state.datamaster.listcustomer,
+    listpiutangcustomer: state.transaksi.listpiutangcustomer,
+  };
+})(HeadPembayaranPiutang);

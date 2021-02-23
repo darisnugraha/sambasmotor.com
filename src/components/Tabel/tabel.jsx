@@ -53,6 +53,7 @@ function Tabel(props) {
               selectRow={selectRow}
               expandRow={expandRow}
               {...props.baseProps}
+              striped
               noDataIndication={<EmptyTable text={text || "Tidak Ada Data"} />}
             />
             <br />

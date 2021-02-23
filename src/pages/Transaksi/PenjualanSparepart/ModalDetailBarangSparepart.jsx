@@ -59,8 +59,8 @@ class ModalDetailBarangSparepart extends Component {
                 name="kwalitas"
                 component={ReanderFieldInline}
                 type="text"
-                label="Kwalitas"
-                placeholder="Masukan Kwalitas"
+                label="Kualitas"
+                placeholder="Masukan Kualitas"
                 readOnly
               />
             </div>

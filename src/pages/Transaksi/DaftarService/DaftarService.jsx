@@ -1,19 +1,37 @@
 import React, { lazy } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { NotifSucces } from "../../../components/notification/notification.jsx";
+import {
+  NotifSucces,
+  ToastError,
+  ToastSucces,
+} from "../../../components/notification/notification.jsx";
 import {
   Panel,
   PanelBody,
   PanelHeader,
 } from "../../../components/panel/panel.jsx";
 import { reset } from "redux-form";
+import ModalGlobal from "../../ModalGlobal.jsx";
+import TambahService from "./TambahService.jsx";
+import { getListService } from "../../../actions/transaksi_action.jsx";
+import {
+  getFaktur,
+  hideModal,
+  showModal,
+} from "../../../actions/datamaster_action.jsx";
+import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
+import CekBooking from "./CekBooking.jsx";
 
 const ModalDaftarService = lazy(() => import("./ModalDaftarService.jsx"));
 
 const maptostate = (state) => {
   return {
     kunci_temp: state.stocking.kunci_temp,
+    totalbarang: state.transaksi.totalbarang,
+    totalsparepart: state.transaksi.totalsparepart,
+    listdaftarservice: state.transaksi.listdaftarservice,
+    noFaktur: state.datamaster.noFaktur,
   };
 };
 
@@ -27,48 +45,88 @@ class BookingService extends React.Component {
     };
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    this.props.dispatch(getListService());
+    this.props.dispatch(getFaktur());
+    AxiosMasterGet("daftar-service/generate/no-trx").then((res) =>
+      localStorage.setItem("no_daftar_service", res.data[0].no_daftar_service)
+    );
+  }
   handleSubmit(hasil) {
-    console.log(hasil);
-    let array = JSON.parse(localStorage.getItem("DaftarService")) || [];
     let data = {
-      alamat: hasil.alamat,
-      est_keluar: hasil.est_keluar,
-      est_masuk: hasil.est_masuk,
-      estimasi_accecories: hasil.estimasi_accecories,
-      estimasi_electric: hasil.estimasi_electric,
-      estimasi_ganti_oli: hasil.estimasi_ganti_oli,
-      estimasi_kaki: hasil.estimasi_kaki,
-      estimasi_lain_lain: hasil.estimasi_lain_lain,
-      estimasi_sparepart_1: hasil.estimasi_sparepart_1,
-      estimasi_sparepart_2: hasil.estimasi_sparepart_2,
-      estimasi_tune_up: hasil.estimasi_tune_up,
-      estimasi_turun_mesin: hasil.estimasi_turun_mesin,
-      handphone: hasil.handphone,
-      id_mekanik: hasil.id_mekanik,
-      km_keluar: hasil.km_keluar,
+      no_booking: hasil.booking ? true : false,
+      no_daftar: hasil.no_faktur,
+      nopol_kendaraan: hasil.nopol_kendaraan || hasil.booking_nopol,
+      tgl_masuk: hasil.tanggal_masuk,
       km_masuk: hasil.km_masuk,
-      km_service_berikutnya: hasil.km_service_berikutnya,
-      kota: hasil.kota,
-      merk: hasil.merk,
-      model: hasil.model,
-      nama: hasil.nama,
-      nama_mekanik: hasil.nama_mekanik,
-      no_mesin: hasil.no_mesin,
-      no_polisi: hasil.no_polisi,
-      service_selanjutnya: hasil.service_selanjutnya,
-      sparepart_1: hasil.sparepart_1,
-      sparepart_2: hasil.sparepart_2,
-      tanggal_keluar: hasil.tanggal_keluar,
-      tanggal_masuk: hasil.tanggal_masuk,
-      warna: hasil.warna,
+      tgl_keluar: hasil.tanggal_keluar,
+      km_keluar: hasil.km_keluar,
+      jdw_service: hasil.service_selanjutnya,
+      km_service: hasil.km_service_berikutnya,
+      keluhan: hasil.keluhan_konsumen,
+      id_mekanik: hasil.kode_mekanik,
+      status_booking: hasil.booking === undefined ? "false" : "true",
+      detail_barang: JSON.parse(
+        localStorage.getItem("list_service_daftar_temp")
+      ),
     };
 
-    array.push(data);
-    localStorage.setItem("DaftarService", JSON.stringify(array));
-    NotifSucces("Berhasil Menambahan Data Booking").then(() =>
-      this.props.dispatch(reset("ModalBookingService"))
-    );
+    console.log(JSON.stringify(data));
+    // return false;
+    AxiosMasterPost("daftar-service/post-transaksi", data)
+      .then(() =>
+        NotifSucces("Berhasil Menambahan Data Booking")
+          .then(() => this.props.dispatch(reset("ModalBookingService")))
+          .then(() => localStorage.removeItem("list_service_daftar_temp"))
+          .then(() => this.props.dispatch(reset("ModalDaftarService")))
+          .then(() => this.props.dispatch(getListService()))
+      )
+      .catch((err) =>
+        ToastError(`Terjadi Kesalahan Saat Menyimpan, Error :${err}`)
+      );
+  }
+  showBooking() {
+    this.setState({
+      booking: true,
+    });
+    this.props.dispatch(showModal());
+  }
+  showBarang() {
+    this.setState({
+      booking: false,
+    });
+    this.props.dispatch(showModal());
+  }
+  tambahSparepart(hasil) {
+    let service = {
+      kode_supplier: "-",
+      kode: hasil.kategori_service,
+      nama: hasil.nama_service,
+      qty: 1,
+      harga_satuan: hasil.harga_service,
+      harga_total: hasil.harga_service,
+      keterangan: hasil.keterangan_service,
+      jenis_barang: "JASA SERVICE",
+    };
+    let barang = {
+      kode_supplier: hasil.kode_supplier,
+      kode: hasil.kode_sparepart,
+      nama: hasil.nama_sparepart,
+      qty: 1,
+      harga_satuan: hasil.harga_sparepart,
+      harga_total: hasil.harga_sparepart,
+      keterangan: hasil.kategori_service,
+      jenis_barang: "SPAREPART",
+    };
+    let array =
+      JSON.parse(localStorage.getItem("list_service_daftar_temp")) || [];
+    array.push(service);
+    array.push(barang);
+    localStorage.setItem("list_service_daftar_temp", JSON.stringify(array));
+    ToastSucces("Tambah Data Berhasil");
+    this.props.dispatch(hideModal());
+    this.props.dispatch(reset("TambahService"));
+    this.props.dispatch(getListService());
   }
 
   render() {
@@ -85,10 +143,25 @@ class BookingService extends React.Component {
           <PanelHeader>Daftar Service</PanelHeader>
           <PanelBody>
             <br />
-            <ModalDaftarService onSubmit={(data) => this.handleSubmit(data)} />
+            <ModalDaftarService
+              onSubmit={(data) => this.handleSubmit(data)}
+              showBarang={() => this.showBarang()}
+              showBooking={() => this.showBooking()}
+            />
             {/* End Tambah Master Kategori  */}
           </PanelBody>
         </Panel>
+
+        <ModalGlobal
+          content={
+            this.state.booking ? (
+              <CekBooking />
+            ) : (
+              <TambahService onSubmit={(data) => this.tambahSparepart(data)} />
+            )
+          }
+          title={this.state.booking ? "Lihat Booking" : "Tambah Data"}
+        />
       </div>
     );
   }

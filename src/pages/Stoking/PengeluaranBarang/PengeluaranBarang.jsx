@@ -22,7 +22,8 @@ import {
   getToday,
   multipleDeleteLocal,
 } from "../../../components/notification/function.jsx";
-import Tabel from "../../../components/Tabel/tabel.jsx";
+import BootstrapTable from "react-bootstrap-table-next";
+import EmptyTable from "../../../assets/emptyTable.jsx";
 
 const maptostate = (state) => {
   return {
@@ -52,7 +53,6 @@ class PengeluaranBarang extends React.Component {
         {
           dataField: "kode_supplier",
           text: "Kode Supplier",
-          sort: true,
         },
         {
           dataField: "nama_barang",
@@ -64,7 +64,7 @@ class PengeluaranBarang extends React.Component {
         },
         {
           dataField: "kwalitas",
-          text: "Kwalitas",
+          text: "Kualitas",
         },
         {
           dataField: "ukuran",
@@ -367,14 +367,22 @@ class PengeluaranBarang extends React.Component {
               </div>
 
               {/* Master Kategori */}
-              <div className="col-lg-12">
-                <Tabel
-                  empty={true}
+              <div className="col-lg-12 mt-2">
+                {/* <BootstrapTable
+                  bootstrap4
                   data={this.props.pengeluaran}
                   columns={this.state.columns}
                   keyField="kode_barcode"
                   selectRow={selectRow}
-                  textEmpty="Silahkan Isi Nomor PB diatas, dan klik tombol biru yang dibawahnya"
+                /> */}
+                <BootstrapTable
+                  keyField="kode_barcode"
+                  data={this.props.pengeluaran || []}
+                  columns={this.state.columns}
+                  selectRow={selectRow}
+                  noDataIndication={
+                    <EmptyTable text="Silahkan Isi Nomor PB dan Klik Tombol Biru Dibawahnya" />
+                  }
                 />
               </div>
               <br />
@@ -390,13 +398,13 @@ class PengeluaranBarang extends React.Component {
               {/* Master Kategori */}
 
               <div className="col-lg-12">
-                <Tabel
-                  empty={true}
-                  data={this.props.pengeluaran_selected}
-                  columns={this.state.columns2}
+                <BootstrapTable
                   keyField="kode_barcode"
-                  selectRow={selectRow}
-                  textEmpty="Silahkan Pilih Barang di Step 1"
+                  data={this.props.pengeluaran_selected || []}
+                  columns={this.state.columns2}
+                  noDataIndication={
+                    <EmptyTable text="Silahkan Isi Nomor PB dan Klik Tombol Biru Dibawahnya" />
+                  }
                 />
               </div>
               <br />

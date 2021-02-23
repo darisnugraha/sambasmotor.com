@@ -11,10 +11,10 @@ import { showModal } from "../../../actions/datamaster_action";
 import { createNumberMask } from "redux-form-input-masks";
 import { AxiosMasterGet } from "../../../axios";
 import { formatDateISO } from "../../../components/notification/function";
-import { TabelGlobal } from "../TabelGlobal";
 import { getListReturnSupplier } from "../../../actions/transaksi_action";
 import Swal from "sweetalert2";
 import Tabel from "../../../components/Tabel/tabel";
+import { required } from "../../../validasi/normalize";
 
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
@@ -44,7 +44,7 @@ class HeadReturnSupplier extends Component {
         },
         {
           dataField: "kwalitas",
-          text: "Kwalitas",
+          text: "Kualitas",
         },
         {
           dataField: "satuan",
@@ -58,14 +58,14 @@ class HeadReturnSupplier extends Component {
           dataField: "harga_satuan",
           text: "Harga Satuan",
           formatter: (data) => {
-            return "Rp. " + data.toLocaleString("id-ID");
+            return data.toLocaleString("id-ID");
           },
         },
         {
           dataField: "total",
           text: "Total",
           formatter: (data) => {
-            return "Rp. " + data.toLocaleString("id-ID");
+            return data.toLocaleString("id-ID");
           },
         },
         {
@@ -194,6 +194,7 @@ class HeadReturnSupplier extends Component {
               type="text"
               label="Supplier"
               placeholder="Masukan Supplier"
+              validate={required}
             />
           </div>
           <div className="col-lg-3">
@@ -212,6 +213,7 @@ class HeadReturnSupplier extends Component {
               type="text"
               label="Keterangan"
               placeholder="Masukan Keterangan"
+              validate={required}
             />
           </div>
 

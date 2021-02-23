@@ -9,11 +9,23 @@ import {
 import HeadPembayaranPiutang from "./HeadPembayaranPiutang.jsx";
 import ModalGlobal from "../../ModalGlobal.jsx";
 import ModalPembayaranPiutang from "./ModalPembayaranPiutang.jsx";
-import CetakNota from "../../Stoking/CetakNota.jsx";
+import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
+import {
+  getUserData,
+  NotifSucces,
+  ToastError,
+} from "../../../components/notification/notification.jsx";
+import CetakPiutang from "./CetakPiutang.jsx";
+import {
+  getToday,
+  multipleDeleteLocal,
+} from "../../../components/notification/function.jsx";
+import { getFaktur } from "../../../actions/datamaster_action.jsx";
 
 const maptostate = (state) => {
   return {
     kunci_temp: state.stocking.kunci_temp,
+    noFaktur: state.datamaster.noFaktur,
   };
 };
 
@@ -27,33 +39,88 @@ class PembayaranPiutang extends React.Component {
     };
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    this.props.dispatch(getFaktur());
+    AxiosMasterGet("bayar-piutang-customer/generate/no-trx")
+      .then((res) =>
+        localStorage.setItem(
+          "nomor_bayar_piutang",
+          res.data[0].no_bayar_customer
+        )
+      )
+      .catch((err) =>
+        ToastError(`Error Get Nomor bayar \nError : ${err.response.data}`)
+      );
+  }
   handleSubmit(hasil) {
     if (hasil.cash !== undefined) {
       console.log("INI CAHS");
     } else {
       console.log("INI TRANSFER");
     }
-    CetakNota(
-      "Tanggal",
-      "01/30/2021",
-      "Nomor Bon",
-      "BN001",
-      "SUPPLIER",
-      "PANCA INDRA",
-      "",
-      "",
-      "ADMIN",
-      "01/30/2021",
-      "ADMIN",
-      ["NO", "JENIS BAYAR", "TOTAL"],
-      "BUKTI PEMBAYARAN HUTANG SUPPLIER",
-      [
-        ["1", "RETUR", "77.000.00"],
-        ["2", "RETUR", "77.000.00"],
-      ],
-      false
-    );
+    let data = {
+      no_bayar_customer: localStorage.getItem("nomor_bayar_piutang"),
+      tanggal: hasil.tanggal,
+      no_bon: hasil.no_bon,
+      kode_customer: hasil.kode_customer,
+      total_pembayaran: parseFloat(hasil.cash) + parseFloat(hasil.transfer),
+      cash_rp: hasil.cash,
+      no_ref_cash: this.props.noFaktur,
+      transfer_rp: hasil.transfer,
+      no_ref: this.props.noFaktur,
+      no_ac_asal: hasil.ac_asal,
+      no_ac_tujuan: `${hasil.ac_tujuan}`,
+    };
+    console.log(JSON.stringify(data));
+    AxiosMasterPost("bayar-piutang-customer/post-transaksi", data)
+      .then(() => NotifSucces("Pembayaran Berhasl"))
+      .then(() =>
+        CetakPiutang(
+          "Tanggal",
+          getToday(),
+          "Nomor Bon",
+          localStorage.getItem("nomor_bayar_piutang"),
+          "",
+          "",
+          "",
+          "",
+          getUserData().user_name,
+          getToday(),
+          getUserData().user_name,
+          ["NO", "JENIS BAYAR", "TOTAL"],
+          "BUKTI PEMBAYARAN PIUTANG",
+          [
+            [
+              "1",
+              "Cash",
+              `${parseFloat(hasil.cash).toLocaleString("id-ID") || 0}`,
+            ],
+            [
+              "2",
+              "Transfer",
+              `${parseFloat(hasil.transfer).toLocaleString("id-ID") || 0}`,
+            ],
+          ],
+          [
+            [
+              "",
+              "Total Bayar",
+              `${(
+                parseFloat(hasil.transfer || 0) + parseFloat(hasil.cash || 0)
+              ).toLocaleString("id-ID")}`,
+            ],
+          ]
+        )
+      )
+      .then(() =>
+        multipleDeleteLocal([
+          "nomor_bayar_piutang",
+          "noFaktur",
+          "kode_customer_piutang",
+        ])
+      )
+      .then(() => this.props.dispatch(getFaktur()))
+      .catch((err) => ToastError(`Gagal, Error : ${err.response.data}`));
   }
 
   render() {

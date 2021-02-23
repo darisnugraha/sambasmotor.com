@@ -44,8 +44,8 @@ class ModalStockOpname extends Component {
               name="kwalitas"
               component={ReanderField}
               type="text"
-              label="Kwalitas"
-              placeholder="Masukan Kwalitas"
+              label="Kualitas"
+              placeholder="Masukan Kualitas"
             />
           </div>
           <div className="col-lg-3">

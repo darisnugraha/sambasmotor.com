@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { formatDateISO } from "../../../../components/notification/function";
 // Date Fns is used to format the dates we receive
 
 // define a generatePDF function that accepts a tickets argument
@@ -18,38 +19,7 @@ const CetakKartuStock = (
   let footRows = [];
   let finalY = 40;
   let sub_qty = 0;
-  let tableColumn = [
-    [
-      {
-        content: `TANGGAL`,
-      },
-      {
-        content: `JAM`,
-      },
-      {
-        content: `KETERANGAN`,
-      },
-      {
-        content: `SUPPLIER`,
-      },
-      {
-        content: `BARCODE`,
-      },
-
-      {
-        content: `AWAL`,
-      },
-      {
-        content: `MASUK`,
-      },
-      {
-        content: `KELUAR`,
-      },
-      {
-        content: `AKHIR`,
-      },
-    ],
-  ];
+  let tableColumn = [];
   doc.setFontSize(15);
   doc.text("LAPORAN KARTU STOCK", 14, 15);
   doc.setFontSize(10);
@@ -58,22 +28,61 @@ const CetakKartuStock = (
   //   row 2
   // doc.text(`Tanggal	: ${row2isi}`, 120, 25);
   data.forEach((barang, index) => {
-    let rows = [
-      barang.tanggal,
-      barang.jam,
-      barang.keterangan,
-      barang.kode_supplier,
-      barang.kode_barcode,
-      barang.awal_qty,
-      barang.masuk_qty,
-      barang.keluar_qty,
-      barang.akhir_qty,
+    tableColumn = [
+      [
+        {
+          content: `LOKASI : ${barang.lokasi}`,
+          colSpan: 3,
+        },
+        {
+          content: `NAMA BARANG : ${barang.nama_barang}`,
+          colSpan: 3,
+        },
+      ],
+      [
+        {
+          content: `MERK BARANG : ${barang.merk_barang}`,
+          colSpan: 3,
+        },
+        {
+          content: `SALDO AWAL : ${barang.saldo_awal_barang}`,
+          colSpan: 3,
+        },
+      ],
+      [
+        {
+          content: `TANGGAL`,
+        },
+        {
+          content: `NO BON`,
+        },
+        {
+          content: `KETERANGAN`,
+        },
+        {
+          content: `MASUK`,
+        },
+        {
+          content: `KELUAR`,
+        },
+        {
+          content: `SALDO`,
+        },
+      ],
     ];
-    sub_qty = sub_qty + parseInt(barang.qty);
-    tableRows.push(rows);
-    console.log(tableRows);
-
-    sub_qty = 0;
+    barang.detail.forEach((data) => {
+      let rows = [
+        formatDateISO(data.tanggal),
+        data.no_bon,
+        data.keterangan,
+        data.masuk_qty || "",
+        data.keluar_qty || "",
+        data.saldo_barang,
+      ];
+      sub_qty = sub_qty + parseInt(data.qty);
+      tableRows.push(rows);
+      sub_qty = 0;
+    });
   });
   doc.autoTable({
     head: tableColumn,
@@ -95,9 +104,9 @@ const CetakKartuStock = (
   // const dateStr = date[2] + date[3] + date[4];
   // ticket title. and margin-top + margin-left
 
-  doc.text(`User	: ${username}`, 14, finalY + 10);
-  doc.text(`Cetak	: ${tanggal}`, 14, finalY + 16);
-  doc.text(`Valid	: ${validby}`, 14, finalY + 22);
+  doc.text(`User	: ${username}`, 14, finalY);
+  doc.text(`Cetak	: ${tanggal}`, 14, finalY + 5);
+  doc.text(`Valid	: ${validby}`, 14, finalY + 10);
   const pages = doc.internal.getNumberOfPages();
   const pageWidth = doc.internal.pageSize.width; //Optional
   const pageHeight = doc.internal.pageSize.height; //Optional

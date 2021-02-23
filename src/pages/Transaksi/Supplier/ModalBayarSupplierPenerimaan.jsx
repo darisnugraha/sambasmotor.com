@@ -56,13 +56,13 @@ class ModalBayarSupplierPenerimaan extends Component {
             <div className="row">
               <div className="col-lg-6 text-center mb-3">
                 <h4>Total Hutang</h4>
-                <h1>{`Rp. ${parseFloat(this.props.sisa_hutang).toLocaleString(
+                <h1>{`${parseFloat(this.props.sisa_hutang).toLocaleString(
                   "id-ID"
                 )}`}</h1>
               </div>
               <div className="col-lg-6 text-center mb-3">
                 <h4>Total Retur</h4>
-                <h1>{`Rp. ${parseFloat(this.props.retur_rp).toLocaleString(
+                <h1>{`${parseFloat(this.props.retur_rp).toLocaleString(
                   "id-ID"
                 )}`}</h1>
               </div>

@@ -63,15 +63,12 @@ class ModalPenjualanSparepart extends Component {
             return (
               <div className="row text-center">
                 <div className="col-12">
-                  <button className="btn btn-teal mr-3">
-                    Pilih
-                    <i className="fa fa-cart-arrow-down ml-2"></i>
-                  </button>
                   <button
-                    className="btn btn-warning mr-3"
+                    className="btn btn-teal mr-3"
                     onClick={() => this.detail(data)}
                   >
-                    <i className="fa fa-eye"></i>
+                    Tambah
+                    <i className="fa fa-cart-arrow-down ml-2"></i>
                   </button>
                 </div>
               </div>

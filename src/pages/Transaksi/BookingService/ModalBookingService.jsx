@@ -4,13 +4,13 @@ import { Field, reduxForm } from "redux-form";
 import {
   ReanderField,
   ReanderSelect,
-  RenderTime,
 } from "../../../components/notification/notification";
 import {
   getCustomer,
   getKategoriService,
   getSales,
 } from "../../../actions/datamaster_action";
+import { required } from "../../../validasi/normalize";
 
 class ModalBookingService extends Component {
   constructor(props) {
@@ -27,9 +27,7 @@ class ModalBookingService extends Component {
     this.props.dispatch(getKategoriService());
     this.props.dispatch(getSales());
   }
-  setCustomerDetail(data) {
-    let hasil = data.split("||");
-  }
+
   render() {
     return (
       <div>
@@ -47,9 +45,22 @@ class ModalBookingService extends Component {
                     };
                     return data;
                   })}
+                  onChange={(data) =>
+                    this.props.change("nopol_kendaraan", data.split("||")[4])
+                  }
                   type="text"
                   label="Nama customer"
                   placeholder="Masukan Nama customer"
+                  validate={required}
+                />
+              </div>
+              <div className="col-lg-3 d-none">
+                <Field
+                  name="nopol_kendaraan"
+                  component={ReanderField}
+                  type="text"
+                  label="nopol"
+                  placeholder="Masukan nopol"
                 />
               </div>
               <div className="col-lg-3">
@@ -58,14 +69,15 @@ class ModalBookingService extends Component {
                   component={ReanderSelect}
                   options={this.props.listkategoriservice.map((list) => {
                     let data = {
-                      value: list.id_kategori_service,
-                      name: list.kategori_service,
+                      value: list.jenis_service,
+                      name: list.jenis_service,
                     };
                     return data;
                   })}
                   type="text"
-                  label="Kategori Service"
-                  placeholder="Masukan Kategori Service"
+                  label="Jenis Service"
+                  placeholder="Masukan Jenis Service"
+                  validate={required}
                 />
               </div>
               <div className="col-lg-2">
@@ -75,12 +87,13 @@ class ModalBookingService extends Component {
                   type="date"
                   label="Tanggal Pelayanan"
                   placeholder="Masukan Tanggal Pelayanan"
+                  validate={required}
                 />
               </div>
               <div className="col-lg-1">
                 <Field
                   name="jam"
-                  component={RenderTime}
+                  component={ReanderField}
                   type="text"
                   label="Jam"
                   placeholder="Masukan Jam"
@@ -102,6 +115,7 @@ class ModalBookingService extends Component {
                   type="text"
                   label="ID Mekanik"
                   placeholder="Masukan ID Mekanik"
+                  validate={required}
                 />
               </div>
               <div className="col-lg-12">
@@ -113,6 +127,7 @@ class ModalBookingService extends Component {
                   label="Catatan"
                   placeholder="Masukan Catatan"
                   className="form-control"
+                  validate={required}
                 />
               </div>
             </div>

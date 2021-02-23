@@ -127,8 +127,8 @@ const CetakReturnCustomer = (
         barang.merk,
         barang.qty,
         barang.satuan,
-        "Rp. " + parseFloat(barang.harga_satuan).toLocaleString("id-ID"),
-        "Rp. " + parseFloat(barang.saldo).toLocaleString("id-ID"),
+        parseFloat(barang.harga_satuan).toLocaleString("id-ID"),
+        parseFloat(barang.saldo).toLocaleString("id-ID"),
       ];
       sub_total = sub_total + parseFloat(barang.saldo);
       tableRows.push(rows);
@@ -141,7 +141,7 @@ const CetakReturnCustomer = (
       "",
       "",
       "Sub Total :",
-      "Rp. " + parseFloat(sub_total).toLocaleString("id-ID"),
+      parseFloat(sub_total).toLocaleString("id-ID"),
     ];
     tableRows.push(footer);
     doc.autoTable(tableColumn, tableRows, {

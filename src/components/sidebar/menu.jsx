@@ -88,7 +88,7 @@ const Menu = [
           { path: "service-daftar", title: "Daftar Service" },
           { path: "service-bayar", title: "Bayar Service" },
           { path: "service-lihat", title: "Lihat Service" },
-          { path: "service-luar", title: "Service Luar" },
+          { path: "service-luar", title: "Kirim Service Luar" },
           { path: "service-terima-luar", title: "Terima Service Luar" },
           { path: "service-komplain", title: "Komplain" },
         ],
@@ -108,7 +108,7 @@ const Menu = [
         children: [
           { path: "penjualan-sparepart", title: "Penjualan Sparepart" },
           { path: "penjualan-rongsok", title: "Penjualan Barang Rongsok" },
-          { path: "penjualan-return", title: "Retur Penjualan" },
+          // { path: "penjualan-return", title: "Retur Penjualan" },
           { path: "penjualan-pembayaran", title: "Pembayaran Piutang" },
         ],
       },

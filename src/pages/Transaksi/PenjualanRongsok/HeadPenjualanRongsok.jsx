@@ -23,7 +23,7 @@ const currencyMask = createNumberMask({
 const maptostate = (state) => {
   return {
     initialValues: {
-      total: state.transaksi.sub_total,
+      total: state.transaksi.total_bayar,
       no_faktur: localStorage.getItem("nomor_jual_rongsok") || "",
     },
     listCustomer: state.datamaster.listcustomer || [],
@@ -50,14 +50,12 @@ class HeadPenjualanRongsok extends Component {
         {
           dataField: "harga_satuan",
           text: "Harga Satuan",
-          formatter: (data) =>
-            "Rp. " + parseFloat(data).toLocaleString("id-ID"),
+          formatter: (data) => parseFloat(data).toLocaleString("id-ID"),
         },
         {
           dataField: "harga_total",
           text: "Total",
-          formatter: (data) =>
-            "Rp. " + parseFloat(data).toLocaleString("id-ID"),
+          formatter: (data) => parseFloat(data).toLocaleString("id-ID"),
         },
         {
           dataField: "action",

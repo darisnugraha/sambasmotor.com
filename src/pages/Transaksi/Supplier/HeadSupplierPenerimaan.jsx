@@ -11,6 +11,7 @@ import { AxiosMasterGet } from "../../../axios";
 import { getListTerimaSupplier } from "../../../actions/transaksi_action";
 import Swal from "sweetalert2";
 import Tabel from "../../../components/Tabel/tabel";
+import { required } from "../../../validasi/normalize";
 
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
@@ -38,7 +39,7 @@ class HeadSupplierPenerimaan extends Component {
         },
         {
           dataField: "kwalitas",
-          text: "Kwalitas",
+          text: "Kualitas",
         },
         {
           dataField: "satuan",
@@ -52,14 +53,14 @@ class HeadSupplierPenerimaan extends Component {
           dataField: "harga_satuan",
           text: "Harga Satuan",
           formatter: (data) => {
-            return "Rp. " + parseFloat(data).toLocaleString("id-ID");
+            return parseFloat(data).toLocaleString("id-ID");
           },
         },
         {
           dataField: "total",
           text: "Total",
           formatter: (data) => {
-            return "Rp. " + parseFloat(data).toLocaleString("id-ID");
+            return parseFloat(data).toLocaleString("id-ID");
           },
         },
         {
@@ -152,6 +153,7 @@ class HeadSupplierPenerimaan extends Component {
               label="Kode Terima"
               placeholder="Masukan Kode Terima"
               readOnly
+              validate={required}
             />
           </div>
           <div className="col-lg-3">
@@ -169,6 +171,7 @@ class HeadSupplierPenerimaan extends Component {
               label="Supplier"
               placeholder="Masukan Supplier"
               onChange={(e) => this.setSupplier(e)}
+              validate={required}
             />
           </div>
           <div className="col-lg-3">
@@ -181,6 +184,7 @@ class HeadSupplierPenerimaan extends Component {
               onChange={(e) =>
                 this.setLocal("penerimaan_tanggal_invoice", e.target.value)
               }
+              validate={required}
             />
           </div>
           <div className="col-lg-3">
@@ -193,6 +197,7 @@ class HeadSupplierPenerimaan extends Component {
               onChange={(e) =>
                 this.setLocal("penerimaan_tanggal_barang", e.target.value)
               }
+              validate={required}
             />
           </div>
           <div className="col-lg-3">
@@ -217,6 +222,7 @@ class HeadSupplierPenerimaan extends Component {
               onChange={(e) =>
                 this.setLocal("penerimaan_no_bon", e.target.value)
               }
+              validate={required}
             />
           </div>
           <div className="col-lg-3">

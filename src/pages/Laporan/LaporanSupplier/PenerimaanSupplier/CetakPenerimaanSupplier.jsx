@@ -85,7 +85,7 @@ const CetakPenerimaanSupplier = (
         barang.satuan,
         barang.qty,
         barang.harga_satuan,
-        "Rp. " + parseFloat(barang.harga_total).toLocaleString("id-ID"),
+        parseFloat(barang.harga_total).toLocaleString("id-ID"),
       ];
       sub_total = sub_total + parseFloat(barang.harga_total);
       sub_qty = sub_qty + parseInt(barang.qty);
@@ -100,7 +100,7 @@ const CetakPenerimaanSupplier = (
       "Sub Total",
       `${sub_qty}`,
       "",
-      `Rp. ${parseFloat(sub_total).toLocaleString("id-ID")}`,
+      `${parseFloat(sub_total).toLocaleString("id-ID")}`,
     ];
     footRows.push(footer);
     doc.autoTable({

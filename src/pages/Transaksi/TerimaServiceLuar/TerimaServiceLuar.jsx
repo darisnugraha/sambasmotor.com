@@ -7,22 +7,33 @@ import {
   PanelHeader,
 } from "../../../components/panel/panel.jsx";
 import HeadTerimaServiceLuar from "./HeadTerimaServiceLuar.jsx";
-import BootstrapTable from "react-bootstrap-table-next";
-import ToolkitProvider, {
-  Search,
-  CSVExport,
-} from "react-bootstrap-table2-toolkit";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import ModalGlobal from "../../ModalGlobal.jsx";
 import ModalTerimaServiceLuar from "./ModalTerimaServiceLuar.jsx";
-import { showModal } from "../../../actions/datamaster_action.jsx";
-
-const { SearchBar } = Search;
-const { ExportCSVButton } = CSVExport;
+import { getFaktur, showModal } from "../../../actions/datamaster_action.jsx";
+import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
+import {
+  NotifSucces,
+  ToastError,
+  ToastSucces,
+} from "../../../components/notification/notification.jsx";
+import ModalCC from "../PembayaranService/ModalCC.jsx";
+import {
+  getToday,
+  multipleDeleteLocal,
+} from "../../../components/notification/function.jsx";
+import {
+  getListKirimServiceLuar,
+  getListPembayaran,
+} from "../../../actions/transaksi_action.jsx";
+import { reset } from "redux-form";
 
 const maptostate = (state) => {
   return {
     kunci_temp: state.stocking.kunci_temp,
+    listkirimserviceluar: state.transaksi.listkirimserviceluar,
+    noFaktur: state.datamaster.noFaktur,
+    grand_total: state.transaksi.grand_total,
+    no_bon_kirim: state.transaksi.no_bon_kirim,
   };
 };
 
@@ -34,76 +45,127 @@ class ServiceLuar extends React.Component {
       modalDialog: false,
       isLoading: false,
       bayar: false,
-      columns: [
-        {
-          dataField: "nama_partner",
-          text: "Nama Partner",
-        },
-        {
-          dataField: "alamat",
-          text: "Alamat",
-        },
-        {
-          dataField: "nama_barang",
-          text: "Nama Barang",
-        },
-        {
-          dataField: "qty",
-          text: "Qty",
-        },
-        {
-          dataField: "keterangan_service",
-          text: "Keterangan Service",
-        },
-        {
-          dataField: "harga_satuan",
-          text: "Harga Satuan",
-        },
-        {
-          dataField: "total",
-          text: "Total",
-        },
-        {
-          dataField: "action",
-          text: "Action",
-          csvExport: false,
-          headerClasses: "text-center",
-          formatter: (rowcontent, row) => {
-            this.setState({});
-            return (
-              <div className="row text-center">
-                <div className="col-12">
-                  <button
-                    onClick={() => this.props.dispatch(showModal())}
-                    className="btn btn-primary mr-3"
-                  >
-                    Simpan
-                  </button>
-                </div>
-              </div>
-            );
-          },
-        },
-      ],
-      data: [
-        {
-          nama_partner: "Nagatech Motor",
-          alamat: "ARIA GRAHA",
-          nama_barang: "BAN FIRELLI",
-          qty: 4,
-          keterangan_service: "GANTI BAN",
-          harga_satuan: 500000,
-          total: 2000000,
-        },
-      ],
     };
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    this.props.dispatch(getFaktur());
+    this.props.dispatch(getListPembayaran());
+    AxiosMasterGet("terima-service-luar/generate/no-trx").then((res) =>
+      localStorage.setItem(
+        "terima_service_luar_nomor",
+        res && res.data[0].no_service_terima
+      )
+    );
+    this.props.dispatch(getFaktur());
+  }
   handleSubmit(data) {
     console.log(data);
   }
-
+  showCC() {
+    this.props.dispatch(showModal());
+  }
+  showBayar(data) {
+    this.setState({
+      bayar: true,
+      grand_total: data,
+    });
+  }
+  setBack() {
+    this.setState({
+      bayar: false,
+    });
+  }
+  handleSimpanCC(hasil) {
+    let data = {
+      no_ref: this.props.noFaktur,
+      no_card: `${hasil.no_card}`,
+      bayar_rp: hasil.grand_total,
+      fee_rp: hasil.fee_card,
+      no_ac: `${hasil.bank}`,
+      valid_until: hasil.expiry,
+      nama_pemilik: hasil.name,
+      no_ktp: hasil.no_ktp,
+      alamat_ktp: hasil.alamat_ktp,
+      kota_ktp: hasil.kota,
+      telepon_ktp: hasil.handphone,
+      jenis_trx: hasil.jenis_trx || "DEBIT",
+    };
+    let array = JSON.parse(localStorage.getItem("listPembayaran_temp")) || [];
+    array.push(data);
+    localStorage.setItem("listPembayaran_temp", JSON.stringify(array));
+    ToastSucces("Berhasil Menambahkan Data");
+    this.props.dispatch(getListPembayaran());
+    localStorage.removeItem("noFaktur");
+    this.props.dispatch(getFaktur());
+  }
+  sendData(hasil) {
+    let data = {
+      no_service_terima: localStorage.getItem("terima_service_luar_nomor"),
+      tanggal: getToday(),
+      no_bon: this.props.no_bon_kirim,
+      margin_rp: hasil.margin,
+      total_bayar: this.props.grand_total,
+      cash_rp: hasil.bayar,
+      no_ref_cash: this.props.noFaktur,
+      status_masuk_piutang: hasil.piutang || false,
+      detail_non_tunai:
+        localStorage.getItem("listPembayaran_temp") === "[]"
+          ? [
+              {
+                no_ref: "-",
+                no_ac: "-",
+                bayar_rp: 0,
+                fee_rp: 0,
+                no_card: "-",
+                valid_until: "-",
+                nama_pemilik: "-",
+                no_ktp: "-",
+                alamat_ktp: "-",
+                kota_ktp: "-",
+                telepon_ktp: "-",
+                jenis_trx: "-",
+              },
+            ]
+          : localStorage.getItem("listPembayaran_temp") !== null
+          ? JSON.parse(localStorage.getItem("listPembayaran_temp"))
+          : [
+              {
+                no_ref: "-",
+                no_ac: "-",
+                bayar_rp: 0,
+                fee_rp: 0,
+                no_card: "-",
+                valid_until: "-",
+                nama_pemilik: "-",
+                no_ktp: "-",
+                alamat_ktp: "-",
+                kota_ktp: "-",
+                telepon_ktp: "-",
+                jenis_trx: "-",
+              },
+            ],
+    };
+    console.log(JSON.stringify(data));
+    // return false;
+    AxiosMasterPost("terima-service-luar/post-transaksi", data)
+      .then(() => NotifSucces("Terima Service Berhasil"))
+      .then(() =>
+        multipleDeleteLocal([
+          "noFaktur",
+          "listPembayaran_temp",
+          "terima_service_luar_nomor",
+        ])
+      )
+      .then(() => this.props.dispatch(getListKirimServiceLuar()))
+      .then(() => this.props.dispatch(reset("HeadServiceLuar")))
+      .then(() => this.props.dispatch(getFaktur()))
+      .then(() => this.setBack())
+      .then(() => this.props.dispatch(reset("ModalTerimaServiceLuar")))
+      .catch((err) =>
+        ToastError(`Terima Service Gagal, Error : ${err.response.data}`)
+      );
+  }
   render() {
     return (
       <div>
@@ -111,57 +173,36 @@ class ServiceLuar extends React.Component {
           <li className="breadcrumb-item">
             <Link to="#">Transaksi</Link>
           </li>
-          <li className="breadcrumb-item active">Service Luar</li>
+          <li className="breadcrumb-item active">Terima Service Luar</li>
         </ol>
-        <h1 className="page-header">Service Luar </h1>
+        <h1 className="page-header">Terima Service Luar </h1>
         <div className="row">
           <div className="col-lg-12">
             <Panel>
-              <PanelHeader>Service Luar</PanelHeader>
+              <PanelHeader>Terima Service Luar</PanelHeader>
               <PanelBody>
                 <br />
                 <div className="col-lg-12">
-                  <HeadTerimaServiceLuar />
+                  {!this.state.bayar ? (
+                    <HeadTerimaServiceLuar showBayar={() => this.showBayar()} />
+                  ) : (
+                    <ModalTerimaServiceLuar
+                      showCC={() => this.showCC()}
+                      setBack={() => this.setBack()}
+                      onSubmit={(data) => this.sendData(data)}
+                    />
+                  )}
                 </div>
                 <br />
-                <div className="col-lg-12">
-                  <ToolkitProvider
-                    keyField="no_acc"
-                    data={this.state.data || []}
-                    columns={this.state.columns}
-                    search
-                    exportCSV={{
-                      fileName: "Export Master Kategori.csv",
-                    }}
-                  >
-                    {(props) => (
-                      <div className="row">
-                        <div className="col-6">
-                          <div className="text-left">
-                            <SearchBar {...props.searchProps} />
-                          </div>
-                        </div>
-                        <hr />
-                        <div className="col-12">
-                          <BootstrapTable
-                            pagination={paginationFactory()}
-                            {...props.baseProps}
-                          />
-                          <br />
-                          <ExportCSVButton {...props.csvProps}>
-                            Export CSV!!
-                          </ExportCSVButton>
-                        </div>
-                      </div>
-                    )}
-                  </ToolkitProvider>
-                </div>
+                <div className="col-lg-12"></div>
                 {/* End Tambah Master Kategori  */}
               </PanelBody>
             </Panel>
             <ModalGlobal
               title="Simpan Data Harga"
-              content={<ModalTerimaServiceLuar />}
+              content={
+                <ModalCC onSubmit={(data) => this.handleSimpanCC(data)} />
+              }
             />
           </div>
         </div>

@@ -56,8 +56,8 @@ class Login extends React.Component {
   onfiled(err) {
     // NotifError(err)
     Swal.fire({
-      title: "Oopss !!!",
-      text: "Silahkan Cek Kembali Username Dan Password Anda :)",
+      title: "Whops..",
+      text: "Sepertinya Username atau password salah, Mohon Cek Kembali",
       icon: "info",
     });
     this.setState({ isLoading: false });
@@ -86,14 +86,14 @@ class Login extends React.Component {
           <div
             className="news-image"
             style={{
-              backgroundImage: `url(${require("../../assets/img/login-bg/login-bg-11.jpg")})`,
+              backgroundImage: `url(${require("../../assets/img/login-bg/login-bg-20.jpg")})`,
             }}
           ></div>
           <div className="news-caption">
             <h4 className="caption-title">
               <b>Sambas</b> Motor
             </h4>
-            <p>Sambas Motor Admin Website.</p>
+            <p>Sambas Motor Admin Website V9.</p>
           </div>
         </div>
         <div className="right-content">

@@ -82,7 +82,7 @@ const CetakReturnSupplier = (
       "Sub Total",
       `${sub_qty}`,
       "",
-      `Rp. ${parseFloat(item.jml_bruto_rp).toLocaleString("id-ID")}`,
+      ` ${parseFloat(item.jml_bruto_rp).toLocaleString("id-ID")}`,
     ];
     footRows.push(footer);
     let diskon = [
@@ -94,7 +94,7 @@ const CetakReturnSupplier = (
       "Diskon",
       ``,
       "",
-      `Rp. ${parseFloat(item.diskon_rp).toLocaleString("id-ID")}`,
+      ` ${parseFloat(item.diskon_rp).toLocaleString("id-ID")}`,
     ];
     footRows.push(diskon);
     doc.autoTable({

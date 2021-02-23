@@ -106,9 +106,9 @@ class FormModalSupplier extends Component {
                 <Field
                   name="contact_person"
                   component={ReanderField}
-                  type="text"
-                  label="Nomor Telepon"
-                  placeholder="Masukan Nomor Telepon"
+                  type="number"
+                  label="Nomor Handphone"
+                  placeholder="Masukan Nomor Handphone"
                 />
               </div>
               <div className="col-lg-4">

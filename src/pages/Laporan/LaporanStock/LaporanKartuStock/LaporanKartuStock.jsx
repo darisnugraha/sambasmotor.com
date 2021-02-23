@@ -9,7 +9,6 @@ import {
   PanelHeader,
 } from "../../../../components/panel/panel";
 import CetakStockPerKategori from "../LaporanStockPerKategori/CetakStockPerKategori";
-import CetakKartuStock from "./CetakKartuStock";
 import HeadLaporanKartuStock from "./HeadLaporanKartuStock";
 
 class LaporanKartuStock extends Component {

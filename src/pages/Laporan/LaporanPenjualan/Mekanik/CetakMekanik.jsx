@@ -54,7 +54,7 @@ const CetakMekanik = (
         barang.mekanik,
         barang.no_faktur,
         barang.jenis,
-        "Rp. " + parseFloat(barang.total).toLocaleString("id-ID"),
+        parseFloat(barang.total).toLocaleString("id-ID"),
       ];
       sub_total = sub_total + parseFloat(barang.total);
       tableRows.push(rows);

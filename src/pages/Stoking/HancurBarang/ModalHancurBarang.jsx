@@ -101,8 +101,8 @@ class ModalHancurBarang extends Component {
                 <Field
                   name="kwalitas"
                   component={ReanderField}
-                  label="Kwalitas"
-                  placeholder="Masukan Kwalitas"
+                  label="Kualitas"
+                  placeholder="Masukan Kualitas"
                   readOnly
                 />
               </div>

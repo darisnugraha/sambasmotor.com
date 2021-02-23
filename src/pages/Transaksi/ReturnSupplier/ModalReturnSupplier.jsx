@@ -122,8 +122,8 @@ class ModalReturnSupplier extends Component {
                 return data;
               })}
               type="text"
-              label="Kwalitas"
-              placeholder="Masukan Kwalitas"
+              label="Kualitas"
+              placeholder="Masukan Kualitas"
             />
           </div>
           <div className="col-lg-3">

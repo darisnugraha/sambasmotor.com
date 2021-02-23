@@ -26,7 +26,7 @@ const CetakHutangSupplier = (row2isi = "", data) => {
       item.kode_supplier,
       item.nama_supplier,
       item.alamat_supplier,
-      "Rp. " + parseFloat(item.saldo_hutang).toLocaleString("id-ID"),
+      parseFloat(item.saldo_hutang).toLocaleString("id-ID"),
     ];
     sub_total = sub_total + parseFloat(item.saldo_hutang);
     tableRows.push(rows);

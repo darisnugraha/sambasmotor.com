@@ -68,7 +68,7 @@ class HancurBarang extends React.Component {
         },
         {
           dataField: "kwalitas",
-          text: "Kwalitas",
+          text: "Kualitas",
         },
         {
           dataField: "satuan",

@@ -76,9 +76,9 @@ const CetakPenerimaanSupplierRekap = (
       item.kode_supplier,
       Object.keys(item.detail_barang).length,
       qty,
-      "Rp. " + parseFloat(item.jml_bruto_rp).toLocaleString("id-ID"),
-      "Rp. " + parseFloat(item.diskon_rp).toLocaleString("id-ID"),
-      "Rp. " + parseFloat(item.jml_netto_rp).toLocaleString("id-ID"),
+      parseFloat(item.jml_bruto_rp).toLocaleString("id-ID"),
+      parseFloat(item.diskon_rp).toLocaleString("id-ID"),
+      parseFloat(item.jml_netto_rp).toLocaleString("id-ID"),
     ];
     tableRows.push(rows);
     console.log(tableRows);

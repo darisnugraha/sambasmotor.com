@@ -5,22 +5,27 @@ import ModalGlobal from "../../ModalGlobal";
 import HeadPenjualanSparepart from "./HeadPenjualanSparepart";
 import ModalDetailBarangSparepart from "./ModalDetailBarangSparepart";
 import ModalPenjualanSparepart from "./ModalPenjualanSparepart";
-import { showModal } from "../../../actions/datamaster_action";
+import {
+  getFaktur,
+  hideModal,
+  showModal,
+} from "../../../actions/datamaster_action";
 import { connect } from "react-redux";
 import ModalCC from "../PembayaranService/ModalCC";
+import { AxiosMasterGet, AxiosMasterPost } from "../../../axios";
 import {
-  AxiosMasterGet,
-  AxiosMasterPost,
-  AxiosMasterPut,
-} from "../../../axios";
-import {
+  NotifSucces,
   ToastError,
   ToastSucces,
   ToastWarning,
 } from "../../../components/notification/notification";
-import { getListBarang } from "../../../actions/transaksi_action";
+import {
+  getListBarang,
+  getListPembayaran,
+} from "../../../actions/transaksi_action";
 import ModalBayarSparepart from "./ModalBayarSparepart";
 import { reset } from "redux-form";
+import { multipleDeleteLocal } from "../../../components/notification/function";
 
 class PenjualanSparepart extends Component {
   constructor(props) {
@@ -30,22 +35,36 @@ class PenjualanSparepart extends Component {
       bayar: false,
       columnsListBayar: [
         {
-          dataField: "jenis_bayar",
+          dataField: "jenis_trx",
           text: "Jenis Bayar",
         },
         {
-          dataField: "nama_bank",
+          dataField: "no_card",
           text: "Bank",
         },
         {
-          dataField: "jumlah",
-          text: "Jumlah",
+          dataField: "nama_pemilik",
+          text: "Nama Pemilik",
+        },
+        {
+          dataField: "fee_rp",
+          text: "Fee Card",
+        },
+        {
+          dataField: "bayar_rp",
+          text: "Bayar",
+          formatter: (data) =>
+            `Rp. ${parseFloat(data).toLocaleString("id-ID")}`,
         },
       ],
     };
   }
 
   handleSubmit(hasil) {
+    if (localStorage.getItem("barangSparepart_temp") === null) {
+      ToastError("Barang Tidak Boleh Kosong");
+      return false;
+    }
     this.setState({
       bayar: true,
     });
@@ -56,21 +75,20 @@ class PenjualanSparepart extends Component {
       nama_customer: hasil.nama_customer,
       alamat: hasil.alamat,
       telepon: hasil.telepon,
-      grand_total: hasil.no_faktur,
-      cash_rp: hasil.no_faktur,
-      tukar_rp: hasil.no_faktur,
       status_masuk_piutang: hasil.no_faktur,
       grand_total: this.props.grand_total_all,
       tukar_rp: this.props.totalTukar,
+      no_ref_cash: this.props.noFaktur,
       detail_barang: JSON.parse(localStorage.getItem("barangSparepart_temp")),
-      detail_tukar: JSON.parse(localStorage.getItem("tukarSparepart_temp")),
+      detail_tukar:
+        JSON.parse(localStorage.getItem("tukarSparepart_temp")) || [],
     };
     localStorage.setItem("headSparepart", JSON.stringify(data));
   }
   sendData(hasil) {
     let array = JSON.parse(localStorage.getItem("headSparepart")) || [];
     array["cash_rp"] = hasil.bayar;
-    array["status_masuk_piutang"] = hasil.piutang;
+    array["status_masuk_piutang"] = hasil.piutang || false;
     array["detail_non_tunai"] =
       localStorage.getItem("listPembayaran_temp") === "[]"
         ? [
@@ -107,11 +125,34 @@ class PenjualanSparepart extends Component {
               jenis_trx: "-",
             },
           ];
-    AxiosMasterPost("penjualan/post-transaksi", array).then(() =>
-      ToastSucces("Berhasil Menambah Data").catch((err) =>
-        ToastError("Gagal Menambah Data")
+    console.log(array);
+    // return false;
+    AxiosMasterPost("penjualan/post-transaksi", array)
+      .then(() => NotifSucces("Transaksi Berhasil, Terima Kasih.."))
+      .then(() =>
+        multipleDeleteLocal([
+          "barangSparepart_temp",
+          "supplier_barang_sparepart",
+          "no_penjualan_sparepart",
+          "supplier_barang_sparepart",
+          "headSparepart",
+          "bayar_rp_rongsok",
+          "penjualan_sparepart_nama_customer",
+          "penjualan_sparepart_alamat",
+          "penjualan_sparepart_telepon",
+          "penjualan_sparepart_kode_sales",
+          "noFaktur",
+          "tukarSparepart_temp",
+          "listPembayaran_temp",
+        ])
       )
-    );
+      .then(() => this.setBack())
+      .then(() => this.props.dispatch(getListBarang()))
+      .then(() => this.props.dispatch(getFaktur()))
+      .then(() => this.props.dispatch(reset("HeadPenjualanSparepart")))
+      .catch((err) =>
+        ToastError(`Gagal Menambah Data, Error : ${err.response.data}`)
+      );
   }
   setCariBarang(data) {
     console.log(data);
@@ -123,6 +164,7 @@ class PenjualanSparepart extends Component {
   setBack() {
     this.setState({
       cari_barang: false,
+      bayar: false,
     });
   }
 
@@ -132,8 +174,28 @@ class PenjualanSparepart extends Component {
       jenisModal: "CC",
     });
   }
-  handleSimpanCC(data) {
-    console.log(data);
+  handleSimpanCC(hasil) {
+    let data = {
+      no_ref: this.props.noFaktur,
+      no_card: hasil.no_card,
+      bayar_rp: hasil.grand_total,
+      fee_rp: hasil.fee_card,
+      no_ac: `${hasil.bank}`,
+      valid_until: hasil.expiry,
+      nama_pemilik: hasil.name,
+      no_ktp: hasil.no_ktp,
+      alamat_ktp: hasil.alamat_ktp,
+      kota_ktp: hasil.kota,
+      telepon_ktp: hasil.handphone,
+      jenis_trx: hasil.jenis_trx || "DEBIT",
+    };
+    let array = JSON.parse(localStorage.getItem("listPembayaran_temp")) || [];
+    array.push(data);
+    localStorage.setItem("listPembayaran_temp", JSON.stringify(array));
+    ToastSucces("Berhasil Menambahkan Data");
+    this.props.dispatch(getListPembayaran());
+    localStorage.removeItem("noFaktur");
+    this.props.dispatch(getFaktur());
   }
   showDetail() {
     this.props.dispatch(showModal());
@@ -142,6 +204,7 @@ class PenjualanSparepart extends Component {
     });
   }
   componentDidMount() {
+    this.props.dispatch(getFaktur());
     AxiosMasterGet("penjualan/generate/no-trx")
       .then((res) =>
         localStorage.setItem(
@@ -170,7 +233,7 @@ class PenjualanSparepart extends Component {
           kode_barcode: hasil.kode_barcode,
           qty: parseFloat(hasil.jumlah) + parseFloat(array[indexnya].qty),
           harga_satuan: parseFloat(hasil.harga_satuan),
-          diskon_rp: parseFloat(hasil.discount),
+          diskon_rp: parseFloat(hasil.discount || 0),
           harga_total:
             parseFloat(hasil.grand_total) +
             parseFloat(array[indexnya].harga_total),
@@ -180,7 +243,8 @@ class PenjualanSparepart extends Component {
         localStorage.setItem(nama_local, JSON.stringify(array));
         ToastSucces("Barang Berhasil Ditambahkan");
         this.props.dispatch(getListBarang());
-        this.props.dispatch(reset("HeadPenjualanSparepart"));
+        this.props.dispatch(reset("ModalDetailBarangSparepart"));
+        this.setBack();
       } else {
         let data = {
           kode_supplier:
@@ -188,14 +252,16 @@ class PenjualanSparepart extends Component {
           kode_barcode: hasil.kode_barcode,
           qty: parseFloat(hasil.jumlah),
           harga_satuan: parseFloat(hasil.harga_satuan),
-          diskon_rp: parseFloat(hasil.discount),
+          diskon_rp: parseFloat(hasil.discount || 0),
           harga_total: parseFloat(hasil.grand_total),
         };
         array.push(data);
         localStorage.setItem(nama_local, JSON.stringify(array));
         ToastSucces("Barang Berhasil Ditambahkan");
         this.props.dispatch(getListBarang());
-        this.props.dispatch(reset("HeadPenjualanSparepart"));
+        this.props.dispatch(reset("ModalDetailBarangSparepart"));
+        this.props.dispatch(hideModal());
+        this.setBack();
       }
     } else {
       nama_local = "tukarSparepart_temp";
@@ -210,7 +276,7 @@ class PenjualanSparepart extends Component {
           kode_barcode: hasil.kode_barcode,
           qty: parseFloat(hasil.jumlah) + parseFloat(array[indexnya].qty),
           harga_satuan: parseFloat(hasil.harga_satuan),
-          potongan: parseFloat(hasil.discount),
+          potongan: parseFloat(hasil.discount || 0),
           harga_total:
             parseFloat(hasil.grand_total) +
             parseFloat(array[indexnya].harga_total),
@@ -220,7 +286,9 @@ class PenjualanSparepart extends Component {
         localStorage.setItem(nama_local, JSON.stringify(array));
         ToastSucces("Barang Berhasil Ditambahkan");
         this.props.dispatch(getListBarang());
-        this.props.dispatch(reset("HeadPenjualanSparepart"));
+        this.props.dispatch(reset("ModalDetailBarangSparepart"));
+        this.props.dispatch(hideModal());
+        this.setBack();
       } else {
         let data = {
           kode_supplier:
@@ -228,14 +296,15 @@ class PenjualanSparepart extends Component {
           kode_barcode: hasil.kode_barcode,
           qty: parseFloat(hasil.jumlah),
           harga_satuan: parseFloat(hasil.harga_satuan),
-          potongan: parseFloat(hasil.discount),
+          potongan: parseFloat(hasil.discount || 0),
           harga_total: parseFloat(hasil.grand_total),
         };
         array.push(data);
         localStorage.setItem(nama_local, JSON.stringify(array));
         ToastSucces("Barang Berhasil Ditambahkan");
         this.props.dispatch(getListBarang());
-        this.props.dispatch(reset("HeadPenjualanSparepart"));
+        this.props.dispatch(reset("ModalDetailBarangSparepart"));
+        this.setBack();
       }
     }
   }
@@ -313,8 +382,9 @@ class PenjualanSparepart extends Component {
 export default connect((state) => {
   return {
     listBarangSparepart: state.transaksi.listBarangSparepart,
-    grand_total_all: state.transaksi.sub_total,
+    grand_total_all: state.transaksi.total_bayar,
     sum_pembayaran: state.transaksi.sum_pembayaran,
     totalTukar: state.transaksi.totalTukar,
+    noFaktur: state.datamaster.noFaktur,
   };
 })(PenjualanSparepart);

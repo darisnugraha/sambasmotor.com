@@ -43,7 +43,7 @@ class HeadPermintaanBarang extends Component {
         },
         {
           dataField: "kwalitas",
-          text: "kwalitas",
+          text: "Kualitas",
         },
         {
           dataField: "ukuran",

@@ -89,22 +89,17 @@ class MasterKategoriService extends React.Component {
           csvExport: false,
           headerClasses: "text-center",
           formatter: (rowcontent, row) => {
-            let dataEdit = {
-              id_kategori_service: row.id_kategori_service,
-              kategori_service: row.kategori_service,
-              jenis_service: row.jenis_service,
-            };
             this.setState({});
             return (
               <div className="row text-center">
                 <div className="col-12">
-                  <button
+                  {/* <button
                     onClick={() => this.editModal(dataEdit)}
                     className="btn btn-warning mr-3"
                   >
                     Edit
                     <i className="fa fa-edit ml-2"></i>
-                  </button>
+                  </button> */}
                   <button
                     onClick={() =>
                       hapusDataKategori(

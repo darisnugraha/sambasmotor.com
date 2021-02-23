@@ -3,18 +3,29 @@ import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
 import {
   ReanderField,
+  ReanderFieldInline,
   ReanderSelect,
   RenderFieldGroup,
-  RenderCheckBox,
-  renderTextArea,
+  ToastError,
 } from "../../../components/notification/notification";
 import Stepper from "react-stepper-horizontal";
 import NavigationStepper from "../../../components/content/NavigationStepper";
+import {
+  getCustomer,
+  getKendaraan,
+  getSales,
+  getWarna,
+} from "../../../actions/datamaster_action";
+import { AxiosMasterGet } from "../../../axios";
+import { getToday } from "../../../components/notification/function";
+import Tabel from "../../../components/Tabel/tabel";
 
 class ModalDaftarService extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      dataBooking: [],
+      customer: "col-lg-12 row",
       step: 0,
       step1: "row",
       step2: "row d-none",
@@ -22,6 +33,24 @@ class ModalDaftarService extends Component {
       step4: "row d-none",
       step5: "row d-none",
       step6: "row d-none",
+      columns: [
+        {
+          dataField: "jenis_barang",
+          text: "Jenis barang",
+        },
+        {
+          dataField: "nama",
+          text: "Nama",
+        },
+        {
+          dataField: "harga_total",
+          text: "Harga",
+        },
+        {
+          dataField: "keterangan",
+          text: "Keterangan",
+        },
+      ],
     };
   }
   handleChange(nama, data) {
@@ -75,17 +104,6 @@ class ModalDaftarService extends Component {
           step6: "row d-none",
         });
         break;
-      case 4:
-        this.setState({
-          step: this.state.step + 1,
-          step1: "row d-none",
-          step2: "row d-none",
-          step3: "row d-none",
-          step4: "row d-none",
-          step5: "row d-none",
-          step6: "row ",
-        });
-        break;
       default:
         break;
     }
@@ -136,20 +154,55 @@ class ModalDaftarService extends Component {
           step6: "row d-none",
         });
         break;
-      case 5:
-        this.setState({
-          step: this.state.step - 1,
-          step1: "row d-none",
-          step2: "row d-none",
-          step3: "row d-none",
-          step4: "row d-none",
-          step5: "row ",
-          step6: "row d-none",
-        });
-        break;
       default:
         break;
     }
+  }
+  componentDidMount() {
+    this.props.dispatch(getCustomer());
+    this.props.dispatch(getWarna());
+    this.props.dispatch(getKendaraan());
+    this.props.dispatch(getSales());
+    this.props.change("tanggal_masuk", getToday());
+    AxiosMasterGet("daftar-service/generate/no-trx").then((res) =>
+      this.props.change("no_faktur", res.data[0].no_daftar_service)
+    );
+  }
+  cariBooking(e) {
+    AxiosMasterGet("service/booking/" + e.target.value)
+      .then((res) => {
+        if (res.data.length === 0) {
+          ToastError("Nomor Booking Tidak Ada");
+          return false;
+        } else {
+          this.setState({
+            dataBooking: res.data,
+          });
+          this.props.change("booking_customer", res.data.kode_customer);
+          this.props.change("booking_nopol", res.data.nopol_kendaraan);
+          this.props.change("kode_mekanik", res.data.kode_pegawai);
+          this.setState({
+            customer: "col-lg-12 row d-none",
+          });
+        }
+      })
+      .catch((err) => {
+        ToastError("Booking Tidak Ditemukan.. Mohon Periksa Kembali");
+        this.setState({
+          customer: "col-lg-12 row",
+        });
+      });
+  }
+  setCustomer(data) {
+    let hasil = data.split("||");
+    this.props.change("alamat", hasil[1]);
+    this.props.change("kota", hasil[2]);
+    this.props.change("handphone", hasil[3]);
+    this.props.change("nopol_kendaraan", hasil[4]);
+    this.props.change("merk_kendaraan", hasil[5]);
+    this.props.change("type_kendaraan", hasil[6]);
+    this.props.change("warna_kendaraan", hasil[7]);
+    this.props.change("nomesin_kendaraan", hasil[8]);
   }
   render() {
     return (
@@ -166,19 +219,13 @@ class ModalDaftarService extends Component {
                     },
                   },
                   {
-                    title: "Data Dokument",
+                    title: "Data Dokumen",
                   },
                   {
                     title: "Data Service List",
                   },
                   {
-                    title: "Data Sparepart",
-                  },
-                  {
                     title: "Data Mekanik & Catatan",
-                  },
-                  {
-                    title: "Data Review",
                   },
                 ]}
                 activeStep={this.state.step}
@@ -186,7 +233,7 @@ class ModalDaftarService extends Component {
             </div>
             <div className={this.state.step1}>
               <div className="col-lg-12">
-                <h4>Sudah Booking ? Masukan kodenya di kolom bawah</h4>
+                <h5>Sudah Booking ? Masukan kodenya di kolom bawah</h5>
               </div>
               <div className="col-lg-4">
                 <Field
@@ -195,110 +242,132 @@ class ModalDaftarService extends Component {
                   type="text"
                   label="Nomor Booking"
                   placeholder="Masukan Nomor Booking "
+                  handleClick={this.props.showBooking}
+                  onChange={(e) => this.cariBooking(e)}
                 />
               </div>
-              <div className="col-lg-8"></div>
-              <div className="col-lg-12">
-                <h4>Data Customer</h4>
-              </div>
-              <div className="col-lg-3">
+              <div className="col-lg-4">
                 <Field
-                  name="nama"
-                  component={ReanderField}
+                  name="booking_customer"
+                  component={ReanderSelect}
+                  options={this.props.listcustomer.map((list) => {
+                    let data = {
+                      value: list.kode_customer,
+                      name: list.nama_customer,
+                    };
+                    return data;
+                  })}
                   type="text"
-                  label="Nama"
-                  placeholder="Masukan Nama"
+                  label="Nama Customer"
+                  placeholder="Masukan Nama Customer"
+                  readOnly
                 />
+                <span>Otomatis Terisi Saat nomor Booking diisi</span>
               </div>
-              <div className="col-lg-3">
+              <div className="col-lg-4">
                 <Field
-                  name="alamat"
-                  component={ReanderField}
-                  type="text"
-                  label="Alamat"
-                  placeholder="Masukan Alamat"
-                />
-              </div>
-              <div className="col-lg-3">
-                <Field
-                  name="kota"
-                  component={ReanderField}
-                  type="text"
-                  label="Kota"
-                  placeholder="Masukan Kota"
-                />
-              </div>
-              <div className="col-lg-3">
-                <Field
-                  name="handphone"
-                  component={ReanderField}
-                  type="text"
-                  label="Handphone"
-                  placeholder="Masukan Handphone"
-                />
-              </div>
-              <div className="col-lg-3">
-                <Field
-                  name="no_polisi"
+                  name="booking_nopol"
                   component={ReanderField}
                   type="text"
                   label="Nomor Polisi"
                   placeholder="Masukan Nomor Polisi"
+                  readOnly
                 />
+                <span>Otomatis Terisi Saat nomor Booking diisi</span>
               </div>
-              <div className="col-lg-3">
-                <Field
-                  name="merk"
-                  component={ReanderSelect}
-                  options={[
-                    { value: "MERK01", name: "MERK 01" },
-                    { value: "MERK02", name: "MERK 02" },
-                    { value: "MERK03", name: "MERK 03" },
-                    { value: "MERK04", name: "MERK 04" },
-                  ]}
-                  type="text"
-                  label="Merk"
-                  placeholder="Masukan Merk"
-                />
+              <div className="col-lg-12">
+                <h4>Data Customer</h4>
               </div>
-              <div className="col-lg-3">
-                <Field
-                  name="model"
-                  component={ReanderSelect}
-                  options={[
-                    { value: "MODEL01", name: "MODEL 01" },
-                    { value: "MODEL02", name: "MODEL 02" },
-                    { value: "MODEL03", name: "MODEL 03" },
-                    { value: "MODEL04", name: "MODEL 04" },
-                  ]}
-                  type="text"
-                  label="Model"
-                  placeholder="Masukan Model"
-                />
-              </div>
-              <div className="col-lg-3">
-                <Field
-                  name="warna"
-                  component={ReanderSelect}
-                  options={[
-                    { value: "WARNA01", name: "WARNA 01" },
-                    { value: "WARNA02", name: "WARNA 02" },
-                    { value: "WARNA03", name: "WARNA 03" },
-                    { value: "WARNA04", name: "WARNA 04" },
-                  ]}
-                  type="text"
-                  label="Warna"
-                  placeholder="Masukan Warna"
-                />
-              </div>
-              <div className="col-lg-3">
-                <Field
-                  name="no_mesin"
-                  component={ReanderField}
-                  type="text"
-                  label="Nomor Mesin"
-                  placeholder="Masukan Nomor Mesin"
-                />
+              <div className={this.state.customer}>
+                <div className="col-lg-3">
+                  <Field
+                    name="nama"
+                    component={ReanderSelect}
+                    options={this.props.listcustomer.map((list) => {
+                      let data = {
+                        value: `${list.kode_customer}||${list.alamat}||${list.kota}||${list.handphone}||${list.nopol_kendaraan}||${list.merk_kendaraan}||${list.type_kendaraan}||${list.warna_kendaraan}||${list.nomesin_kendaraan}`,
+                        name: list.nama_customer,
+                      };
+                      return data;
+                    })}
+                    type="text"
+                    label="Nama"
+                    placeholder="Masukan Nama"
+                    onChange={(e) => this.setCustomer(e)}
+                  />
+                </div>
+                <div className="col-lg-3">
+                  <Field
+                    name="alamat"
+                    component={ReanderField}
+                    type="text"
+                    label="Alamat"
+                    placeholder="Masukan Alamat"
+                    readOnly
+                  />
+                </div>
+                <div className="col-lg-3 d-none">
+                  <Field
+                    name="no_faktur"
+                    component={ReanderField}
+                    type="text"
+                    label="Alamat"
+                    placeholder="Masukan Alamat"
+                    readOnly
+                  />
+                </div>
+                <div className="col-lg-3">
+                  <Field
+                    name="kota"
+                    component={ReanderField}
+                    type="text"
+                    label="Kota"
+                    placeholder="Masukan Kota"
+                    readOnly
+                  />
+                </div>
+                <div className="col-lg-3">
+                  <Field
+                    name="handphone"
+                    component={ReanderField}
+                    type="text"
+                    label="Handphone"
+                    placeholder="Masukan Handphone"
+                    readOnly
+                  />
+                </div>
+                <div className="col-lg-3">
+                  <Field
+                    name="nopol_kendaraan"
+                    component={ReanderField}
+                    type="text"
+                    label="Nomor Polisi"
+                    placeholder="Masukan Nomor Polisi"
+                    readOnly
+                  />
+                </div>
+
+                <div className="col-lg-3">
+                  <Field
+                    name="type_kendaraan"
+                    component={ReanderField}
+                    type="text"
+                    label="Type"
+                    placeholder="Masukan Type"
+                    readOnly
+                  />
+                </div>
+
+                <div className="col-lg-3">
+                  <Field
+                    name="nomesin_kendaraan"
+                    component={ReanderField}
+                    type="text"
+                    label="Nomor Mesin"
+                    placeholder="Masukan Nomor Mesin"
+                    readOnly
+                  />
+                </div>
               </div>
               <NavigationStepper first nextStep={() => this.nextStep(0)} />
             </div>
@@ -330,15 +399,7 @@ class ModalDaftarService extends Component {
                   placeholder="Masukan Jadwal Service Selanjutnya"
                 />
               </div>
-              <div className="col-lg-3">
-                <Field
-                  name="est_masuk"
-                  component={ReanderField}
-                  type="date"
-                  label="Estimasi masuk"
-                  placeholder="Masukan Estimasi masuk"
-                />
-              </div>
+
               <div className="col-lg-3">
                 <Field
                   name="tanggal_keluar"
@@ -366,22 +427,95 @@ class ModalDaftarService extends Component {
                   placeholder="Masukan KM Service Berikutnya"
                 />
               </div>
-              <div className="col-lg-3">
-                <Field
-                  name="est_keluar"
-                  component={ReanderField}
-                  type="date"
-                  label="Estimasi Keluar"
-                  placeholder="Masukan Estimasi Keluar"
-                />
-              </div>
+
               <NavigationStepper
                 nextStep={() => this.nextStep(1)}
                 prevStep={() => this.prevStep(1)}
               />
             </div>
             <div className={this.state.step3}>
-              <div className="col-lg-3">
+              <Tabel
+                columns={this.state.columns}
+                keyField="kategori_service"
+                data={this.props.listdaftarservice || []}
+                tambahData={true}
+                handleClick={this.props.showBarang}
+              />
+              <NavigationStepper
+                nextStep={() => this.nextStep(2)}
+                prevStep={() => this.prevStep(2)}
+              />
+            </div>
+            <div className={this.state.step4}>
+              <div className="col-lg-12">
+                <Field
+                  name="keluhan_konsumen"
+                  component={ReanderFieldInline}
+                  type="text"
+                  label="Keluhan Konsumen"
+                  placeholder="Masukan Keluhan Konsumen"
+                />
+              </div>
+
+              <div className="col-lg-6">
+                <Field
+                  name="kode_mekanik"
+                  component={ReanderSelect}
+                  options={this.props.listsales
+                    .filter((fill) => fill.kode_divisi === "MKN")
+                    .map((list) => {
+                      let data = {
+                        value: `${list.kode_pegawai}`,
+                        name: `${list.kode_pegawai} - ${list.nama_pegawai}`,
+                      };
+                      return data;
+                    })}
+                  onChange={(data) => this.setMekanik(data)}
+                  type="text"
+                  label="ID Mekanik"
+                  placeholder="Masukan ID Mekanik"
+                />
+              </div>
+              <NavigationStepper
+                nextStep={() =>
+                  this.setState({
+                    step1: "row",
+                    step2: "row d-none",
+                    step3: "row d-none",
+                    step4: "row d-none",
+                    step5: "row d-none",
+                    step6: "row d-none",
+                  })
+                }
+                prevStep={() => this.prevStep(3)}
+                simpan
+              />
+            </div>
+          </div>
+        </form>
+      </div>
+    );
+  }
+}
+
+ModalDaftarService = reduxForm({
+  form: "ModalDaftarService",
+  enableReinitialize: true,
+})(ModalDaftarService);
+export default connect((state) => {
+  return {
+    listcustomer: state.datamaster.listcustomer,
+    listkendaraan: state.datamaster.listkendaraan,
+    listwarna: state.datamaster.listwarna,
+    listdaftarservice: state.transaksi.listdaftarservice,
+    listsales: state.datamaster.listsales,
+    no_faktur: localStorage.getItem("no_daftar_service") || "",
+  };
+})(ModalDaftarService);
+
+// DRAFT
+// {
+/* <div className="col-lg-3">
                 <Field
                   name="kaki"
                   component={RenderCheckBox}
@@ -506,195 +640,5 @@ class ModalDaftarService extends Component {
                   label="Lain - Lain"
                   placeholder="Masukan Lain - Lain"
                 />
-              </div>
-              <NavigationStepper
-                nextStep={() => this.nextStep(2)}
-                prevStep={() => this.prevStep(2)}
-              />
-            </div>
-            <div className={this.state.step4}>
-              <div className="col-lg-6">
-                <Field
-                  name="sparepart_1"
-                  component={ReanderField}
-                  type="text"
-                  label="Sparepart 1"
-                  placeholder="Masukan Sparepart 1"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="estimasi_sparepart_1"
-                  component={ReanderField}
-                  type="text"
-                  label="Estimasi Sparepart 1"
-                  placeholder="Masukan Estimasi Sparepart 1"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="sparepart_2"
-                  component={ReanderField}
-                  type="text"
-                  label="Sparepart 2"
-                  placeholder="Masukan Sparepart 2"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="estimasi_sparepart_2"
-                  component={ReanderField}
-                  type="text"
-                  label="Estimasi Sparepart 2"
-                  placeholder="Masukan Estimasi Sparepart 2"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="sparepart_3"
-                  component={ReanderField}
-                  type="text"
-                  label="Sparepart 3"
-                  placeholder="Masukan Sparepart 3"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="estimasi_sparepart_3"
-                  component={ReanderField}
-                  type="text"
-                  label="Estimasi Sparepart 3"
-                  placeholder="Masukan Estimasi Sparepart 3"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="sparepart_4"
-                  component={ReanderField}
-                  type="text"
-                  label="Sparepart 4"
-                  placeholder="Masukan Sparepart 4"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="estimasi_sparepart_4"
-                  component={ReanderField}
-                  type="text"
-                  label="Estimasi Sparepart 4"
-                  placeholder="Masukan Estimasi Sparepart 4"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="sparepart_5"
-                  component={ReanderField}
-                  type="text"
-                  label="Sparepart 5"
-                  placeholder="Masukan Sparepart 5"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="estimasi_sparepart_5"
-                  component={ReanderField}
-                  type="text"
-                  label="Estimasi Sparepart 5"
-                  placeholder="Masukan Estimasi Sparepart 5"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="sparepart_6"
-                  component={ReanderField}
-                  type="text"
-                  label="Sparepart 6"
-                  placeholder="Masukan Sparepart 6"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="estimasi_sparepart_6"
-                  component={ReanderField}
-                  type="text"
-                  label="Estimasi Sparepart 6"
-                  placeholder="Masukan Estimasi Sparepart 6"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="sparepart_7"
-                  component={ReanderField}
-                  type="text"
-                  label="Sparepart 7"
-                  placeholder="Masukan Sparepart 7"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="estimasi_sparepart_7"
-                  component={ReanderField}
-                  type="text"
-                  label="Estimasi Sparepart 7"
-                  placeholder="Masukan Estimasi Sparepart 7"
-                />
-              </div>
-
-              <NavigationStepper
-                nextStep={() => this.nextStep(3)}
-                prevStep={() => this.prevStep(3)}
-              />
-            </div>
-            <div className={this.state.step5}>
-              <div className="col-lg-6">
-                <Field
-                  name="keluhan_konsumen"
-                  component={renderTextArea}
-                  type="text"
-                  label="Keluhan Konsumen"
-                  placeholder="Masukan Keluhan Konsumen"
-                />
-              </div>
-              <div className="col-lg-6"></div>
-              <div className="col-lg-6">
-                <Field
-                  name="id_mekanik"
-                  component={ReanderField}
-                  type="text"
-                  label="ID Mekanik"
-                  placeholder="Masukan ID Mekanik"
-                />
-              </div>
-              <div className="col-lg-6">
-                <Field
-                  name="nama_mekanik"
-                  component={ReanderField}
-                  type="text"
-                  label="Nama Mekanik"
-                  placeholder="Masukan Nama Mekanik"
-                />
-              </div>
-              <NavigationStepper
-                nextStep={() => this.nextStep(4)}
-                prevStep={() => this.prevStep(4)}
-              />
-            </div>
-            <div className={this.state.step6}>
-              <NavigationStepper
-                nextStep={() => this.props.handleSubmit}
-                prevStep={() => this.prevStep(5)}
-                simpan
-              />
-            </div>
-          </div>
-        </form>
-      </div>
-    );
-  }
-}
-
-ModalDaftarService = reduxForm({
-  form: "ModalDaftarService",
-  enableReinitialize: true,
-})(ModalDaftarService);
-export default connect()(ModalDaftarService);
+              </div> */
+// }

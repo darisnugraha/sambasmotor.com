@@ -1,16 +1,28 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import { AxiosMasterGet } from "../../../../axios";
 import {
   Panel,
   PanelBody,
   PanelHeader,
 } from "../../../../components/panel/panel";
+import CetakLaporanPiutang from "./CetakPiutang";
 import HeadLaporanPiutang from "./HeadLaporanPiutang";
 
 class LaporanPiutang extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+  }
+
+  getLaporan() {
+    AxiosMasterGet("laporan/piutang/saldo-piutang-global")
+      .then((res) =>
+        this.setState({
+          listLaporan: res.data,
+        })
+      )
+      .then(() => CetakLaporanPiutang(this.state.listLaporan));
   }
   render() {
     return (
@@ -25,7 +37,7 @@ class LaporanPiutang extends Component {
         <Panel>
           <PanelHeader>Laporan Piutang</PanelHeader>
           <PanelBody>
-            <HeadLaporanPiutang />
+            <HeadLaporanPiutang onSubmit={(data) => this.getLaporan(data)} />
           </PanelBody>
         </Panel>
       </div>

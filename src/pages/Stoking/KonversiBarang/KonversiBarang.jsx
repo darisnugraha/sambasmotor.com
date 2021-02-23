@@ -211,7 +211,7 @@ class KonversiBarang extends React.Component {
           "01-28-2021",
           "ADMIN",
           columnTabel,
-          "BUKTI PERMINTAAN BARANG",
+          "KONVERSI BARANG",
           tableRows,
           [],
           false
@@ -237,11 +237,11 @@ class KonversiBarang extends React.Component {
           <li className="breadcrumb-item">
             <Link to="#">Data Master</Link>
           </li>
-          <li className="breadcrumb-item active">Permintaan Barang</li>
+          <li className="breadcrumb-item active">Konversi Barang</li>
         </ol>
-        <h1 className="page-header">Permintaan Barang </h1>
+        <h1 className="page-header">Konversi Barang </h1>
         <Panel>
-          <PanelHeader>Permintaan Barang</PanelHeader>
+          <PanelHeader>Konversi Barang</PanelHeader>
           <PanelBody>
             <br />
             <div className="col-lg-12">

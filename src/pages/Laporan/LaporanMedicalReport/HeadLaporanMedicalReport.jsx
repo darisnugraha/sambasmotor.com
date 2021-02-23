@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
 import { ReanderField } from "../../../components/notification/notification";
-import CetakMedicalReport from "./CetakMedicalReport";
+import Test from "./TestCetak";
 
 class HeadLaporanMedicalReport extends Component {
   constructor(props) {
@@ -43,14 +43,15 @@ class HeadLaporanMedicalReport extends Component {
           <div className="text-right">
             <button
               className="btn btn-primary"
-              onClick={() =>
-                CetakMedicalReport(
-                  "5 Februari 2021",
-                  "D4083AAP",
-                  "ADMIN",
-                  "5 FEBRUARI 2021",
-                  "ADMIN"
-                )
+              onClick={
+                () => Test()
+                // CetakMedicalReport(
+                //   "5 Februari 2021",
+                //   "D4083AAP",
+                //   "ADMIN",
+                //   "5 FEBRUARI 2021",
+                //   "ADMIN"
+                // )
               }
             >
               Lihat Data <i className="fa fa-print ml-3"></i>

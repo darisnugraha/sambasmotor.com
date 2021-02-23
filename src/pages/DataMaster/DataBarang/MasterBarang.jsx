@@ -63,7 +63,7 @@ class MasterBarang extends React.Component {
         },
         {
           dataField: "kode_kwalitas",
-          text: "Kwalitas",
+          text: "Kualitas",
         },
         {
           dataField: "type",
@@ -80,7 +80,7 @@ class MasterBarang extends React.Component {
         {
           dataField: "harga_jual",
           text: "Harga",
-          formatter: (list) => "Rp. " + list.toLocaleString("id-ID"),
+          formatter: (list) => list.toLocaleString("id-ID"),
         },
         {
           dataField: "action",
@@ -118,19 +118,6 @@ class MasterBarang extends React.Component {
               </div>
             );
           },
-        },
-      ],
-      datakategori: [
-        {
-          kode_barang: "BR001",
-          kode_barcode: "BRCD001",
-          nama_barang: "OIL YAMALUBE",
-          merk: "YAMALUBE",
-          ukuran: "1.5L",
-          kwalitas: "ORIGINAL",
-          type: "OIL",
-          rak: "OIL",
-          selving: "OIL",
         },
       ],
     };

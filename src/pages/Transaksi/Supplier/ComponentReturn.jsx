@@ -22,7 +22,18 @@ class ComponentReturn extends Component {
     AxiosMasterGet(
       "retur-barang-supplier/getDataReturSupplier/" + this.state.nomor_return
     )
-      .then((res) => this.saveLocal(res))
+      .then((res) => {
+        // console.log(res.data.length);
+        if (res.data.length === 0) {
+          console.log("NOL");
+          ToastError("Nomor Return Tidak Ditemukan");
+          this.props.change("");
+          return false;
+        } else {
+          console.log("TIDAK NOL");
+          this.saveLocal(res);
+        }
+      })
       .catch((err) => `Error : ${err && err.response.data}`);
   }
 
@@ -102,8 +113,7 @@ class ComponentReturn extends Component {
               <div className="widget-list-content">
                 <h4 className="widget-list-title">{list.no_faktur}</h4>
                 <p className="widget-list-desc">
-                  {"Rp. " +
-                    parseFloat(list.total_retur).toLocaleString("id-ID")}
+                  {parseFloat(list.total_retur).toLocaleString("id-ID")}
                 </p>
               </div>
               <div className="widget-list-action">

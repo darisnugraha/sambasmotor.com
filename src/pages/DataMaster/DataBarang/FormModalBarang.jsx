@@ -213,7 +213,7 @@ class FormModalBarang extends Component {
                 };
                 return data;
               })}
-              label="Merk"
+              label="Merk Barang"
               placeholder="Masukan Merk"
             />
           </div>
@@ -243,8 +243,8 @@ class FormModalBarang extends Component {
                 };
                 return data;
               })}
-              label="Kwalitas"
-              placeholder="Masukan Kwalitas"
+              label="Kualitas"
+              placeholder="Masukan Kualitas"
             />
           </div>
           <div className="col-lg-6">

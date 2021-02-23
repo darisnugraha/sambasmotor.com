@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import BootstrapTable from "react-bootstrap-table-next";
 import { Field, reduxForm } from "redux-form";
 import { showModal } from "../../../actions/datamaster_action";
 import { setPembayaranSupplier } from "../../../actions/transaksi_action";
@@ -32,14 +31,12 @@ class HeadPembayaranSupplier extends Component {
         {
           dataField: "sisa_hutang",
           text: "Total",
-          formatter: (data) =>
-            data ? "Rp. " + data.toLocaleString("id-ID") : 0,
+          formatter: (data) => (data ? data.toLocaleString("id-ID") : 0),
         },
         {
           dataField: "retur_rp",
           text: "Total Return",
-          formatter: (data) =>
-            data ? "Rp. " + data.toLocaleString("id-ID") : 0,
+          formatter: (data) => (data ? data.toLocaleString("id-ID") : 0),
         },
         {
           dataField: "action",

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
+import { getBarang, getSupplier } from "../../../../actions/datamaster_action";
 import {
   ReanderField,
   ReanderSelect,
@@ -10,6 +11,10 @@ class HeadLaporanPengeluaranBarang extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+  }
+  componentDidMount() {
+    this.props.dispatch(getSupplier());
+    this.props.dispatch(getBarang());
   }
   render() {
     return (
@@ -35,17 +40,34 @@ class HeadLaporanPengeluaranBarang extends Component {
           </div>
           <div className="col-lg-4">
             <Field
-              name="divisi"
+              name="kode_supplier"
               component={ReanderSelect}
-              options={[
-                { value: "DIVISI01", name: "DIVISI 01" },
-                { value: "DIVISI02", name: "DIVISI 02" },
-                { value: "DIVISI03", name: "DIVISI 03" },
-                { value: "DIVISI04", name: "DIVISI 04" },
-              ]}
+              options={this.props.listsupplier.map((list) => {
+                let data = {
+                  value: list.kode_supplier,
+                  name: `${list.kode_supplier} - ${list.nama_supplier}`,
+                };
+                return data;
+              })}
               type="text"
-              label="Divisi"
-              placeholder="Masukan Divisi"
+              label="Supplier"
+              placeholder="Masukan Supplier"
+            />
+          </div>
+          <div className="col-lg-4">
+            <Field
+              name="kode_barcode"
+              component={ReanderSelect}
+              options={this.props.listbarang.map((list) => {
+                let data = {
+                  value: list.kode_barcode,
+                  name: `${list.kode_barcode} - ${list.nama_barang}`,
+                };
+                return data;
+              })}
+              type="text"
+              label=" Nama Barang"
+              placeholder="Masukan Nama Barang"
             />
           </div>
           <div className="col-lg-12">
@@ -65,4 +87,9 @@ HeadLaporanPengeluaranBarang = reduxForm({
   form: "HeadLaporanPengeluaranBarang",
   enableReinitialize: true,
 })(HeadLaporanPengeluaranBarang);
-export default connect()(HeadLaporanPengeluaranBarang);
+export default connect((state) => {
+  return {
+    listsupplier: state.datamaster.listsupplier,
+    listbarang: state.datamaster.listbarang,
+  };
+})(HeadLaporanPengeluaranBarang);

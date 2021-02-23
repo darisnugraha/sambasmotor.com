@@ -36,11 +36,11 @@ class LaporanKartuHutangSupplier extends Component {
           <li className="breadcrumb-item">
             <Link to="#">Laporan</Link>
           </li>
-          <li className="breadcrumb-item active">Laporan Hutang Supplier</li>
+          <li className="breadcrumb-item active">Laporan Kartu Hutang</li>
         </ol>
-        <h1 className="page-header">Laporan Hutang Supplier </h1>
+        <h1 className="page-header">Laporan Kartu Hutang </h1>
         <Panel>
-          <PanelHeader>Laporan Hutang Supplier</PanelHeader>
+          <PanelHeader>Laporan Kartu Hutang</PanelHeader>
           <PanelBody>
             <HeadLaporanKartuHutangSupplier
               onSubmit={(data) => this.handleSubmit(data)}

@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { reset } from "redux-form";
 import Swal from "sweetalert2";
-import { parse } from "uuid";
 import {
   getCustomer,
   getFaktur,
@@ -35,10 +34,9 @@ import TambahCustomer from "./TambahCustomer";
 const maptostate = (state) => {
   return {
     listbarangrongsok: state.transaksi.listbarangrongsok,
-    sub_total: state.transaksi.sub_total,
     onSend: state.datamaster.onSend,
     noFaktur: state.datamaster.noFaktur,
-    grand_total_all: state.transaksi.sub_total,
+    grand_total_all: state.transaksi.total_bayar,
   };
 };
 
@@ -65,8 +63,7 @@ class PenjualanRongsok extends Component {
         {
           dataField: "bayar_rp",
           text: "Total Bayar",
-          formatter: (list) =>
-            `Rp. ${parseFloat(list).toLocaleString("id-ID")}`,
+          formatter: (list) => `${parseFloat(list).toLocaleString("id-ID")}`,
         },
         {
           dataField: "action",
@@ -177,6 +174,7 @@ class PenjualanRongsok extends Component {
       alamat: hasil.alamat,
       telepon: hasil.handphone,
       grand_total: this.props.grand_total_all,
+      no_ref_cash: this.props.noFaktur,
       detail_barang: JSON.parse(localStorage.getItem("BarangRongsok_temp")),
     };
     localStorage.setItem("headPembayaranRongsok", JSON.stringify(data));
@@ -185,10 +183,6 @@ class PenjualanRongsok extends Component {
     });
   }
   sendBayar(hasil) {
-    if (hasil.bayar < this.props.grand_total_all) {
-      ToastError("Pembarayan kurang dari Total Bayar");
-      return false;
-    }
     this.props.dispatch(onProgress());
     let head = JSON.parse(localStorage.getItem("headPembayaranRongsok")) || [];
     head["cash_rp"] = hasil.bayar;
@@ -210,7 +204,7 @@ class PenjualanRongsok extends Component {
               jenis_trx: "-",
             },
           ]
-        : JSON.parse(localStorage.getItem("listPembayaran_temp"));
+        : JSON.parse(localStorage.getItem("listPembayaran_temp")) || [];
 
     localStorage.setItem("headPembayaranRongsok", JSON.stringify(head));
     AxiosMasterPost("penjualan-rosok/post-transaksi", head)
@@ -220,11 +214,14 @@ class PenjualanRongsok extends Component {
           "nomor_jual_rongsok",
           "BarangRongsok_temp",
           "bayar_rp_rongsok",
+          "noFaktur",
         ])
       )
       .then(() => this.props.dispatch(getListBarangRongsok()))
       .then(() => this.props.dispatch(getListPembayaran()))
       .then(() => NotifSucces("Berhasil Menambahkan Data"))
+      .then(() => this.props.dispatch(getFaktur()))
+      .then(() => this.props.dispatch(onFinish()))
       .then(() =>
         this.setState({
           bayar: false,
@@ -232,8 +229,9 @@ class PenjualanRongsok extends Component {
         })
       )
       .then(() => this.props.dispatch(onFinish()))
+      .then(() => NotifSucces("Penjualan Berhasil"))
       .catch((err) => {
-        ToastError(`Error : ${err}`);
+        ToastError(`Error : ${err.response.data}`);
         this.props.dispatch(onFinish());
       });
   }
@@ -254,8 +252,8 @@ class PenjualanRongsok extends Component {
     let array = JSON.parse(localStorage.getItem("listPembayaran_temp")) || [];
     let data = {
       no_ref: this.props.noFaktur,
-      no_ac: hasil.bank,
-      bayar_rp: hasil.total_card,
+      no_ac: `${hasil.bank}`,
+      bayar_rp: hasil.grand_total,
       fee_rp: hasil.fee_card,
       no_card: hasil.no_card,
       valid_until: hasil.expiry,
@@ -264,11 +262,11 @@ class PenjualanRongsok extends Component {
       alamat_ktp: hasil.alamat_ktp,
       kota_ktp: hasil.kota,
       telepon_ktp: hasil.handphone,
-      jenis_trx: hasil.jenis_trx,
+      jenis_trx: hasil.jenis_trx || "DEBIT",
     };
     array.push(data);
     let total = array.map((list) => list.bayar_rp).reduce((a, b) => a + b);
-    if (total > this.props.total_card) {
+    if (total > this.props.grand_total) {
       ToastError("Pembayaran Melebihi Total Harga");
       return false;
     }
@@ -363,7 +361,6 @@ class PenjualanRongsok extends Component {
                 ) : (
                   <HeadPenjualanRongsok
                     listbarangrongsok={this.props.listbarangrongsok}
-                    sub_total={this.props.sub_total}
                     onSubmit={(data) => this.showBayar(data)}
                     showTambah={() => this.showTambah()}
                     showCustomer={() => this.showCustomer()}

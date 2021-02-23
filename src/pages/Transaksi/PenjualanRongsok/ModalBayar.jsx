@@ -13,7 +13,32 @@ const currencyMask = createNumberMask({
 class ModalBayar extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      columnsListBayar: [
+        {
+          dataField: "jenis_trx",
+          text: "Jenis Bayar",
+        },
+        {
+          dataField: "no_card",
+          text: "Bank",
+        },
+        {
+          dataField: "nama_pemilik",
+          text: "Nama Pemilik",
+        },
+        {
+          dataField: "fee_rp",
+          text: "Fee Card",
+        },
+        {
+          dataField: "bayar_rp",
+          text: "Bayar",
+          formatter: (data) =>
+            `Rp. ${parseFloat(data).toLocaleString("id-ID")}`,
+        },
+      ],
+    };
   }
   componentDidMount() {
     this.props.change("grand_total_all", this.props.total);
@@ -77,7 +102,7 @@ class ModalBayar extends Component {
                     <Tabel
                       keyField="no_ac"
                       data={this.props.listPembayaran_temp}
-                      columns={this.props.columns}
+                      columns={this.state.columnsListBayar}
                       tambahData={true}
                       handleClick={this.props.showCC}
                     />
@@ -111,10 +136,13 @@ const selector = formValueSelector("ModalBayar");
 export default connect((state) => {
   localStorage.setItem("bayar_rp_rongsok", selector(state, "bayar") || 0);
   return {
-    grand_total_all: state.transaksi.sub_total,
+    grand_total_all: state.transaksi.total_bayar,
     listPembayaran_temp: state.transaksi.listpembayaran_temp,
     sum_pembayaran: state.transaksi.sum_pembayaran,
-    kembali: (selector(state, "bayar") || 0) - state.transaksi.sub_total,
+    kembali:
+      (selector(state, "bayar") || 0) -
+      state.transaksi.total_bayar +
+      state.transaksi.sum_pembayaran,
     bayar: selector(state, "bayar") || 0,
     onSend: state.datamaster.onSend,
   };

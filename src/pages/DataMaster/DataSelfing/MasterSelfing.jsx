@@ -70,11 +70,11 @@ class MasterSelfing extends React.Component {
         },
         {
           dataField: "kode_lokasi_selving",
-          text: "Kode Selving",
+          text: "Kode Shelving",
         },
         {
           dataField: "nama_lokasi_selving",
-          text: "Nama Selving",
+          text: "Nama Shelving",
         },
 
         {

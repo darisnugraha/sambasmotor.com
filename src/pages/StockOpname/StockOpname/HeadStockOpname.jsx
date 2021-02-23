@@ -27,7 +27,7 @@ class HeadStockOpname extends Component {
         },
         {
           dataField: "kwalitas",
-          text: "Kwalitas",
+          text: "Kualitas",
         },
         {
           dataField: "type",

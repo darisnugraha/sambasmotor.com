@@ -1,25 +1,41 @@
 import React, { lazy } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { NotifSucces } from "../../../components/notification/notification.jsx";
+import {
+  NotifSucces,
+  ToastSucces,
+} from "../../../components/notification/notification.jsx";
 import {
   Panel,
   PanelBody,
   PanelHeader,
 } from "../../../components/panel/panel.jsx";
 import { reset } from "redux-form";
-import { getListBayarService } from "../../../actions/transaksi_action.jsx";
+import {
+  getListBarangPembayaran,
+  getListBayarService,
+  getListPembayaran,
+} from "../../../actions/transaksi_action.jsx";
 import ModalGlobal from "../../ModalGlobal.jsx";
-import ModalTambahSparepart from "./ModalTambahSparepart.jsx";
-import { showModal } from "../../../actions/datamaster_action.jsx";
+import {
+  getFaktur,
+  hideModal,
+  showModal,
+} from "../../../actions/datamaster_action.jsx";
 import ModalBayarService from "./ModalBayarService.jsx";
 import ModalCC from "./ModalCC.jsx";
+import TambahService from "../DaftarService/TambahService.jsx";
+import { getToday } from "../../../components/helpers/function.jsx";
+import { AxiosMasterPost } from "../../../axios.js";
+import { multipleDeleteLocal } from "../../../components/notification/function.jsx";
 
 const HeadPembayaranService = lazy(() => import("./HeadPembayaranService.jsx"));
 
 const maptostate = (state) => {
   return {
     listbayar_service: state.stocking.listbayar_service,
+    grand_total_all: state.transaksi.total_bayar,
+    noFaktur: state.datamaster.noFaktur,
   };
 };
 
@@ -34,61 +50,38 @@ class PembayaranService extends React.Component {
       jenisModal: "",
       columns: [
         {
-          dataField: "jenis_Kendaraan",
-          text: "Jenis Kendaran",
+          dataField: "kode_supplier",
+          text: "Kode Supplier",
         },
         {
-          dataField: "no_polisi",
-          text: "Nomor Polisi",
+          dataField: "kode",
+          text: "Kode Barang",
         },
         {
-          dataField: "nama_pemilik",
-          text: "Nama Pemilik",
+          dataField: "nama",
+          text: "Nama Barang",
         },
         {
-          dataField: "alamat",
-          text: "Alamat",
+          dataField: "jenis_barang",
+          text: "Jenis barang",
         },
         {
-          dataField: "jenis_service",
-          text: "Jenis Service",
+          dataField: "keterangan",
+          text: "Keterangan",
         },
         {
-          dataField: "sparepart",
-          text: "Sparepart",
+          dataField: "harga_satuan",
+          text: "Harga Satuan",
+          formatter: (data) => `${parseFloat(data).toLocaleString("id-ID")}`,
         },
         {
-          dataField: "harga_sparepart",
-          text: "Harga",
+          dataField: "qty",
+          text: "QTY",
         },
         {
-          dataField: "ongkos",
-          text: "Ongkos",
-        },
-        {
-          dataField: "harga_ongkos",
-          text: "Harga",
-        },
-        {
-          dataField: "action",
-          text: "Action",
-          csvExport: false,
-          headerClasses: "text-center",
-          formatter: (rowcontent, row) => {
-            this.setState({});
-            return (
-              <div className="row text-center">
-                <div className="col-12">
-                  <button
-                    onClick={() => console.log("PILIH")}
-                    className="btn btn-primary mr-3"
-                  >
-                    Pilih
-                  </button>
-                </div>
-              </div>
-            );
-          },
+          dataField: "harga_total",
+          text: "Harga Total",
+          formatter: (data) => `${parseFloat(data).toLocaleString("id-ID")}`,
         },
       ],
       columnsSparepart: [
@@ -127,16 +120,56 @@ class PembayaranService extends React.Component {
       ],
       columnsListBayar: [
         {
-          dataField: "jenis_bayar",
-          text: "Jenis Bayar",
+          dataField: "no_ac",
+          text: "No Bank",
         },
         {
-          dataField: "nama_bank",
-          text: "Bank",
+          dataField: "jenis_trx",
+          text: "Jenis",
         },
         {
-          dataField: "jumlah",
-          text: "Jumlah",
+          dataField: "fee_rp",
+          text: "Fee Card",
+        },
+        {
+          dataField: "bayar_rp",
+          text: "Total",
+        },
+        {
+          dataField: "action",
+          text: "Action",
+          csvExport: false,
+          headerClasses: "text-center",
+          formatter: (rowcontent, row, rowIndex) => {
+            // let dataEdit = {
+            //   kode_divisi: row.kode_divisi,
+            //   nama_divisi: row.nama_divisi,
+            // };
+            this.setState({});
+            return (
+              <div className="row text-center">
+                <div className="col-12">
+                  <button
+                    onClick={() => {
+                      let data = JSON.parse(
+                        localStorage.getItem("listPembayaran_temp")
+                      );
+                      data.splice(rowIndex, 1);
+                      localStorage.setItem(
+                        "listPembayaran_temp",
+                        JSON.stringify(data)
+                      );
+                      this.props.dispatch(getListPembayaran());
+                    }}
+                    className="btn btn-danger"
+                  >
+                    Hapus
+                    <i className="fa fa-trash ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            );
+          },
         },
       ],
       dataSparepart: [
@@ -175,49 +208,9 @@ class PembayaranService extends React.Component {
   }
 
   componentDidMount() {
+    this.props.dispatch(getFaktur());
     this.props.dispatch(getListBayarService());
-  }
-  handleSubmit(hasil) {
-    console.log(hasil);
-    let array = JSON.parse(localStorage.getItem("DaftarService")) || [];
-    let data = {
-      alamat: hasil.alamat,
-      est_keluar: hasil.est_keluar,
-      est_masuk: hasil.est_masuk,
-      estimasi_accecories: hasil.estimasi_accecories,
-      estimasi_electric: hasil.estimasi_electric,
-      estimasi_ganti_oli: hasil.estimasi_ganti_oli,
-      estimasi_kaki: hasil.estimasi_kaki,
-      estimasi_lain_lain: hasil.estimasi_lain_lain,
-      estimasi_sparepart_1: hasil.estimasi_sparepart_1,
-      estimasi_sparepart_2: hasil.estimasi_sparepart_2,
-      estimasi_tune_up: hasil.estimasi_tune_up,
-      estimasi_turun_mesin: hasil.estimasi_turun_mesin,
-      handphone: hasil.handphone,
-      id_mekanik: hasil.id_mekanik,
-      km_keluar: hasil.km_keluar,
-      km_masuk: hasil.km_masuk,
-      km_service_berikutnya: hasil.km_service_berikutnya,
-      kota: hasil.kota,
-      merk: hasil.merk,
-      model: hasil.model,
-      nama: hasil.nama,
-      nama_mekanik: hasil.nama_mekanik,
-      no_mesin: hasil.no_mesin,
-      no_polisi: hasil.no_polisi,
-      service_selanjutnya: hasil.service_selanjutnya,
-      sparepart_1: hasil.sparepart_1,
-      sparepart_2: hasil.sparepart_2,
-      tanggal_keluar: hasil.tanggal_keluar,
-      tanggal_masuk: hasil.tanggal_masuk,
-      warna: hasil.warna,
-    };
-
-    array.push(data);
-    localStorage.setItem("DaftarService", JSON.stringify(array));
-    NotifSucces("Berhasil Menambahan Data Booking").then(() =>
-      this.props.dispatch(reset("HeadPembayaranService"))
-    );
+    this.props.dispatch(getListBarangPembayaran());
   }
   showBayar() {
     this.setState({
@@ -244,25 +237,189 @@ class PembayaranService extends React.Component {
   }
   handleSimpanCC(hasil) {
     let data = {
-      alamat_ktp: hasil.alamat_ktp,
-      bank: hasil.bank,
-      cvc: hasil.cvc,
-      expiry: hasil.expiry,
-      fee_card: hasil.fee_card,
-      fee_card_percent: hasil.fee_card_percent,
-      grand_total: hasil.grand_total,
-      handphone: hasil.handphone,
-      kota: hasil.kota,
-      name: hasil.name,
+      no_ref: this.props.noFaktur,
+      no_ac: `${hasil.bank}`,
+      bayar_rp: hasil.grand_total,
+      fee_rp: hasil.fee_card,
       no_card: hasil.no_card,
+      valid_until: hasil.expiry,
+      nama_pemilik: hasil.name,
       no_ktp: hasil.no_ktp,
-      total_card: hasil.total_card,
+      alamat_ktp: hasil.alamat_ktp,
+      kota_ktp: hasil.kota,
+      telepon_ktp: hasil.handphone,
+      jenis_trx: hasil.jenis_trx || "DEBIT",
     };
 
-    let array = JSON.parse(localStorage.getItem("listPembayaran")) || [];
+    let array = JSON.parse(localStorage.getItem("listPembayaran_temp")) || [];
     array.push(data);
-    localStorage.setItem("listPembayaran", JSON.stringify(array));
+    localStorage.setItem("listPembayaran_temp", JSON.stringify(array));
     NotifSucces("Simpan Berhasil");
+    this.props.dispatch(getListPembayaran());
+    localStorage.removeItem("noFaktur");
+    this.props.dispatch(getFaktur());
+  }
+  tambahSparepart(hasil) {
+    if (
+      hasil.kode_sparepart !== undefined &&
+      hasil.kategori_service !== undefined
+    ) {
+      let service = {
+        kode_supplier: "-",
+        kode: hasil.kategori_service,
+        nama: hasil.nama_service,
+        qty: 1,
+        harga_satuan: hasil.harga_service,
+        harga_total: hasil.harga_service,
+        keterangan: hasil.keterangan_service,
+        jenis_barang: "JASA SERVICE",
+      };
+      let barang = {
+        kode_supplier: hasil.kode_supplier || "-",
+        kode: hasil.kode_sparepart || "-",
+        nama: hasil.nama_sparepart || "-",
+        qty: 1 || 0,
+        harga_satuan: hasil.harga_sparepart || "-",
+        harga_total: hasil.harga_sparepart || "-",
+        keterangan: hasil.kategori_service || "-",
+        jenis_barang: "SPAREPART",
+      };
+      let array =
+        JSON.parse(localStorage.getItem("list_tambahan_bayar_temp")) || [];
+      let array2 = JSON.parse(localStorage.getItem("list_barang_bayar")) || [];
+      array.push(service, barang);
+      array2.push(service, barang);
+      localStorage.setItem("list_tambahan_bayar_temp", JSON.stringify(array));
+      localStorage.setItem("list_barang_bayar", JSON.stringify(array2));
+      ToastSucces("Tambah Data Berhasil");
+      this.props.dispatch(hideModal());
+      this.props.dispatch(reset("TambahService"));
+      this.props.dispatch(getListBarangPembayaran());
+      localStorage.removeItem("noFaktur");
+      this.props.dispatch(getFaktur());
+    } else if (hasil.kode_sparepart === undefined) {
+      let service = {
+        kode_supplier: "-",
+        kode: hasil.kategori_service,
+        nama: hasil.nama_service,
+        qty: 1,
+        harga_satuan: hasil.harga_service,
+        harga_total: hasil.harga_service,
+        keterangan: hasil.keterangan_service,
+        jenis_barang: "JASA SERVICE",
+      };
+      let array =
+        JSON.parse(localStorage.getItem("list_tambahan_bayar_temp")) || [];
+      let array2 = JSON.parse(localStorage.getItem("list_barang_bayar")) || [];
+      array.push(service);
+      array2.push(service);
+      localStorage.setItem("list_tambahan_bayar_temp", JSON.stringify(array));
+      localStorage.setItem("list_barang_bayar", JSON.stringify(array2));
+      ToastSucces("Tambah Data Berhasil");
+      this.props.dispatch(hideModal());
+      this.props.dispatch(reset("TambahService"));
+      this.props.dispatch(getListBarangPembayaran());
+      localStorage.removeItem("noFaktur");
+      this.props.dispatch(getFaktur());
+    } else {
+      let barang = {
+        kode_supplier: hasil.kode_supplier || "-",
+        kode: hasil.kode_sparepart || "-",
+        nama: hasil.nama_sparepart || "-",
+        qty: 1 || 0,
+        harga_satuan: hasil.harga_sparepart || "-",
+        harga_total: hasil.harga_sparepart || "-",
+        keterangan: hasil.kategori_service || "-",
+        jenis_barang: "SPAREPART",
+      };
+      let array =
+        JSON.parse(localStorage.getItem("list_tambahan_bayar_temp")) || [];
+      let array2 = JSON.parse(localStorage.getItem("list_barang_bayar")) || [];
+      array.push(barang);
+      array2.push(barang);
+      localStorage.setItem("list_tambahan_bayar_temp", JSON.stringify(array));
+      localStorage.setItem("list_barang_bayar", JSON.stringify(array2));
+      ToastSucces("Tambah Data Berhasil");
+      this.props.dispatch(hideModal());
+      this.props.dispatch(reset("TambahService"));
+      this.props.dispatch(getListBarangPembayaran());
+      localStorage.removeItem("noFaktur");
+      this.props.dispatch(getFaktur());
+    }
+  }
+  bayarservice(hasil) {
+    let data = {
+      no_daftar: localStorage.getItem("no_daftar") || "",
+      tgl_bayar: getToday(),
+      disk_part_rp: hasil.barang,
+      disk_jasa_rp: hasil.jasa,
+      total_bayar:
+        parseFloat(this.props.grand_total_all) -
+        parseFloat(hasil.barang) -
+        parseFloat(hasil.jasa),
+      cash_rp: hasil.bayar,
+      no_ref_cash: this.props.noFaktur,
+      status_masuk_piutang: false,
+      detail_barang:
+        JSON.parse(localStorage.getItem("list_tambahan_bayar_temp")) || [],
+      detail_non_tunai:
+        localStorage.getItem("listPembayaran_temp") === "[]"
+          ? [
+              {
+                no_ref: "-",
+                no_ac: "-",
+                bayar_rp: 0,
+                fee_rp: 0,
+                no_card: "-",
+                valid_until: "-",
+                nama_pemilik: "-",
+                no_ktp: "-",
+                alamat_ktp: "-",
+                kota_ktp: "-",
+                telepon_ktp: "-",
+                jenis_trx: "-",
+              },
+            ]
+          : localStorage.getItem("listPembayaran_temp") !== null
+          ? JSON.parse(localStorage.getItem("listPembayaran_temp"))
+          : [
+              {
+                no_ref: "-",
+                no_ac: "-",
+                bayar_rp: 0,
+                fee_rp: 0,
+                no_card: "-",
+                valid_until: "-",
+                nama_pemilik: "-",
+                no_ktp: "-",
+                alamat_ktp: "-",
+                kota_ktp: "-",
+                telepon_ktp: "-",
+                jenis_trx: "-",
+              },
+            ],
+    };
+    console.log(data);
+    AxiosMasterPost("bayar-service/post-transaksi", data)
+      .then(() => ToastSucces("Berhasil Melakukan Pembayaran, Terima Kasih"))
+      .then(() =>
+        multipleDeleteLocal([
+          "list_tambahan_bayar_temp",
+          "list_barang_bayar",
+          "no_daftar",
+          "list_tambahan_bayar_temp",
+          "listPembayaran_temp",
+          "noFaktur",
+        ])
+      )
+      .then(() => this.props.dispatch(getListBarangPembayaran()))
+      .then(() => this.props.dispatch(getListPembayaran()))
+      .then(() => this.props.dispatch(getFaktur()))
+      .then(() =>
+        this.setState({
+          bayar: true,
+        })
+      );
   }
   render() {
     return (
@@ -298,21 +455,16 @@ class PembayaranService extends React.Component {
                     bayar: true,
                   })
                 }
+                onSubmit={(data) => this.bayarservice(data)}
               />
             )}
             {/* End Tambah Master Kategori  */}
           </PanelBody>
           <ModalGlobal
             content={
-              this.state.jenisModal === "SPAREPART" ? (
-                <ModalTambahSparepart
-                  columns={this.state.columnsSparepart}
-                  data={this.state.dataSparepart}
-                />
-              ) : this.state.jenisModal === "JASA" ? (
-                <ModalTambahSparepart
-                  columns={this.state.columnsSparepart}
-                  data={this.state.dataSparepart}
+              this.state.jenisModal === "JASA" ? (
+                <TambahService
+                  onSubmit={(data) => this.tambahSparepart(data)}
                 />
               ) : this.state.jenisModal === "CC" ? (
                 <ModalCC onSubmit={(data) => this.handleSimpanCC(data)} />

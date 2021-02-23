@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, formValueSelector, reduxForm } from "redux-form";
 import { createNumberMask } from "redux-form-input-masks";
+import { getListPembayaran } from "../../../actions/transaksi_action";
 import { ReanderField } from "../../../components/notification/notification";
 import Tabel from "../../../components/Tabel/tabel";
 
@@ -17,6 +18,7 @@ class ModalBayarSparepart extends Component {
   }
   componentDidMount() {
     this.props.change("grand_total_all", this.props.total);
+    this.props.dispatch(getListPembayaran());
   }
   setBayar(e) {
     this.setState({
@@ -130,14 +132,15 @@ const selector = formValueSelector("ModalBayarSparepart");
 export default connect((state) => {
   localStorage.setItem("bayar_rp_rongsok", selector(state, "bayar") || 0);
   return {
-    grand_total_all: state.transaksi.sub_total,
+    grand_total_all: state.transaksi.total_bayar,
     listPembayaran_temp: state.transaksi.listpembayaran_temp,
     sum_pembayaran: state.transaksi.sum_pembayaran,
     totalTukar: state.transaksi.totalTukar,
     kembali:
       (selector(state, "bayar") || 0) -
-      state.transaksi.sub_total +
-      state.transaksi.totalTukar,
+      state.transaksi.total_bayar +
+      state.transaksi.totalTukar +
+      state.transaksi.sum_pembayaran,
     bayar: selector(state, "bayar") || 0,
     onSend: state.datamaster.onSend,
   };

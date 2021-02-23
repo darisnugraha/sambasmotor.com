@@ -16,7 +16,11 @@ import {
 } from "../../../components/notification/notification";
 import { multipleDeleteLocal } from "../../../components/notification/function";
 import Skeleton from "react-loading-skeleton";
-import { showModal } from "../../../actions/datamaster_action";
+import {
+  getFaktur,
+  hideModal,
+  showModal,
+} from "../../../actions/datamaster_action";
 import ModalBayarSupplierPenerimaan from "./ModalBayarSupplierPenerimaan";
 
 const ModalSupplierPenerimaan = lazy(() => import("./ModalSupplierPenerimaan"));
@@ -24,6 +28,7 @@ const maptostate = (state) => {
   return {
     listterimasupplier: state.transaksi.listterimasupplier,
     sub_total: state.transaksi.sub_total,
+    noFaktur: state.datamaster.noFaktur,
   };
 };
 class SupplierPenerimaan extends Component {
@@ -37,6 +42,7 @@ class SupplierPenerimaan extends Component {
   componentDidMount() {
     this.props.dispatch(getListTerimaSupplier());
     this.getKodePenerimaan();
+    this.props.dispatch(getFaktur());
   }
   handleHead(hasil) {
     if (localStorage.getItem("type_pembayaran") === "true") {
@@ -50,15 +56,21 @@ class SupplierPenerimaan extends Component {
       return false;
     } else {
       let data = {
-        no_terima: hasil.kode_terima,
-        tanggal_terima: hasil.tanggal_barang,
-        no_bon: hasil.no_bon,
-        tanggal_bon: hasil.tanggal_invoice,
-        kode_supplier: hasil.kode_supplier,
-        pembayaran_cash: hasil.tunai || false,
-        pembayaran_kredit: hasil.kredit || false,
-        keterangan: hasil.keterangan,
-        diskon_rp: hasil.discount,
+        no_terima: localStorage.getItem("penerimaan_kode_terima"),
+        tanggal_terima: localStorage.getItem("penerimaan_tanggal_barang"),
+        no_bon: localStorage.getItem("penerimaan_no_bon"),
+        tanggal_bon: localStorage.getItem("penerimaan_tanggal_invoice"),
+        kode_supplier: localStorage.getItem("penerimaan_kode_supplier"),
+        pembayaran_cash:
+          localStorage.getItem("type_pembayaran") === "true"
+            ? true
+            : false || false,
+        pembayaran_kredit:
+          localStorage.getItem("type_pembayaran") === "true"
+            ? false
+            : true || false,
+        keterangan: localStorage.getItem("penerimaan_keterangan"),
+        diskon_rp: localStorage.getItem("penerimaan_discount") || 0,
         detail_barang:
           JSON.parse(localStorage.getItem("PenerimaanSupplier_temp_kirim")) ||
           [],
@@ -113,7 +125,7 @@ class SupplierPenerimaan extends Component {
       // INISIALISASI SELESAI -> PANGGIL AXIOS DAN PANGGIL PRINT SAAT AXIOS BERHASIL
 
       AxiosMasterPost("terima-barang-supplier/post-transaksi", data)
-        .then(() => NotifSucces("Berhasil"))
+        .then(() => NotifSucces("Berhasil Melakukan Pembayaran Non-Tunai"))
         .then(() =>
           CetakNota(
             "NO TERIMA",
@@ -123,7 +135,7 @@ class SupplierPenerimaan extends Component {
             "NO BON",
             hasil.no_bon,
             "SUPP",
-            hasil.kode_supplier,
+            localStorage.getItem("penerimaan_kode_supplier"),
             getUserData().user_name,
             "01-28-2021",
             getUserData().user_name,
@@ -148,6 +160,9 @@ class SupplierPenerimaan extends Component {
         )
         .then(() => this.props.dispatch(reset("HeadSupplierPenerimaan")))
         .then(() => this.getKodePenerimaan())
+        .then(() => this.props.dispatch(getListTerimaSupplier()))
+        .then(() => this.props.dispatch(hideModal()))
+        .then(() => this.props.dispatch(getFaktur()))
         .then(() => window.location.reload())
         .catch((err) => NotifError(err.response.data));
     }
@@ -237,11 +252,13 @@ class SupplierPenerimaan extends Component {
       return false;
     } else {
       let data = {
-        no_terima: localStorage.getItem("kode_permintaan_barang"),
+        no_terima: localStorage.getItem("penerimaan_kode_terima"),
         tanggal_terima: localStorage.getItem("penerimaan_tanggal_barang"),
         no_bon: localStorage.getItem("penerimaan_no_bon"),
         tanggal_bon: localStorage.getItem("penerimaan_tanggal_invoice"),
         kode_supplier: localStorage.getItem("penerimaan_kode_supplier"),
+        no_ref: this.props.noFaktur,
+        no_ref_cash: this.props.noFaktur,
         pembayaran_cash:
           localStorage.getItem("type_pembayaran") === "true"
             ? true
@@ -254,7 +271,7 @@ class SupplierPenerimaan extends Component {
         diskon_rp: localStorage.getItem("penerimaan_discount"),
         cash_rp: hasil.cash || 0,
         transfer_rp: hasil.transfer || 0,
-        no_ac_asal: hasil.no_ac_asal.toString() || "-",
+        no_ac_asal: (hasil.no_ac_asal && hasil.no_ac_asal.toString()) || "-",
         no_ac_tujuan: hasil.no_ac_tujuan || "-",
         detail_barang:
           JSON.parse(localStorage.getItem("PenerimaanSupplier_temp_kirim")) ||
@@ -312,17 +329,17 @@ class SupplierPenerimaan extends Component {
       // INISIALISASI SELESAI -> PANGGIL AXIOS DAN PANGGIL PRINT SAAT AXIOS BERHASIL
 
       AxiosMasterPost("terima-barang-supplier/post-transaksi-tunai", data)
-        .then(() => NotifSucces("Berhasil"))
+        .then(() => NotifSucces("Berhasil Melakukan Pembayaran Cash"))
         .then(() =>
           CetakNota(
             "NO TERIMA",
-            hasil.kode_terima,
+            localStorage.getItem("penerimaan_kode_terima"),
             "TANGGAL",
-            hasil.tanggal_invoice,
+            localStorage.getItem("penerimaan_tanggal_invoice"),
             "NO BON",
-            hasil.no_bon,
-            "SUPP",
-            hasil.kode_supplier,
+            localStorage.getItem("penerimaan_no_bon"),
+            "SUPPLIER",
+            localStorage.getItem("penerimaan_kode_supplier"),
             getUserData().user_name,
             "01-28-2021",
             getUserData().user_name,
@@ -344,11 +361,14 @@ class SupplierPenerimaan extends Component {
             "penerimaan_tanggal_barang",
             "penerimaan_tanggal_invoice",
             "penerimaan_discount",
+            "noFaktur",
           ])
         )
         .then(() => this.props.dispatch(reset("HeadSupplierPenerimaan")))
         .then(() => this.getKodePenerimaan())
-        .then(() => window.location.reload())
+        .then(() => this.props.dispatch(hideModal()))
+        .then(() => this.props.dispatch(getFaktur()))
+        .then(() => this.props.dispatch(getListTerimaSupplier()))
         .catch((err) => NotifError(err.response.data));
     }
   }

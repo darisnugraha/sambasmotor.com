@@ -30,9 +30,9 @@ const CetakKartuHutangSupplier = (row2isi = "", row1isi = "", data) => {
     let rows = [
       formatDateISO(item.tanggal),
       item.no_ref,
-      "Rp. " + parseFloat(item.hutang_awal).toLocaleString("id-ID"),
-      "Rp. " + parseFloat(item.bayar).toLocaleString("id-ID"),
-      "Rp. " + parseFloat(item.saldo_hutang).toLocaleString("id-ID"),
+      parseFloat(item.hutang_awal).toLocaleString("id-ID"),
+      parseFloat(item.bayar).toLocaleString("id-ID"),
+      parseFloat(item.saldo_hutang).toLocaleString("id-ID"),
       item.keterangan,
     ];
     tableRows.push(rows);

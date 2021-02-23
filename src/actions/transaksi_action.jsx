@@ -1,3 +1,5 @@
+import { AxiosMasterGet } from "../axios";
+
 export const GET_LIST_BAYAR_SERVICE = "GET_LIST_BAYAR_SERVICE";
 export const GET_LIST_TERIMA_SUPPLIER = "GET_LIST_TERIMA_SUPPLIER";
 export const GET_LIST_RETURN_SUPPLIER = "GET_LIST_RETURN_SUPPLIER";
@@ -5,17 +7,14 @@ export const GET_LIST_BARANG_RONGSOK = "GET_LIST_BARANG_RONGSOK";
 export const SET_PEMBAYARAN_SUPPLIER = "SET_PEMBAYARAN_SUPPLIER";
 export const GET_LIST_PEMBAYARAN_TEMP = "GET_LIST_PEMBAYARAN_TEMP";
 export const GET_LIST_BARANG_SPAREPART_TEMP = "GET_LIST_BARANG_SPAREPART_TEMP";
-
-export const getListBayarService = () => {
-  return (dispatch) => {
-    dispatch({
-      type: GET_LIST_BAYAR_SERVICE,
-      payload: {
-        data: [],
-      },
-    });
-  };
-};
+export const GET_LIST_PIUTANG_CUSTOMER = "GET_LIST_PIUTANG_CUSTOMER";
+export const SET_TOTAL_PIUTANG_CUSTOMER = "SET_TOTAL_PIUTANG_CUSTOMER";
+export const GET_LIST_SERVICE = "GET_LIST_SERVICE";
+export const GET_LIST_BARANG_BAYAR = "GET_LIST_BARANG_BAYAR";
+export const GET_LIST_BARANG_PEMBAYARAN = "GET_LIST_BARANG_PEMBAYARAN";
+export const GET_LIST_BARANG_KIRIM_SERVICE = "GET_LIST_BARANG_KIRIM_SERVICE";
+export const GET_LIST_KIRIM_SERVICE_LUAR = "GET_LIST_KIRIM_SERVICE_LUAR";
+export const SET_GRAND_TOTAL = "SET_GRAND_TOTAL";
 
 export const getListTerimaSupplier = () => {
   let data = JSON.parse(localStorage.getItem("PenerimaanSupplier_temp")) || [];
@@ -29,6 +28,37 @@ export const getListTerimaSupplier = () => {
       payload: {
         data: data,
         sub_total: total,
+      },
+    });
+  };
+};
+export const getListService = () => {
+  let data = JSON.parse(localStorage.getItem("list_service_daftar_temp")) || [];
+  let sparepart = [];
+  let barang = [];
+  data.map((list, index) =>
+    index % 2 === 0 ? sparepart.push(data[index]) : barang.push(data[index])
+  );
+  console.log(barang);
+  let totalbarang =
+    data !== []
+      ? barang
+          .map((data) => parseFloat(data.harga_total))
+          .reduce((a, b) => a + b, 0)
+      : null;
+  let totalsparepart =
+    data !== []
+      ? sparepart
+          .map((data) => parseFloat(data.harga_total))
+          .reduce((a, b) => a + b, 0)
+      : null;
+  return (dispatch) => {
+    dispatch({
+      type: GET_LIST_SERVICE,
+      payload: {
+        data: data,
+        totalbarang: totalbarang,
+        totalsparepart: totalsparepart,
       },
     });
   };
@@ -59,6 +89,27 @@ export const setPembayaranSupplier = (data) => {
     });
   };
 };
+export const setGrandTotal = (data) => {
+  return (dispatch) => {
+    dispatch({
+      type: SET_GRAND_TOTAL,
+      payload: {
+        data: data,
+      },
+    });
+  };
+};
+
+export const setPembayaranPiutang = (data) => {
+  return (dispatch) => {
+    dispatch({
+      type: SET_TOTAL_PIUTANG_CUSTOMER,
+      payload: {
+        data: data,
+      },
+    });
+  };
+};
 
 export const getListBarangRongsok = () => {
   let data = JSON.parse(localStorage.getItem("BarangRongsok_temp")) || [];
@@ -78,6 +129,54 @@ export const getListBarangRongsok = () => {
     });
   };
 };
+export const getListPiutangCustomer = () => {
+  return (dispatch) =>
+    AxiosMasterGet("bayar-piutang-customer/getDataPiutangCustomer")
+      .then((res) => {
+        dispatch({
+          type: GET_LIST_PIUTANG_CUSTOMER,
+          payload: {
+            data: res.data,
+          },
+        });
+      })
+      .catch((err) => console.log(err));
+};
+export const getListBayarService = () => {
+  return (dispatch) =>
+    AxiosMasterGet("daftar-service/getDataPendaftaranSerivce")
+      .then((res) => {
+        dispatch({
+          type: GET_LIST_BAYAR_SERVICE,
+          payload: {
+            data: res.data,
+          },
+        });
+      })
+      .catch((err) => console.log(err));
+};
+export const getListKirimServiceLuar = () => {
+  return (dispatch) =>
+    AxiosMasterGet("kirim-service-luar/getDataKirimServiceLuarAll")
+      .then((res) => {
+        dispatch({
+          type: GET_LIST_KIRIM_SERVICE_LUAR,
+          payload: {
+            data: res.data,
+          },
+        });
+      })
+      .catch((err) => console.log(err));
+};
+export const ListBarangBayar = (data) => {
+  return (dispatch) =>
+    dispatch({
+      type: GET_LIST_BARANG_BAYAR,
+      payload: {
+        data: data,
+      },
+    });
+};
 
 export const getListPembayaran = () => {
   let data = JSON.parse(localStorage.getItem("listPembayaran_temp")) || [];
@@ -95,6 +194,44 @@ export const getListPembayaran = () => {
     });
   };
 };
+export const getListBarangPembayaran = () => {
+  let data = JSON.parse(localStorage.getItem("list_barang_bayar")) || [];
+  let total =
+    data !== []
+      ? data
+          .map((data) => parseFloat(data.harga_total))
+          .reduce((a, b) => a + b, 0)
+      : null;
+  return (dispatch) => {
+    dispatch({
+      type: GET_LIST_BARANG_PEMBAYARAN,
+      payload: {
+        data: data,
+        total_bayar: total,
+      },
+    });
+  };
+};
+export const getKirimServiceBarang = () => {
+  let data = JSON.parse(localStorage.getItem("barang_kirim_service")) || [];
+  console.log(data);
+  let total =
+    data !== []
+      ? data
+          .map((data) => parseFloat(data.harga_total))
+          .reduce((a, b) => a + b, 0)
+      : null;
+  return (dispatch) => {
+    dispatch({
+      type: GET_LIST_BARANG_KIRIM_SERVICE,
+      payload: {
+        data: data,
+        total_bayar: total,
+      },
+    });
+  };
+};
+
 export const getListBarang = () => {
   let data = JSON.parse(localStorage.getItem("barangSparepart_temp")) || [];
   let tukar = JSON.parse(localStorage.getItem("tukarSparepart_temp")) || [];

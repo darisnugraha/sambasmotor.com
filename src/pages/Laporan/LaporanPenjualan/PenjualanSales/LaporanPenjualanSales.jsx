@@ -1,16 +1,37 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import { AxiosMasterGet } from "../../../../axios";
 import {
   Panel,
   PanelBody,
   PanelHeader,
 } from "../../../../components/panel/panel";
 import HeadLaporanPenjualanSales from "./HeadLaporanPenjualanSales";
+import CetakPenjualanSales from "./CetakPenjualanSales";
 
 class LaporanPenjualanSales extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+  }
+  getLaporan(hasil) {
+    AxiosMasterGet(
+      "laporan/penjualan/lap-penjualan-sales/" +
+        `${hasil.tanggal_awal}&${hasil.tanggal_akhir}&${hasil.kode_sales}`
+    )
+      .then((res) =>
+        this.setState({
+          listLaporan: res.data,
+        })
+      )
+      .then(() =>
+        CetakPenjualanSales(
+          hasil.tanggal_awal,
+          hasil.tanggal_akhir,
+          hasil.kode_sales,
+          this.state.listLaporan
+        )
+      );
   }
   render() {
     return (
@@ -25,7 +46,9 @@ class LaporanPenjualanSales extends Component {
         <Panel>
           <PanelHeader>Laporan Penjualan Sales</PanelHeader>
           <PanelBody>
-            <HeadLaporanPenjualanSales />
+            <HeadLaporanPenjualanSales
+              onSubmit={(data) => this.getLaporan(data)}
+            />
           </PanelBody>
         </Panel>
       </div>

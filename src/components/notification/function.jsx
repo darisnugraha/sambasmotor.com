@@ -90,7 +90,14 @@ export const parseIsoDatetime = (dtstr) => {
 };
 
 export const multipleDeleteLocal = (data = []) => {
-  data.forEach((k) => localStorage.removeItem(k));
+  data.forEach((k) => {
+    if (localStorage.getItem(k) !== null) {
+      localStorage.removeItem(k);
+      return true;
+    } else {
+      return false;
+    }
+  });
 };
 
 export const formatDateISO = (value) => {

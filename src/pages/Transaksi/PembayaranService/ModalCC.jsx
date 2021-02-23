@@ -14,7 +14,13 @@ const currencyMask = createNumberMask({
   prefix: "Rp. ",
   locale: "id-ID",
 });
-
+const validate = (value) => {
+  const errors = {};
+  if (value.grand_total > value.sub_total) {
+    errors.grand_total = "Pembayaran Tidak Boleh Lebih Dari Sub Total";
+  }
+  return errors;
+};
 class ModalCC extends Component {
   constructor(props) {
     super(props);
@@ -75,9 +81,9 @@ class ModalCC extends Component {
           <div className="row">
             <div className="col-lg-12">
               <nav className="nav nav-pills nav-fill">
-                <a
+                <button
+                  type="button"
                   className={this.state.nav1}
-                  href="#"
                   onClick={() => {
                     this.setState({
                       nav1: "nav-item nav-link active",
@@ -88,10 +94,10 @@ class ModalCC extends Component {
                   }}
                 >
                   DEBIT
-                </a>
-                <a
+                </button>
+                <button
+                  type="button"
                   className={this.state.nav2}
-                  href="#"
                   onClick={() => {
                     this.setState({
                       nav1: "nav-item nav-link ",
@@ -102,10 +108,10 @@ class ModalCC extends Component {
                   }}
                 >
                   CREDIT
-                </a>
-                <a
+                </button>
+                <button
+                  type="button"
                   className={this.state.nav3}
-                  href="#"
                   onClick={() => {
                     this.setState({
                       nav1: "nav-item nav-link ",
@@ -116,7 +122,7 @@ class ModalCC extends Component {
                   }}
                 >
                   TRANSFER
-                </a>
+                </button>
               </nav>
             </div>
             <div className="col-lg-12 mb-2 mt-2">
@@ -269,7 +275,7 @@ class ModalCC extends Component {
             <div className="col-lg-12 mb-2">
               <h4>Data Harga</h4>
             </div>
-            <div className="col-lg-3">
+            <div className="col-lg-2">
               <Field
                 name="bank"
                 component={ReanderSelect}
@@ -278,7 +284,18 @@ class ModalCC extends Component {
                 placeholder="Masukan Bank"
               />
             </div>
-            <div className="col-lg-3">
+            <div className="col-lg-2">
+              <Field
+                name="sub_total"
+                component={ReanderField}
+                type="text"
+                label="Sub Total"
+                placeholder="Masukan Sub Total"
+                readOnly
+                {...currencyMask}
+              />
+            </div>
+            <div className="col-lg-2">
               <Field
                 name="grand_total"
                 component={ReanderField}
@@ -335,6 +352,7 @@ class ModalCC extends Component {
 ModalCC = reduxForm({
   form: "ModalCC",
   enableReinitialize: true,
+  validate: validate,
 })(ModalCC);
 const selector = formValueSelector("ModalCC");
 export default connect((state) => {
@@ -349,5 +367,10 @@ export default connect((state) => {
     total:
       parseFloat(grand_total || 0) +
       parseFloat(grand_total || 0) * (parseFloat(fee_card_percent || 0) / 100),
+    sub_total: state.transaksi.sub_total,
+    initialValues: {
+      sub_total:
+        state.transaksi.total_bayar - (state.transaksi.totalTukar || 0),
+    },
   };
 })(ModalCC);

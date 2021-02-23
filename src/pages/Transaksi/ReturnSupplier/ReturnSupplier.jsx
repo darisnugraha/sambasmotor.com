@@ -42,7 +42,7 @@ class SupplierPenerimaan extends Component {
       no_bon: hasil.no_bon,
       kode_supplier: hasil.kode_supplier,
       keterangan: hasil.keterangan,
-      diskon_rp: hasil.discount,
+      diskon_rp: hasil.discount || 0,
       detail_barang:
         JSON.parse(localStorage.getItem("ReturnSupplier_temp_kirim")) || [],
     };

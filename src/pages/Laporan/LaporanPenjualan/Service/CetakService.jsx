@@ -48,7 +48,7 @@ const CetakService = (
         barang.tanggal,
         barang.no_faktur,
         barang.jenis,
-        "Rp. " + parseFloat(barang.total).toLocaleString("id-ID"),
+        parseFloat(barang.total).toLocaleString("id-ID"),
       ];
       sub_total = sub_total + parseFloat(barang.total);
       tableRows.push(rows);
@@ -58,7 +58,7 @@ const CetakService = (
       "",
       "",
       "Sub Total :",
-      "Rp. " + parseFloat(sub_total).toLocaleString("id-ID"),
+      parseFloat(sub_total).toLocaleString("id-ID"),
     ];
     tableRows.push(footer);
     doc.autoTable(tableColumn, tableRows, {

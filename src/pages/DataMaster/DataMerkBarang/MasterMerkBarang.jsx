@@ -64,12 +64,12 @@ class MasterMerkBarang extends React.Component {
       columns: [
         {
           dataField: "kode_merk_barang",
-          text: "Merk Barang",
+          text: "Kode Merk Barang",
           sort: true,
         },
         {
           dataField: "nama_merk_barang",
-          text: "Nama Barang",
+          text: "Nama Merk Barang",
         },
 
         {

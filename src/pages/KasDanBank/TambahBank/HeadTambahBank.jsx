@@ -2,10 +2,11 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
 import { createNumberMask } from "redux-form-input-masks";
+import { getBank, getParameter } from "../../../actions/datamaster_action";
+import { getToday } from "../../../components/notification/function";
 import {
   ReanderField,
   ReanderSelect,
-  renderTextArea,
 } from "../../../components/notification/notification";
 
 const currencyMask = createNumberMask({
@@ -17,6 +18,11 @@ class HeadTambahBank extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+  }
+  componentDidMount() {
+    this.props.dispatch(getBank());
+    this.props.dispatch(getParameter());
+    this.props.change("tanggal", getToday());
   }
   render() {
     return (
@@ -33,17 +39,18 @@ class HeadTambahBank extends Component {
           </div>
           <div className="col-lg-3">
             <Field
-              name="nama_bank"
+              name="no_ac"
               component={ReanderSelect}
-              options={[
-                { value: "BANK01", name: "BANK 01" },
-                { value: "BANK02", name: "BANK 02" },
-                { value: "BANK03", name: "BANK 03" },
-                { value: "BANK04", name: "BANK 04" },
-              ]}
+              options={this.props.listbank.map((list) => {
+                let data = {
+                  value: list.no_ac,
+                  name: `${list.no_ac} - ${list.atas_nama}`,
+                };
+                return data;
+              })}
               type="text"
-              label="Nama Bank"
-              placeholder="Masukan Nama Bank"
+              label="Kategori"
+              placeholder="Masukan Kategori"
             />
           </div>
           <div className="col-lg-3">
@@ -60,21 +67,24 @@ class HeadTambahBank extends Component {
             <Field
               name="kategori"
               component={ReanderSelect}
-              options={[
-                { value: "KATEGORI01", name: "KATEGORI 01" },
-                { value: "KATEGORI02", name: "KATEGORI 02" },
-                { value: "KATEGORI03", name: "KATEGORI 03" },
-                { value: "KATEGORI04", name: "KATEGORI 04" },
-              ]}
+              options={this.props.listparameter.map((list) => {
+                let data = {
+                  value: list.kategori,
+                  name: list.kategori,
+                };
+                return data;
+              })}
               type="text"
               label="Kategori"
               placeholder="Masukan Kategori"
             />
           </div>
-          <div className="col-lg-12">
+          <div className="col-lg-12 mb-2">
+            <label htmlFor="">Keterangan</label>
             <Field
               name="keterangan"
-              component={renderTextArea}
+              component="textarea"
+              className="form-control"
               type="text"
               label="Keterangan"
               placeholder="Masukan Keterangan"
@@ -97,4 +107,9 @@ HeadTambahBank = reduxForm({
   form: "HeadTambahBank",
   enableReinitialize: true,
 })(HeadTambahBank);
-export default connect()(HeadTambahBank);
+export default connect((state) => {
+  return {
+    listbank: state.datamaster.listbank,
+    listparameter: state.datamaster.listparameter,
+  };
+})(HeadTambahBank);

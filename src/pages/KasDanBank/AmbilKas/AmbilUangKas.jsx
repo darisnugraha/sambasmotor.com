@@ -1,5 +1,14 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
+import { reset } from "redux-form";
+import { getFaktur } from "../../../actions/datamaster_action";
+import { AxiosMasterPost } from "../../../axios";
+import { multipleDeleteLocal } from "../../../components/notification/function";
+import {
+  NotifSucces,
+  ToastError,
+} from "../../../components/notification/notification";
 import { Panel, PanelBody, PanelHeader } from "../../../components/panel/panel";
 import HeadAmbilUangKas from "./HeadAmbilUangKas";
 
@@ -8,9 +17,27 @@ class AmbilUangKas extends Component {
     super(props);
     this.state = {};
   }
+  componentDidMount() {
+    this.props.dispatch(getFaktur());
+  }
 
   handleSubmit(hasil) {
-    console.log(hasil);
+    let data = {
+      no_ref: this.props.noFaktur,
+      tanggal: hasil.tanggal,
+      jumlah_rp: hasil.jumlah,
+      kategori: hasil.kategori,
+      keterangan: hasil.keterangan,
+    };
+    AxiosMasterPost("keuangan/ambil-uang-cash", data).then(() =>
+      NotifSucces("Ambil Uang Berhasil")
+        .then(() => this.props.dispatch(reset("HeadAmbilUangKas")))
+        .then(() => multipleDeleteLocal(["noFaktur"]))
+        .then(() => this.props.dispatch(getFaktur()))
+        .catch((err) =>
+          ToastError(`Gagal Tambah Uang, Error : ${err.response.data}`)
+        )
+    );
   }
   render() {
     return (
@@ -33,4 +60,8 @@ class AmbilUangKas extends Component {
   }
 }
 
-export default AmbilUangKas;
+export default connect((state) => {
+  return {
+    noFaktur: state.datamaster.noFaktur,
+  };
+})(AmbilUangKas);

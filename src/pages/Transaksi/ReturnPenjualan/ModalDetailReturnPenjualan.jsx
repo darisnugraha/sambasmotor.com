@@ -35,8 +35,8 @@ class ModalDetailReturnPenjualan extends Component {
                 name="kwalitas"
                 component={ReanderFieldInline}
                 type="text"
-                label="Kwalitas"
-                placeholder="Masukan Kwalitas"
+                label="Kualitas"
+                placeholder="Masukan Kualitas"
               />
             </div>
             <div className="col-lg-12">

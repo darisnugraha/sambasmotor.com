@@ -16,12 +16,14 @@ import {
   NotifError,
   NotifSucces,
 } from "../../../components/notification/notification.jsx";
-import { hideModal } from "../../../actions/datamaster_action.jsx";
+import { getFaktur, hideModal } from "../../../actions/datamaster_action.jsx";
 import { reset } from "redux-form";
+import { multipleDeleteLocal } from "../../../components/notification/function.jsx";
 
 const maptostate = (state) => {
   return {
     kunci_temp: state.stocking.kunci_temp,
+    noFaktur: state.datamaster.noFaktur,
   };
 };
 
@@ -36,6 +38,9 @@ class PembayaranSupplier extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.props.dispatch(getFaktur());
+  }
   handleSubmit(hasil) {
     let data = {
       no_bayar_supplier: localStorage.getItem("no_bayar_supplier"),
@@ -43,11 +48,14 @@ class PembayaranSupplier extends React.Component {
       no_bon: hasil.no_bon,
       kode_supplier: hasil.kode_supplier,
       total_pembayaran: hasil.total || 0,
+      no_ref: this.props.noFaktur,
+      no_ref_cash: this.props.noFaktur,
       cash_rp: hasil.cash || 0,
       transfer_rp: hasil.transfer || 0,
       no_ac_asal: hasil.no_ac_asal ? hasil.no_ac_asal.toString() : "-",
       no_ac_tujuan: hasil.no_ac_tujuan ? hasil.no_ac_tujuan.toString() : "-",
       retur_rp: hasil.retur_supplier || 0,
+      detail_bayar_retur: JSON.parse(localStorage.getItem("list_return")) || [],
     };
     console.log(JSON.stringify(data));
     // return false;
@@ -68,30 +76,28 @@ class PembayaranSupplier extends React.Component {
           ["NO", "JENIS BAYAR", "TOTAL"],
           "BUKTI PEMBAYARAN HUTANG SUPPLIER",
           [
-            [
-              "1",
-              "CASH",
-              "Rp. " + parseFloat(hasil.cash).toLocaleString("id-ID"),
-            ],
+            ["1", "CASH", parseFloat(hasil.cash || 0).toLocaleString("id-ID")],
             [
               "2",
               "TRANSFER",
-              "Rp. " + parseFloat(hasil.transfer).toLocaleString("id-ID"),
+              parseFloat(hasil.transfer || 0).toLocaleString("id-ID"),
             ],
             [
               "3",
               "RETURN",
-              "Rp. " + parseFloat(hasil.retur_supplier).toLocaleString("id-ID"),
+              parseFloat(hasil.retur_supplier || 0).toLocaleString("id-ID"),
             ],
           ],
           false
         )
       )
       .then(() => NotifSucces("Berhasil"))
-      .then(() => localStorage.removeItem("tanggal"))
-      .then(() => localStorage.removeItem("no_bayar_supplier"))
+      .then(() =>
+        multipleDeleteLocal(["tanggal", "no_bayar_supplier", "noFaktur"])
+      )
       .then(() => this.props.dispatch(reset("HeadPembayaranSupplier")))
       .then(() => this.props.dispatch(reset("ModalPembayaranSupplier")))
+      .then(() => this.props.dispatch(getFaktur()))
       .then(() => this.props.dispatch(hideModal()))
       .then(() => window.location.reload())
       .catch((err) => NotifError(err.response.data));

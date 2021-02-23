@@ -30,7 +30,7 @@ const CetakPembayaranSupplier = (
       item.tanggal_bayar,
       item.no_faktur_bayar,
       item.jenis_pembayaran,
-      "Rp. " + parseFloat(item.total_bayar).toLocaleString("id-ID"),
+      parseFloat(item.total_bayar).toLocaleString("id-ID"),
     ];
     sub_total = sub_total + parseFloat(item.total_bayar);
     tableRows.push(rows);

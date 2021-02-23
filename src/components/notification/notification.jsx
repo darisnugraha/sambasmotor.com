@@ -225,14 +225,14 @@ export const ReanderFieldInline = ({
         readOnly={readOnly}
         placeholder={placeholder}
       />
+      {touched &&
+        ((error && (
+          <ul className="parsley-errors-list filled">
+            <li className="parsley-required"> {error}.</li>
+          </ul>
+        )) ||
+          (warning && <p>{warning}</p>))}
     </div>
-    {touched &&
-      ((error && (
-        <ul className="parsley-errors-list filled">
-          <li className="parsley-required"> {error}.</li>
-        </ul>
-      )) ||
-        (warning && <p>{warning}</p>))}
   </div>
 );
 export const RenderCheckBox = ({

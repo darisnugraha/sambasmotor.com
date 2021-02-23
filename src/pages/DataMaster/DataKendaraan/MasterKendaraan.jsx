@@ -70,12 +70,12 @@ class MasterKendaraan extends React.Component {
       columns: [
         {
           dataField: "kode_merk_kendaraan",
-          text: "Merk Kendaraan",
+          text: "Kode Merk Kendaraan",
           sort: true,
         },
         {
           dataField: "nama_merk_kendaraan",
-          text: "Nama Kendaraan",
+          text: "Nama Merk Kendaraan",
         },
 
         {

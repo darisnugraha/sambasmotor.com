@@ -1,161 +1,109 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { formatDateISO } from "../../../../components/notification/function";
 // Date Fns is used to format the dates we receive
 
 // define a generatePDF function that accepts a tickets argument
 const CetakPenjualanSales = (
   row1isi = "",
   row2isi = "",
-  username = "",
-  tanggal = "",
-  validby = ""
+  row3isi = "",
+  data
 ) => {
   // initialize jsPDF
-  const doc = new jsPDF();
+  const doc = new jsPDF("landscape");
   //   let data = JSON.parse(localStorage.getItem("tt_pengeluaran_barang")) || [];
-  let data = [
-    {
-      kode_sales: "AMING",
-      list_barang: [
-        {
-          tanggal: "03-02-2021",
-          no_faktur: "FJ20210203-0001",
-          kode_barcode: "1234567",
-          jenis: "MICRO BEARING",
-          kode_merk: "GENIO",
-          qty: 2,
-          harga_satuan: 50000,
-          total: 50000,
-        },
-        {
-          tanggal: "03-02-2021",
-          no_faktur: "FJ20210203-0002",
-          kode_barcode: "1234567",
-          jenis: "MICRO BEARING",
-          kode_merk: "GENIO",
-          qty: 2,
-          harga_satuan: 100000,
-          total: 200000,
-        },
-      ],
-    },
-    {
-      kode_sales: "AMING1",
-      list_barang: [
-        {
-          tanggal: "03-02-2021",
-          no_faktur: "FJ20210203-0001",
-          kode_barcode: "1234567",
-          jenis: "MICRO BEARING",
-          kode_merk: "GENIO",
-          qty: 2,
-          harga_satuan: 50000,
-          total: 50000,
-        },
-        {
-          tanggal: "03-02-2021",
-          no_faktur: "FJ20210203-0002",
-          kode_barcode: "1234567",
-          jenis: "MICRO BEARING",
-          kode_merk: "GENIO",
-          qty: 2,
-          harga_satuan: 100000,
-          total: 200000,
-        },
-        {
-          tanggal: "03-02-2021",
-          no_faktur: "FJ20210203-0003",
-          kode_barcode: "1234567",
-          jenis: "MICRO BEARING",
-          kode_merk: "GENIO",
-          qty: 2,
-          harga_satuan: 100000,
-          total: 300000,
-        },
-      ],
-    },
-    {
-      kode_sales: "AMING2",
-      list_barang: [
-        {
-          tanggal: "03-02-2021",
-          no_faktur: "FJ20210203-0001",
-          kode_barcode: "1234567",
-          jenis: "MICRO BEARING",
-          kode_merk: "GENIO",
-          qty: 2,
-          harga_satuan: 50000,
-          total: 50000,
-        },
-      ],
-    },
-  ];
   let tableRows = [];
+  let footRows = [];
   let finalY = 40;
-  let sub_total = 0;
-  let tableColumn = [
-    "TANGGAL",
-    "NO FAKTUR",
-    "BARCODE",
-    "JENIS",
-    "MERK",
-    "QTY",
-    "H.SATUAN",
-    "TOTAL",
-  ];
-  data.forEach((item, index) => {
-    doc.setFontSize(10);
-    doc.text(`SALES : ${item.kode_sales}`, 14, index === 0 ? 40 : finalY + 5);
-    item.list_barang.forEach((barang, index) => {
-      let rows = [
-        barang.tanggal,
-        barang.no_faktur,
-        barang.kode_barcode,
-        barang.jenis,
-        barang.kode_merk,
-        barang.qty,
-        "Rp. " + parseFloat(barang.harga_satuan).toLocaleString("id-ID"),
-        "Rp. " + parseFloat(barang.total).toLocaleString("id-ID"),
-      ];
-      sub_total = sub_total + parseFloat(barang.total);
-      tableRows.push(rows);
-      console.log(tableRows);
-    });
-    let footer = [
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "Sub Total :",
-      "Rp. " + parseFloat(sub_total).toLocaleString("id-ID"),
-    ];
-    tableRows.push(footer);
-    doc.autoTable(tableColumn, tableRows, {
-      startY: index === 0 ? 45 : finalY + 15,
-      theme: "plain",
-    });
-    finalY = doc.lastAutoTable.finalY + 10;
-    tableRows = [];
-    sub_total = 0;
-  });
-  // const date = Date().split(" ");
-  // we use a date string to generate our filename.
-  // const dateStr = date[2] + date[3] + date[4];
-  // ticket title. and margin-top + margin-left
+  let total = 0;
   doc.setFontSize(15);
   doc.text("LAPORAN PENJUALAN SALES", 14, 15);
   doc.setFontSize(10);
   //row 1
-  doc.text(`TANGGAL : ${row1isi}`, 14, 25);
-  doc.text(`KATEGORI : ${row2isi}`, 14, 30);
+  doc.text(`TANGGAL : ${row1isi} s/d ${row2isi}`, 14, 25);
+  doc.text(`NAMA SALES : ${row3isi}`, 14, 30);
   //   row 2
   //   doc.text(`Tanggal	: ${row2isi}`, 120, 25);
-
-  doc.text(`User	: ${username}`, 14, finalY + 10);
-  doc.text(`Cetak	: ${tanggal}`, 14, finalY + 16);
-  doc.text(`Valid	: ${validby}`, 14, finalY + 22);
+  data.forEach((item, index) => {
+    let tableColumn = [
+      [
+        {
+          content: `Nama Sales\t: ${item.sales}`,
+          colSpan: 8,
+        },
+      ],
+      [
+        {
+          content: `TANGGAL`,
+        },
+        {
+          content: `NO FAKTUR`,
+        },
+        {
+          content: `BARCODE`,
+        },
+        {
+          content: `NAMA`,
+        },
+        {
+          content: `MERK`,
+        },
+        {
+          content: `QTY`,
+        },
+        {
+          content: `SATUAN`,
+        },
+        {
+          content: `TOTAL`,
+        },
+      ],
+    ];
+    item.detail.forEach((list) => {
+      let rows = [
+        formatDateISO(list.tanggal),
+        list.no_faktur_jual,
+        list.kode_barcode,
+        list.nama_barang,
+        list.merk_barang,
+        list.qty,
+        parseFloat(list.harga_satuan).toLocaleString("id-ID"),
+        parseFloat(list.harga_total).toLocaleString("id-ID"),
+      ];
+      total = total + parseFloat(list.harga_total);
+      tableRows.push(rows);
+    });
+    let foot = [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Total",
+      parseFloat(total).toLocaleString("id-ID"),
+    ];
+    footRows.push(foot);
+    finalY = doc.lastAutoTable.finalY + 10;
+    doc.autoTable({
+      head: tableColumn,
+      body: tableRows,
+      foot: footRows,
+      startY: index === 0 ? 35 : finalY + 5,
+      theme: "plain",
+      rowPageBreak: "avoid",
+      // pageBreak: "avoid",
+      margin: { top: 20 },
+      bodyStyles: { lineWidth: 0.02, lineColor: "#000" },
+      headStyles: {
+        lineWidth: 0.02,
+        lineColor: "#000",
+        fillColor: [187, 187, 187],
+      },
+    });
+    tableRows = [];
+  });
 
   // doc.autoPrint();
   // doc.save(`${title}_${dateStr}.pdf`);
@@ -164,7 +112,10 @@ const CetakPenjualanSales = (
   var x = window.open();
   x.document.open();
   x.document.write(embed);
-  x.document.close();
+  // x.document.close();
+  // setInterval(() => {
+  //   x.close();
+  // }, 1000);
 };
 
 export default CetakPenjualanSales;
