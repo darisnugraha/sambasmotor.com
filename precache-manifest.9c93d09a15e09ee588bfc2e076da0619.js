@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "c75409a4effbceef3c103fbc7bb21829",
+    "revision": "d5c42b7d142bfe2e3c60a1a0577bc6b5",
     "url": "/sambasmotor.com/index.html"
   },
   {
@@ -344,8 +344,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/sambasmotor.com/static/js/61.68b98b6d.chunk.js"
   },
   {
-    "revision": "29c258b386f252e62544",
-    "url": "/sambasmotor.com/static/js/62.f420dbd6.chunk.js"
+    "revision": "bfde56f2e0c9a575f532",
+    "url": "/sambasmotor.com/static/js/62.9687b449.chunk.js"
   },
   {
     "revision": "9cdec7c1011b51bb3bba",
@@ -512,8 +512,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/sambasmotor.com/static/js/main.2cd27068.chunk.js"
   },
   {
-    "revision": "87c971958b8898017722",
-    "url": "/sambasmotor.com/static/js/runtime~main.1912f0d6.js"
+    "revision": "e4a38231d8764b580102",
+    "url": "/sambasmotor.com/static/js/runtime~main.757b1294.js"
   },
   {
     "revision": "47d95ec491cadad20dddfd8580bb1ce8",
