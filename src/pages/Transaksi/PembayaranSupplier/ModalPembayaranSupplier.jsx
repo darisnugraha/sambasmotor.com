@@ -60,7 +60,12 @@ class ModalBayarSupplierPenerimaan extends Component {
     return (
       <div className="col-lg-12">
         <div className="col-lg-12">
-          <form onSubmit={this.props.handleSubmit}>
+          <form
+            onSubmit={this.props.handleSubmit}
+            onKeyPress={(e) => {
+              e.key === "Enter" && e.preventDefault();
+            }}
+          >
             <div className="row">
               <div className="col-lg-6 text-center mb-3">
                 <h4>Total Hutang</h4>
@@ -224,7 +229,18 @@ class ModalBayarSupplierPenerimaan extends Component {
             </div>
             <div className="col-lg-12">
               <div className="text-right">
-                <button className="btn btn-primary">Bayar</button>
+                <button className="btn btn-primary">
+                  {this.props.onSend ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                      Menyimpan
+                    </>
+                  ) : (
+                    <>
+                      Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </form>
@@ -246,6 +262,7 @@ export default connect((state) => {
   let total_return =
     retur && retur.map((list) => list.total_retur).reduce((a, b) => a + b, 0);
   return {
+    onSend: state.datamaster.onSend,
     total: parseFloat(cash || 0) + parseFloat(transfer || 0),
     sisa_hutang: state.transaksi.listPembayaran.sisa_hutang,
     retur_rp: total_return,

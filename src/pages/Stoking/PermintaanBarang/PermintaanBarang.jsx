@@ -16,6 +16,7 @@ import { simpanLocal } from "../../../config/Helper.jsx";
 import { reset } from "redux-form";
 import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
 import { multipleDeleteLocal } from "../../../components/notification/function.jsx";
+import { onFinish, onProgress } from "../../../actions/datamaster_action.jsx";
 
 const ModalPermintaanBarang = lazy(() => import("./ModalPermintaanBarang.jsx"));
 
@@ -111,6 +112,7 @@ class PermintaanBarang extends React.Component {
     }
   }
   sendData(hasil) {
+    this.props.dispatch(onProgress());
     let kirim = {
       no_permintaan: hasil.no_permintaan,
       kode_divisi: hasil.divisi,
@@ -136,7 +138,11 @@ class PermintaanBarang extends React.Component {
     });
     let columnTabel = ["NO", "BARCODE", "JENIS BARANG", "MERK", "KW", "QTY"];
     // INISIALISASI SELESAI -> PANGGIL AXIOS DAN PANGGIL PRINT SAAT AXIOS BERHASIL
-    AxiosMasterPost("permintaan-barang/post-transaksi", kirim)
+    AxiosMasterPost(
+      this.props.dispatch,
+      "permintaan-barang/post-transaksi",
+      kirim
+    )
       .then(() => NotifSucces("Berhasil Menyimpan Data"))
       .then(() =>
         CetakNota(
@@ -167,7 +173,12 @@ class PermintaanBarang extends React.Component {
       )
       .then(() => this.props.dispatch(reset("permintaanBarang")))
       .then(() => this.props.dispatch(getPermintaanTemp()))
-      .catch((err) => NotifError(err.response.data));
+      .then(() => this.props.dispatch(onFinish()))
+      .catch((err) =>
+        NotifError(err.response.data).then(() =>
+          this.props.dispatch(onFinish())
+        )
+      );
   }
   render() {
     return (

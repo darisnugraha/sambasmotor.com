@@ -1,12 +1,13 @@
 import React, { Component } from "react";
-import BootstrapTable from "react-bootstrap-table-next";
 import { connect } from "react-redux";
-import { Field, reduxForm } from "redux-form";
-import { showModal } from "../../../actions/datamaster_action";
+import { Field, reduxForm, submit } from "redux-form";
+import { getGudang, showModal } from "../../../actions/datamaster_action";
+import { getListStockOpname } from "../../../actions/supervisor_action";
 import {
   ReanderField,
   ReanderSelect,
 } from "../../../components/notification/notification";
+import Tabel from "../../../components/Tabel/tabel";
 
 class HeadStockOpname extends Component {
   constructor(props) {
@@ -18,31 +19,32 @@ class HeadStockOpname extends Component {
           text: "Kode Barcode",
         },
         {
-          dataField: "nama_barang",
-          text: "Nama Barang",
+          dataField: "kode_supplier",
+          text: "Kode Supplier",
         },
         {
-          dataField: "merk",
-          text: "Merk",
-        },
-        {
-          dataField: "kwalitas",
-          text: "Kualitas",
-        },
-        {
-          dataField: "type",
-          text: "Type",
-        },
-        {
-          dataField: "satuan",
-          text: "Satuan",
+          dataField: "qty",
+          text: "Qty",
         },
       ],
     };
   }
+  componentDidMount() {
+    this.props.dispatch(getGudang());
+    this.props.dispatch(getListStockOpname());
+    this.props.change(
+      "lokasi",
+      localStorage.getItem("lokasi_stock_opname") || ""
+    );
+  }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="row">
           <div className="col-lg-3">
             <Field
@@ -57,39 +59,58 @@ class HeadStockOpname extends Component {
             <Field
               name="lokasi"
               component={ReanderSelect}
-              options={[
-                { value: "LOKASI01", name: "LOKASI 01" },
-                { value: "LOKASI02", name: "LOKASI 02" },
-                { value: "LOKASI03", name: "LOKASI 03" },
-                { value: "LOKASI04", name: "LOKASI 04" },
-              ]}
+              options={this.props.listgudang.map((list) => {
+                let data = {
+                  value: list.kode_lokasi_gudang,
+                  name: list.nama_lokasi_gudang,
+                };
+                return data;
+              })}
               type="text"
               label="Lokasi"
               placeholder="Masukan Lokasi"
+              onChange={(e) => localStorage.setItem("lokasi_stock_opname", e)}
             />
           </div>
           <div className="col-lg-12 mb-3">
             <div className="text-right">
               <button
+                type="button"
                 className="btn btn-warning"
                 onClick={() => this.props.dispatch(showModal())}
+                disabled={
+                  localStorage.getItem("lokasi_stock_opname") ? false : true
+                }
               >
                 Tambah Data <i className="fa fa-plus ml-3"></i>
               </button>
             </div>
           </div>
           <div className="col-lg-12">
-            <BootstrapTable
-              bootstrap4
-              keyField="id"
+            <Tabel
+              keyField="kode_barcode"
               data={this.props.liststockopname || []}
               columns={this.state.columns}
+              textEmpty="Silahkan pilih Lokasi, Setelah itu tambah barang"
             />
           </div>
-          <div className="col-lg-12">
+          <div className="col-lg-12 mb-3">
             <div className="text-right">
-              <button className="btn btn-primary">
-                Simpan <i className="fa fa-paper-plane"></i>
+              <button
+                className="btn btn-primary"
+                disabled={this.props.onSend}
+                onClick={() => this.props(submit("HeadStockOpname"))}
+              >
+                {this.props.onSend ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                    Menyimpan
+                  </>
+                ) : (
+                  <>
+                    Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -103,4 +124,10 @@ HeadStockOpname = reduxForm({
   form: "HeadStockOpname",
   enableReinitialize: true,
 })(HeadStockOpname);
-export default connect()(HeadStockOpname);
+export default connect((state) => {
+  return {
+    listgudang: state.datamaster.listgudang,
+    liststockopname: state.supervisor.liststockopname,
+    onSend: state.datamaster.onSend,
+  };
+})(HeadStockOpname);

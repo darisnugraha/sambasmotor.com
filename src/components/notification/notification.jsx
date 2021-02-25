@@ -4,6 +4,7 @@ import SelectSearch from "react-select-search";
 import DateTime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import { AxiosMasterPut } from "../../axios";
+import { SkeletonLoading } from "./function";
 // import Select from "react-select";
 
 const Toast = Swal.mixin({
@@ -175,27 +176,32 @@ export const ReanderField = ({
   placeholder,
   autoFocus,
   ref,
+  loading,
   meta: { touched, error, warning },
 }) => (
   <div className="form-group">
     <label htmlFor="" className="text-black">
       {label}
     </label>
-    <input
-      {...input}
-      type={type}
-      ref={ref}
-      autoFocus={autoFocus}
-      className="form-control"
-      readOnly={readOnly}
-      placeholder={placeholder}
-      onKeyPress={(event) => {
-        if (event.key === "Enter") {
-          event.preventDefault(); //<===== This stops the form from being submitted
-        } else {
-        }
-      }}
-    />
+    {loading ? (
+      <SkeletonLoading />
+    ) : (
+      <input
+        {...input}
+        type={type}
+        ref={ref}
+        autoFocus={autoFocus}
+        className="form-control"
+        readOnly={readOnly}
+        placeholder={placeholder}
+        onKeyPress={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault(); //<===== This stops the form from being submitted
+          } else {
+          }
+        }}
+      />
+    )}
     {touched &&
       ((error && (
         <ul className="parsley-errors-list filled">
@@ -224,6 +230,43 @@ export const ReanderFieldInline = ({
         className="form-control"
         readOnly={readOnly}
         placeholder={placeholder}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      />
+      {touched &&
+        ((error && (
+          <ul className="parsley-errors-list filled">
+            <li className="parsley-required"> {error}.</li>
+          </ul>
+        )) ||
+          (warning && <p>{warning}</p>))}
+    </div>
+  </div>
+);
+export const ReanderSelectInline = ({
+  input,
+  label,
+  readOnly,
+  placeholder,
+  options,
+  getOptions,
+  value,
+  disabled,
+  meta: { touched, error, warning },
+}) => (
+  <div className="form-group row">
+    <label htmlFor="" className="text-black col-form-label col-md-3">
+      {label}
+    </label>
+    <div className="col-lg-9">
+      <SelectSearch
+        {...input}
+        search
+        disabled={readOnly}
+        placeholder={placeholder}
+        options={options}
+        getOptions={getOptions}
       />
       {touched &&
         ((error && (
@@ -315,20 +358,28 @@ export const ReanderSelect = ({
   getOptions,
   value,
   disabled,
+  loading,
   meta: { touched, error, warning },
 }) => (
   <div className="form-group">
     <label htmlFor="" className="text-black">
       {label}
     </label>
-    <SelectSearch
-      {...input}
-      search
-      disabled={readOnly}
-      placeholder={placeholder}
-      options={options}
-      getOptions={getOptions}
-    />
+    {loading ? (
+      <SkeletonLoading />
+    ) : (
+      <SelectSearch
+        {...input}
+        search
+        disabled={readOnly}
+        placeholder={placeholder}
+        options={options}
+        getOptions={getOptions}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      />
+    )}
 
     {touched &&
       ((error && (
@@ -384,30 +435,6 @@ export const RenderTime = ({
       {label}
     </label>
     <DateTime dateFormat={false} inputProps={{ placeholder: placeholder }} />
-
-    {touched &&
-      ((error && (
-        <ul className="parsley-errors-list filled">
-          <li className="parsley-required"> {error}.</li>
-        </ul>
-      )) ||
-        (warning && <p>{warning}</p>))}
-  </div>
-);
-
-export const renderTextArea = ({
-  input,
-  label,
-  placeholder,
-  options,
-  disabled,
-  meta: { touched, error, warning },
-}) => (
-  <div className="form-group">
-    <label htmlFor="" className="text-black">
-      {label}
-    </label>
-    <textarea className="form-control" rows="4"></textarea>
 
     {touched &&
       ((error && (

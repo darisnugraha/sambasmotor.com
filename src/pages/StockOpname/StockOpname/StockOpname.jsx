@@ -2,44 +2,51 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { reset } from "redux-form";
+import { onFinish, onProgress } from "../../../actions/datamaster_action";
 import { getListStockOpname } from "../../../actions/supervisor_action";
+import { AxiosMasterPost } from "../../../axios";
+import {
+  NotifSucces,
+  ToastError,
+} from "../../../components/notification/notification";
 import { Panel, PanelBody, PanelHeader } from "../../../components/panel/panel";
 import { simpanLocal } from "../../../config/Helper";
 import ModalGlobal from "../../ModalGlobal";
 import HeadStockOpname from "./HeadStockOpname";
 import ModalStockOpname from "./ModalStockOpname";
 
-const maptostate = (state) => {
-  return {
-    liststockopname: state.supervisor.liststockopname,
-  };
-};
 class StockOpname extends Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
 
-  componentDidMount() {
-    this.props.dispatch(getListStockOpname());
-  }
+  componentDidMount() {}
   handleHead(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
       tanggal: hasil.tanggal,
-      lokasi: hasil.lokasi,
-      listBarang: JSON.parse(localStorage.getItem("StockOpname_temp")) || [],
+      kode_lokasi_gudang: hasil.lokasi,
+      detail_barang: JSON.parse(localStorage.getItem("StockOpname_temp")) || [],
     };
-    console.log(data);
+    AxiosMasterPost("stock-opname/post-transaksi", data)
+      .then(() => NotifSucces("Stockopname Berhasil"))
+      .then(() => this.props.dispatch(reset("HeadStockOpname")))
+      .then(() => localStorage.removeItem("StockOpname_temp"))
+      .then(() => localStorage.removeItem("lokasi_stock_opname"))
+      .then(() => this.props.dispatch(getListStockOpname()))
+      .then(() => this.props.dispatch(onFinish()))
+      .catch((err) =>
+        ToastError(
+          `Gagal StockOpname , Error : ${err.response.data}`
+        ).then(() => this.props.dispatch(onFinish()))
+      );
   }
   handleModal(hasil) {
     let data = {
+      kode_supplier: hasil.kode_supplier,
       kode_barcode: hasil.kode_barcode,
-      nama_barang: hasil.nama_barang,
-      merk: hasil.merk,
-      kwalitas: hasil.kwalitas,
-      type: hasil.type,
       qty: hasil.qty,
-      satuan: hasil.satuan,
     };
     simpanLocal("StockOpname_temp", data);
     this.props.dispatch(getListStockOpname());
@@ -77,4 +84,4 @@ class StockOpname extends Component {
   }
 }
 
-export default connect(maptostate, null)(StockOpname);
+export default connect()(StockOpname);

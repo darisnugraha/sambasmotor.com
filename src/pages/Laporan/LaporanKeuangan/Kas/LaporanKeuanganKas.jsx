@@ -1,8 +1,12 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import { onFinish, onProgress } from "../../../../actions/datamaster_action";
 import { AxiosMasterGet } from "../../../../axios";
 import { getToday } from "../../../../components/notification/function";
-import { getUserData } from "../../../../components/notification/notification";
+import {
+  getUserData,
+  ToastError,
+} from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
@@ -19,10 +23,12 @@ class LaporanKeuanganKas extends Component {
     };
   }
   getLaporan(hasil) {
+    this.props.dispatch(onProgress());
     AxiosMasterGet(
       "laporan/keuangan/lap-cash/" +
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}`
     )
+      .then(() => this.props.dispatch(onFinish()))
       .then((res) =>
         this.setState({
           listLaporan: res.data,
@@ -37,6 +43,11 @@ class LaporanKeuanganKas extends Component {
           getUserData().level,
           this.state.listLaporan
         )
+      )
+      .catch((err) =>
+        ToastError(
+          `Error Get Laporan , Error : ${err.response.data}`
+        ).then(() => this.props.dispatch(onFinish()))
       );
   }
   render() {

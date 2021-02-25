@@ -5,6 +5,7 @@ export const GET_HANCUR_BARANG_TEMP = "GET_HANCUR_BARANG_TEMP";
 export const GET_KUNCI_BARANG_TEMP = "GET_KUNCI_BARANG_TEMP";
 export const GET_KONVERSI_BARANG_TEMP = "GET_KONVERSI_BARANG_TEMP";
 export const GET_PENGELUARAN_BARANG_TEMP = "GET_PENGELUARAN_BARANG_TEMP";
+export const GET_TAMBAH_STOCK_TEMP = "GET_TAMBAH_STOCK_TEMP";
 export const GET_PENGELUARAN_BARANG_SELECTED =
   "GET_PENGELUARAN_BARANG_SELECTED";
 
@@ -36,6 +37,17 @@ export const getHancurTemp = () => {
   return (dispatch) => {
     dispatch({
       type: GET_HANCUR_BARANG_TEMP,
+      payload: {
+        data: data,
+      },
+    });
+  };
+};
+export const getTambahStockTemp = () => {
+  let data = JSON.parse(localStorage.getItem("TambahBarang_temp")) || [];
+  return (dispatch) => {
+    dispatch({
+      type: GET_TAMBAH_STOCK_TEMP,
       payload: {
         data: data,
       },

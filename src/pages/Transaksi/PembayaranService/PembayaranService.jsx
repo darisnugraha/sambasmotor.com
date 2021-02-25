@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import {
   NotifSucces,
+  ToastError,
   ToastSucces,
 } from "../../../components/notification/notification.jsx";
 import {
@@ -20,6 +21,8 @@ import ModalGlobal from "../../ModalGlobal.jsx";
 import {
   getFaktur,
   hideModal,
+  onFinish,
+  onProgress,
   showModal,
 } from "../../../actions/datamaster_action.jsx";
 import ModalBayarService from "./ModalBayarService.jsx";
@@ -348,18 +351,19 @@ class PembayaranService extends React.Component {
     }
   }
   bayarservice(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
       no_daftar: localStorage.getItem("no_daftar") || "",
       tgl_bayar: getToday(),
-      disk_part_rp: hasil.barang,
-      disk_jasa_rp: hasil.jasa,
+      disk_part_rp: hasil.barang || 0,
+      disk_jasa_rp: hasil.jasa || 0,
       total_bayar:
         parseFloat(this.props.grand_total_all) -
-        parseFloat(hasil.barang) -
-        parseFloat(hasil.jasa),
+        parseFloat(hasil.barang || 0) -
+        parseFloat(hasil.jasa || 0),
       cash_rp: hasil.bayar,
       no_ref_cash: this.props.noFaktur,
-      status_masuk_piutang: false,
+      status_masuk_piutang: hasil.piutang || false,
       detail_barang:
         JSON.parse(localStorage.getItem("list_tambahan_bayar_temp")) || [],
       detail_non_tunai:
@@ -415,10 +419,17 @@ class PembayaranService extends React.Component {
       .then(() => this.props.dispatch(getListBarangPembayaran()))
       .then(() => this.props.dispatch(getListPembayaran()))
       .then(() => this.props.dispatch(getFaktur()))
+      .then(() => this.props.dispatch(onFinish()))
+      .then(() => this.props.getListBayarService())
       .then(() =>
         this.setState({
           bayar: true,
         })
+      )
+      .catch((err) =>
+        ToastError(`Error : ${err.response.data}`).then(() =>
+          this.props.dispatch(onFinish())
+        )
       );
   }
   render() {

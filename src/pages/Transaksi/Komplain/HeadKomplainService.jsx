@@ -5,7 +5,6 @@ import { showModal } from "../../../actions/datamaster_action";
 import {
   ReanderField,
   ReanderSelect,
-  renderTextArea,
 } from "../../../components/notification/notification";
 import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit";
 import BootstrapTable from "react-bootstrap-table-next";
@@ -90,7 +89,12 @@ class HeadKomplainService extends Component {
   render() {
     return (
       <div>
-        <form onSubmit={this.props.handleSubmit}>
+        <form
+          onSubmit={this.props.handleSubmit}
+          onKeyPress={(e) => {
+            e.key === "Enter" && e.preventDefault();
+          }}
+        >
           <div className="col-lg-12">
             <div className="row">
               <div className="col-lg-12">
@@ -240,10 +244,12 @@ class HeadKomplainService extends Component {
               </div>
               <div className="col-lg-12">
                 <div className="col-lg-12">
+                  <label htmlFor="">Catatan Keluhan</label>
                   <Field
                     name="catatan_keluhan"
-                    component={renderTextArea}
+                    component="textarea"
                     type="text"
+                    className="form-control"
                     label="Catatan Keluhan"
                     placeholder="Masukan Catatan Keluhan"
                   />

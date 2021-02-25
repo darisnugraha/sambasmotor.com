@@ -144,6 +144,7 @@ class MasterGudang extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "lokasi-gudang/update/by-kode-lokasi-gudang/" + hasil.kode_gudang ||
             "-",
           { nama_lokasi_gudang: hasil.nama_gudang }

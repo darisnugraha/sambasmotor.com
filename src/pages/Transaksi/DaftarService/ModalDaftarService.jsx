@@ -15,6 +15,8 @@ import {
   getKendaraan,
   getSales,
   getWarna,
+  onFinish,
+  onProgress,
 } from "../../../actions/datamaster_action";
 import { AxiosMasterGet } from "../../../axios";
 import { getToday } from "../../../components/notification/function";
@@ -169,6 +171,7 @@ class ModalDaftarService extends Component {
     );
   }
   cariBooking(e) {
+    this.props.dispatch(onProgress());
     AxiosMasterGet("service/booking/" + e.target.value)
       .then((res) => {
         if (res.data.length === 0) {
@@ -186,11 +189,13 @@ class ModalDaftarService extends Component {
           });
         }
       })
+      .then(() => this.props.dispatch(onFinish()))
       .catch((err) => {
         ToastError("Booking Tidak Ditemukan.. Mohon Periksa Kembali");
         this.setState({
           customer: "col-lg-12 row",
         });
+        this.props.dispatch(onFinish());
       });
   }
   setCustomer(data) {
@@ -207,7 +212,12 @@ class ModalDaftarService extends Component {
   render() {
     return (
       <div>
-        <form onSubmit={this.props.handleSubmit}>
+        <form
+          onSubmit={this.props.handleSubmit}
+          onKeyPress={(e) => {
+            e.key === "Enter" && e.preventDefault();
+          }}
+        >
           <div className="col-lg-12">
             <div className="col-lg-12 mb-5">
               <Stepper
@@ -261,6 +271,7 @@ class ModalDaftarService extends Component {
                   label="Nama Customer"
                   placeholder="Masukan Nama Customer"
                   readOnly
+                  loading={this.props.onSend}
                 />
                 <span>Otomatis Terisi Saat nomor Booking diisi</span>
               </div>
@@ -272,13 +283,15 @@ class ModalDaftarService extends Component {
                   label="Nomor Polisi"
                   placeholder="Masukan Nomor Polisi"
                   readOnly
+                  loading={this.props.onSend}
                 />
                 <span>Otomatis Terisi Saat nomor Booking diisi</span>
               </div>
-              <div className="col-lg-12">
-                <h4>Data Customer</h4>
-              </div>
+
               <div className={this.state.customer}>
+                <div className="col-lg-12">
+                  <h4>Data Customer</h4>
+                </div>
                 <div className="col-lg-3">
                   <Field
                     name="nama"
@@ -470,7 +483,6 @@ class ModalDaftarService extends Component {
                       };
                       return data;
                     })}
-                  onChange={(data) => this.setMekanik(data)}
                   type="text"
                   label="ID Mekanik"
                   placeholder="Masukan ID Mekanik"
@@ -510,6 +522,7 @@ export default connect((state) => {
     listdaftarservice: state.transaksi.listdaftarservice,
     listsales: state.datamaster.listsales,
     no_faktur: localStorage.getItem("no_daftar_service") || "",
+    onSend: state.datamaster.onSend,
   };
 })(ModalDaftarService);
 

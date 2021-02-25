@@ -19,6 +19,8 @@ import Skeleton from "react-loading-skeleton";
 import {
   getFaktur,
   hideModal,
+  onFinish,
+  onProgress,
   showModal,
 } from "../../../actions/datamaster_action";
 import ModalBayarSupplierPenerimaan from "./ModalBayarSupplierPenerimaan";
@@ -55,6 +57,7 @@ class SupplierPenerimaan extends Component {
       NotifError("Data Barang Masih Kosong, Mohon isi barang dulu");
       return false;
     } else {
+      this.props.dispatch(onProgress());
       let data = {
         no_terima: localStorage.getItem("penerimaan_kode_terima"),
         tanggal_terima: localStorage.getItem("penerimaan_tanggal_barang"),
@@ -163,8 +166,13 @@ class SupplierPenerimaan extends Component {
         .then(() => this.props.dispatch(getListTerimaSupplier()))
         .then(() => this.props.dispatch(hideModal()))
         .then(() => this.props.dispatch(getFaktur()))
+        .then(() => this.props.dispatch(onFinish()))
         .then(() => window.location.reload())
-        .catch((err) => NotifError(err.response.data));
+        .catch((err) =>
+          NotifError(err.response.data).then(() =>
+            this.props.dispatch(onFinish())
+          )
+        );
     }
   }
   showTambah() {

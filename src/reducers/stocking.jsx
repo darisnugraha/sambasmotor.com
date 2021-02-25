@@ -5,6 +5,7 @@ import {
   GET_PENGELUARAN_BARANG_SELECTED,
   GET_PENGELUARAN_BARANG_TEMP,
   GET_PERMINTAAN_TEMP,
+  GET_TAMBAH_STOCK_TEMP,
 } from "../actions/stocking_action";
 
 const initialState = {
@@ -14,6 +15,7 @@ const initialState = {
   konversi_temp: false,
   hancur_temp: false,
   kunci_temp: false,
+  tambahStock_temp: [],
 };
 
 const stocking = (state = initialState, actions) => {
@@ -47,6 +49,11 @@ const stocking = (state = initialState, actions) => {
       return {
         ...state,
         kunci_temp: actions.payload.data,
+      };
+    case GET_TAMBAH_STOCK_TEMP:
+      return {
+        ...state,
+        tambahStock_temp: actions.payload.data,
       };
     default:
       return state;

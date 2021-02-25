@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, submit } from "redux-form";
 import { createNumberMask } from "redux-form-input-masks";
 import { getBank, getParameter } from "../../../actions/datamaster_action";
 import { getToday } from "../../../components/notification/function";
@@ -26,7 +26,12 @@ class HeadTambahKas extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="row">
           <div className="col-lg-3">
             <Field
@@ -92,8 +97,21 @@ class HeadTambahKas extends Component {
           </div>
           <div className="col-lg-12">
             <div className="text-right">
-              <button className="btn btn-primary">
-                Simpan <i className="fa fa-paper-plane ml-3"></i>
+              <button
+                className="btn btn-primary"
+                disabled={this.props.onSend}
+                onClick={() => this.props(submit("HeadAmbilBank"))}
+              >
+                {this.props.onSend ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                    Menyimpan
+                  </>
+                ) : (
+                  <>
+                    Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -111,5 +129,6 @@ export default connect((state) => {
   return {
     listbank: state.datamaster.listbank,
     listparameter: state.datamaster.listparameter,
+    onSend: state.datamaster.onSend,
   };
 })(HeadTambahKas);

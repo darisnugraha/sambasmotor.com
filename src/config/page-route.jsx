@@ -1,5 +1,6 @@
 import React, { lazy } from "react";
 import LaporanKartuHutangSupplier from "../pages/Laporan/LaporanSupplier/KartuHutangSupplier/LaporanKartuHutangSupplier.jsx";
+import TambahStockBarang from "../pages/Stoking/TambahStockBarang/TambahStockBarang.jsx";
 const MasterUkuran = lazy(() =>
   import("../pages/DataMaster/DataUkurann/MasterUkuran.jsx")
 );
@@ -457,6 +458,13 @@ const routes = [
     exact: true,
     title: "Stocking Hancur",
     component: () => <HancurBarang />,
+  },
+  // Stoking Konversi
+  {
+    path: "/stocking-tambah",
+    exact: true,
+    title: "Tambah Stock Barang",
+    component: () => <TambahStockBarang />,
   },
   // Stoking Kunci
   {

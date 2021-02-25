@@ -1,5 +1,7 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
+import { onFinish, onProgress } from "../../../actions/datamaster_action";
 import { AxiosMasterGet } from "../../../axios";
 import { ReanderField } from "../../../components/notification/notification";
 
@@ -13,6 +15,7 @@ class ModalKonversiBarang extends Component {
   }
 
   getBarcode(hasil) {
+    this.props.dispatch(onProgress());
     let lokasi = localStorage.getItem("lokasi_pilihan") || "";
     let supplier = localStorage.getItem("supplier_pilihan") || "";
     AxiosMasterGet(
@@ -21,6 +24,7 @@ class ModalKonversiBarang extends Component {
     )
       .then((res) => this.setState({ hasilBarcode: res.data }))
       .then(() => this.setDetail())
+      .then(() => this.props.dispatch(onFinish()))
       .catch((err) => console.log(err));
   }
 
@@ -33,6 +37,7 @@ class ModalKonversiBarang extends Component {
     this.props.change("stock_asal", this.state.hasilBarcode[0].stock);
   }
   getBarcodeTujuan(hasil) {
+    this.props.dispatch(onProgress());
     let lokasi = localStorage.getItem("lokasi_pilihan") || "";
     let supplier = localStorage.getItem("supplier_pilihan") || "";
     AxiosMasterGet(
@@ -41,6 +46,7 @@ class ModalKonversiBarang extends Component {
     )
       .then((res) => this.setState({ hasilBarcode: res.data }))
       .then(() => this.setDetailTujuan())
+      .then(() => this.props.dispatch(onFinish()))
       .catch((err) => console.log(err));
   }
 
@@ -55,7 +61,12 @@ class ModalKonversiBarang extends Component {
   render() {
     return (
       <div>
-        <form onSubmit={this.props.handleSubmit}>
+        <form
+          onSubmit={this.props.handleSubmit}
+          onKeyPress={(e) => {
+            e.key === "Enter" && e.preventDefault();
+          }}
+        >
           <div className="col-lg-12">
             <div className="row">
               <div className="col-lg-12 mb-3 mt-3">
@@ -79,9 +90,10 @@ class ModalKonversiBarang extends Component {
                   name="kode_jenis_asal"
                   component={ReanderField}
                   type="text"
-                  label="Kode Jenis"
-                  placeholder="Masukan Kode Jenis"
+                  label="Nama Barang"
+                  placeholder="Masukan Nama Barang"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -92,6 +104,7 @@ class ModalKonversiBarang extends Component {
                   label="Stock"
                   placeholder="Masukan Stock"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -126,6 +139,7 @@ class ModalKonversiBarang extends Component {
                   type="text"
                   label="Nama Barang"
                   placeholder="Masukan Nama Barang"
+                  loading={this.props.onSend}
                   readOnly
                 />
               </div>
@@ -137,6 +151,7 @@ class ModalKonversiBarang extends Component {
                   label="Qty"
                   placeholder="Masukan Qty"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -167,4 +182,8 @@ ModalKonversiBarang = reduxForm({
   form: "ModalKonversiBarang",
   enableReinitialize: true,
 })(ModalKonversiBarang);
-export default ModalKonversiBarang;
+export default connect((state) => {
+  return {
+    onSend: state.datamaster.onSend,
+  };
+})(ModalKonversiBarang);

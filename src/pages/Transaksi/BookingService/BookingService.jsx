@@ -14,6 +14,7 @@ import { reset } from "redux-form";
 import axios from "axios";
 import { getToday } from "../../../components/helpers/function.jsx";
 import { AxiosMasterPost } from "../../../axios.js";
+import { onFinish, onProgress } from "../../../actions/datamaster_action.jsx";
 
 const ModalBookingService = lazy(() => import("./ModalBookingService.jsx"));
 
@@ -41,6 +42,7 @@ class BookingService extends React.Component {
     );
   }
   handleSubmit(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
       // nama: hasil.nama,
       // alamat: hasil.alamat,
@@ -69,8 +71,11 @@ class BookingService extends React.Component {
     AxiosMasterPost("service/booking/post-transaksi", data)
       .then(() => NotifSucces("Booking Berhasil"))
       .then(() => this.props.dispatch(reset("ModalBookingService")))
+      .then(() => this.props.dispatch(onFinish()))
       .catch((err) =>
-        NotifError(`Booking Gagal, Error : ${err.response.data}`)
+        NotifError(`Booking Gagal, Error : ${err.response.data}`).then(() =>
+          this.props.dispatch(onFinish())
+        )
       );
     // array.push(data);
     // localStorage.setItem("BookingService_temp", JSON.stringify(array));

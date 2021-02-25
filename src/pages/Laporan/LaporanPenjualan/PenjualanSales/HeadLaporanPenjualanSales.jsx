@@ -30,7 +30,12 @@ class HeadLaporanPenjualanSales extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="row">
           <div className="col-lg-3">
             <Field
@@ -62,8 +67,17 @@ class HeadLaporanPenjualanSales extends Component {
           </div>
           <div className="col-lg-12">
             <div className="text-right">
-              <button className="btn btn-primary">
-                Lihat Data <i className="fa fa-print ml-3"></i>
+              <button className="btn btn-primary" disabled={this.props.onSend}>
+                {this.props.onSend ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                    Menyiapkan Laporan
+                  </>
+                ) : (
+                  <>
+                    Lihat Data <i className="fa fa-print ml-3 "></i>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -80,5 +94,6 @@ HeadLaporanPenjualanSales = reduxForm({
 export default connect((state) => {
   return {
     listsales: state.datamaster.listsales,
+    onSend: state.datamaster.onSend,
   };
 })(HeadLaporanPenjualanSales);

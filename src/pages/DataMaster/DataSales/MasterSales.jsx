@@ -49,7 +49,10 @@ const hapusDataKategori = (params, dispatch) => {
     showConfirmButton: true,
   }).then((result) => {
     if (result.isConfirmed) {
-      AxiosMasterDelete("pegawai/delete/by-kode-pegawai/" + params)
+      AxiosMasterDelete(
+        this.props.dispatch,
+        "pegawai/delete/by-kode-pegawai/" + params
+      )
         .then(() => dispatch(hideModal()))
         .then(() => dispatch(getSales()))
         .then(() => NotifSucces("Data Berhasil Dihapus"));
@@ -198,6 +201,7 @@ class MasterSales extends React.Component {
     console.log(data);
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "pegawai/update/by-kode-pegawai/" + hasil.kode_pegawai,
           dataEdit
         )

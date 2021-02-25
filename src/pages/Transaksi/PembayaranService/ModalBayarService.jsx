@@ -5,6 +5,7 @@ import { createNumberMask } from "redux-form-input-masks";
 import { getListPembayaran } from "../../../actions/transaksi_action";
 import { ReanderFieldInline } from "../../../components/notification/notification";
 import Tabel from "../../../components/Tabel/tabel";
+import { required } from "../../../validasi/normalize";
 
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
@@ -28,7 +29,12 @@ class ModalBayarService extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="row">
           <div className="col-lg-12 mb-3">
             <div className="col-lg-12">
@@ -66,6 +72,7 @@ class ModalBayarService extends Component {
                           className=" form-control-lg"
                           onChange={(e) => this.setBayar(e)}
                           {...currencyMask}
+                          validate={required}
                         />
                       </div>
                     </div>
@@ -140,14 +147,17 @@ class ModalBayarService extends Component {
             </div>
           </div>
           <div className="text-center col-lg-6">
-            <button
-              className="btn-lg btn-primary btn-block"
-              disabled={this.props.onSend}
-            >
+            <button className="btn btn-primary" disabled={this.props.onSend}>
               {this.props.onSend ? (
-                <i className="fas fa-spinner fa-spin"></i>
-              ) : null}
-              BAYAR <i className="fa fa-money-bill-alt ml-3"></i>
+                <>
+                  <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                  Menyimpan
+                </>
+              ) : (
+                <>
+                  Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                </>
+              )}
             </button>
           </div>
         </div>

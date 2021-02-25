@@ -16,7 +16,12 @@ import {
   NotifError,
   NotifSucces,
 } from "../../../components/notification/notification.jsx";
-import { getFaktur, hideModal } from "../../../actions/datamaster_action.jsx";
+import {
+  getFaktur,
+  hideModal,
+  onFinish,
+  onProgress,
+} from "../../../actions/datamaster_action.jsx";
 import { reset } from "redux-form";
 import { multipleDeleteLocal } from "../../../components/notification/function.jsx";
 
@@ -42,6 +47,7 @@ class PembayaranSupplier extends React.Component {
     this.props.dispatch(getFaktur());
   }
   handleSubmit(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
       no_bayar_supplier: localStorage.getItem("no_bayar_supplier"),
       tanggal: hasil.tanggal_terima,
@@ -59,7 +65,11 @@ class PembayaranSupplier extends React.Component {
     };
     console.log(JSON.stringify(data));
     // return false;
-    AxiosMasterPost("bayar-hutang-supplier/post-transaksi", data)
+    AxiosMasterPost(
+      this.props.dispatch,
+      "bayar-hutang-supplier/post-transaksi",
+      data
+    )
       .then(() =>
         CetakNota(
           "Tanggal",
@@ -99,8 +109,13 @@ class PembayaranSupplier extends React.Component {
       .then(() => this.props.dispatch(reset("ModalPembayaranSupplier")))
       .then(() => this.props.dispatch(getFaktur()))
       .then(() => this.props.dispatch(hideModal()))
+      .then(() => this.props.dispatch(onFinish()))
       .then(() => window.location.reload())
-      .catch((err) => NotifError(err.response.data));
+      .catch((err) =>
+        NotifError(err.response.data).then(() =>
+          this.props.dispatch(onFinish())
+        )
+      );
   }
 
   handleCari(data) {

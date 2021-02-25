@@ -232,6 +232,7 @@ class MasterSupplier extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "supplier/update/by-kode-supplier/" + hasil.kode_supplier,
           dataEdit
         )

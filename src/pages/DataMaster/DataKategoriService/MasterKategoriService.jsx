@@ -51,6 +51,7 @@ const hapusDataKategori = (params, dispatch) => {
   }).then((result) => {
     if (result.isConfirmed) {
       AxiosMasterDelete(
+        this.props.dispatch,
         "kategori-service/delete/by-id-kategori-service/" + params
       )
         .then(() => dispatch(hideModal()))
@@ -70,12 +71,12 @@ class MasterKategoriService extends React.Component {
       columns: [
         {
           dataField: "id_kategori_service",
-          text: "Jenis Kategori",
+          text: "ID Kategori",
           sort: true,
         },
         {
           dataField: "kategori_service",
-          text: "Jenis Service",
+          text: "Jenis Kategori",
           sort: true,
         },
         {
@@ -155,6 +156,7 @@ class MasterKategoriService extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "kategori-service/update/by-id-kategori-service/" +
             hasil.id_kategori_service || "-",
           dataEdit

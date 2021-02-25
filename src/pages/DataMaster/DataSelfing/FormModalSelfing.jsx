@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, submit } from "redux-form";
 import { AxiosMasterGet } from "../../../axios";
 import {
   ReanderField,
@@ -42,7 +42,12 @@ class FormModalSelfing extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <Field
           name="kode_selving"
           component={ReanderField}
@@ -76,7 +81,11 @@ class FormModalSelfing extends Component {
           placeholder="Masukan Nama Selving"
           validate={required}
         />
-        <button className="btn btn-primary" disabled={this.props.onSend}>
+        <button
+          className="btn btn-primary"
+          disabled={this.props.onSend}
+          onClick={() => this.props(submit("dataSelving"))}
+        >
           {this.props.onSend ? (
             <>
               <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang Menyimpan

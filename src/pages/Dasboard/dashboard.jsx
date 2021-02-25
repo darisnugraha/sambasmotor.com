@@ -6,6 +6,7 @@ import {
   PanelBody,
 } from "../../components/panel/panel.jsx";
 // import { Line } from "react-chartjs-2";
+import hasil from "../../assets/QC/QC.docx";
 
 class DashboardV1 extends React.Component {
   constructor(props) {
@@ -256,10 +257,11 @@ class DashboardV1 extends React.Component {
               <PanelHeader>
                 <PanelBody>
                   <h2>Changelog :</h2>
-                  <h4>2/10/2021</h4>
-                  <h5>- Perbaikan hasil QC</h5>
-                  <h5>- Fitur Transaksi Supplier sudah bisa digunakan</h5>
-                  <h5>- Fitur Laporan Supplier sudah bisa digunakan</h5>
+                  <h4>2/25/2021</h4>
+                  <h5>Perbaikan Hasil QC 3</h5>
+                  <a href={hasil} download>
+                    DOWNLOAD LAMPIRAN
+                  </a>
                 </PanelBody>
               </PanelHeader>
             </Panel>

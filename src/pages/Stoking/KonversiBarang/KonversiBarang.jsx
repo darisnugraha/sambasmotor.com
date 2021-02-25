@@ -4,14 +4,21 @@ import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import Skeleton from "react-loading-skeleton";
 import ModalGlobal from "../../ModalGlobal.jsx";
-import { NotifSucces } from "../../../components/notification/notification.jsx";
+import {
+  NotifSucces,
+  ToastError,
+} from "../../../components/notification/notification.jsx";
 import {
   Panel,
   PanelBody,
   PanelHeader,
 } from "../../../components/panel/panel.jsx";
 import HeadKonversiBarang from "./HeadKonversiBarang.jsx";
-import { hideModal } from "../../../actions/datamaster_action.jsx";
+import {
+  hideModal,
+  onFinish,
+  onProgress,
+} from "../../../actions/datamaster_action.jsx";
 import CetakNota from "../CetakNota.jsx";
 import { getKonversiTemp } from "../../../actions/stocking_action.jsx";
 import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
@@ -158,6 +165,7 @@ class KonversiBarang extends React.Component {
       .then(() => this.props.dispatch(hideModal()));
   }
   sendData(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
       no_pindah: hasil.no_pindah,
       tanggal: hasil.tanggal,
@@ -228,7 +236,10 @@ class KonversiBarang extends React.Component {
       )
       .then(() => this.props.dispatch(getKonversiTemp()))
       .then(() => this.props.dispatch(reset("permintaanBarang")))
-      .catch((err) => `Error : ${err}`);
+      .then(() => this.props.dispatch(onFinish()))
+      .catch((err) =>
+        ToastError(`Error : ${err}`).then(() => this.props.dispatch(onFinish()))
+      );
   }
   render() {
     return (
@@ -255,7 +266,7 @@ class KonversiBarang extends React.Component {
                 data={this.props.konversi_temp}
                 columns={this.state.columns}
                 keyField="kode_asal"
-                textEmpty="Silahkan Lokasi -> lalu pilih Supplier -> lalu tambah barang"
+                textEmpty="Silahkan pilih Lokasi -> lalu pilih Supplier -> lalu tambah barang"
               />
             </div>
 

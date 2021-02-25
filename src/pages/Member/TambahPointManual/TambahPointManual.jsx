@@ -1,8 +1,12 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { reset } from "redux-form";
+import { onFinish, onProgress } from "../../../actions/datamaster_action";
+import { AxiosMasterPost } from "../../../axios";
+import {
+  NotifError,
+  NotifSucces,
+} from "../../../components/notification/notification";
 import { Panel, PanelBody, PanelHeader } from "../../../components/panel/panel";
-import { simpanLocal } from "../../../config/Helper";
 import HeadTambahPointManual from "./HeadTambahPointManual";
 
 class TambahPointManual extends Component {
@@ -11,18 +15,26 @@ class TambahPointManual extends Component {
     this.state = {};
   }
   handleSubmit(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
-      kode_member: hasil.kode_member,
-      nama_member: hasil.nama_member,
-      jumlah: hasil.jumlah,
-      hadiah: hasil.hadiah,
-      point: hasil.point,
-      sisa_point: hasil.sisa_point,
-      sisa_hadiah: hasil.sisa_hadiah,
+      kode_customer: hasil.kode_customer,
+      jenis_trx: hasil.jenis,
+      poin: hasil.poin,
     };
 
-    simpanLocal("TambahPointManual", data);
-    this.props.dispatch(reset("HeadTambahPointManual"));
+    AxiosMasterPost(
+      this.props.dispatch,
+      "member/tambah-ambil-poin-manual",
+      data
+    )
+      .then(() => this.props.dispatch(onFinish()))
+      .then(() =>
+        NotifSucces(`${hasil.jenis} Berhasil`).catch((err) =>
+          NotifError(
+            `Gagal ${hasil.jenis}, Error: ${err.response.data}`
+          ).then(() => this.props.dispatch(onFinish()))
+        )
+      );
   }
   render() {
     return (

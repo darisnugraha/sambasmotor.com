@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, submit } from "redux-form";
 import {
   ReanderField,
   ReanderSelect,
@@ -33,7 +33,12 @@ class FormModalKategoriService extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <Field
           name="id_kategori_service"
           component={ReanderField}
@@ -88,7 +93,11 @@ class FormModalKategoriService extends Component {
           placeholder="Masukan Jenis Service"
           validate={required}
         />
-        <button className="btn btn-primary" disabled={this.props.onSend}>
+        <button
+          className="btn btn-primary"
+          disabled={this.props.onSend}
+          onClick={() => this.props(submit("dataKategoriService"))}
+        >
           {this.props.onSend ? (
             <>
               <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang Menyimpan

@@ -22,7 +22,12 @@ class ModalDetailBarangSparepart extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="row">
           <div className="col-lg-6">
             <div className="col-lg-12">

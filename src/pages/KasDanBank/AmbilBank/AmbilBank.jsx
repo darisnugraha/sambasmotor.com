@@ -2,7 +2,11 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { reset } from "redux-form";
-import { getFaktur } from "../../../actions/datamaster_action";
+import {
+  getFaktur,
+  onFinish,
+  onProgress,
+} from "../../../actions/datamaster_action";
 import { AxiosMasterPost } from "../../../axios";
 import { multipleDeleteLocal } from "../../../components/notification/function";
 import {
@@ -22,6 +26,7 @@ class AmbilBank extends Component {
     this.props.dispatch(getFaktur());
   }
   handleSubmit(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
       no_ref: this.props.noFaktur,
       no_ac: `${hasil.no_ac}`,
@@ -35,8 +40,11 @@ class AmbilBank extends Component {
         .then(() => this.props.dispatch(reset("HeadAmbilBank")))
         .then(() => multipleDeleteLocal(["noFaktur"]))
         .then(() => this.props.dispatch(getFaktur()))
+        .then(() => this.props.dispatch(onFinish()))
         .catch((err) =>
-          ToastError(`Gagal Tambah Uang, Error : ${err.response.data}`)
+          ToastError(
+            `Gagal Tambah Uang, Error : ${err.response.data}`
+          ).then(() => this.props.dispatch(onFinish()))
         )
     );
   }

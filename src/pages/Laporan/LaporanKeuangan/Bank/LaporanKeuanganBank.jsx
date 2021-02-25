@@ -8,6 +8,8 @@ import {
 } from "../../../../components/panel/panel";
 import HeadLaporanKeuanganBank from "./HeadLaporanKeuanganBank";
 import CetakKeuanganBank from "./CetakKeuanganBank";
+import { ToastError } from "../../../../components/notification/notification";
+import { onFinish, onProgress } from "../../../../actions/datamaster_action";
 
 class LaporanKeuanganBank extends Component {
   constructor(props) {
@@ -16,10 +18,12 @@ class LaporanKeuanganBank extends Component {
   }
 
   getLaporan(hasil) {
+    this.props.dispatch(onProgress());
     AxiosMasterGet(
       "laporan/keuangan/lap-bank/" +
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}&${hasil.no_ac}`
     )
+      .then(() => this.props.dispatch(onFinish()))
       .then((res) =>
         this.setState({
           listLaporan: res.data,
@@ -31,7 +35,9 @@ class LaporanKeuanganBank extends Component {
           hasil.tanggal_akhir,
           this.state.listLaporan
         )
-      );
+      )
+      .catch((err) => ToastError("Error Get Data"))
+      .then(() => this.props.dispatch(onFinish()));
   }
   render() {
     return (

@@ -1,7 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
-import { showModal } from "../../../actions/datamaster_action";
+import {
+  onFinish,
+  onProgress,
+  showModal,
+} from "../../../actions/datamaster_action";
 import { AxiosMasterGet } from "../../../axios";
 import {
   ReanderField,
@@ -13,6 +17,7 @@ const maptostate = (state) => {
     initialValues: {
       no_pindah: localStorage.getItem("no_pindah") || "",
     },
+    onSend: state.datamaster.onSend,
   };
 };
 class HeadKonversiBarang extends Component {
@@ -24,28 +29,34 @@ class HeadKonversiBarang extends Component {
     };
   }
   componentDidMount() {
-    AxiosMasterGet("lokasi-gudang/get/all").then((res) =>
-      this.setState({
-        listLokasi: res.data.map((list) => {
-          let data = {
-            value: list.kode_lokasi_gudang,
-            name: `${list.nama_lokasi_gudang} - (${list.kode_lokasi_gudang})`,
-          };
-          return data;
-        }),
-      })
-    );
-    AxiosMasterGet("supplier/get/all").then((res) =>
-      this.setState({
-        listSupplier: res.data.map((list) => {
-          let data = {
-            value: list.kode_supplier,
-            name: `${list.nama_supplier} - (${list.kode_supplier})`,
-          };
-          return data;
-        }),
-      })
-    );
+    this.props.dispatch(onProgress());
+    AxiosMasterGet("lokasi-gudang/get/all")
+      .then((res) =>
+        this.setState({
+          listLokasi: res.data.map((list) => {
+            let data = {
+              value: list.kode_lokasi_gudang,
+              name: `${list.nama_lokasi_gudang} - (${list.kode_lokasi_gudang})`,
+            };
+            return data;
+          }),
+        })
+      )
+      .then(() => this.props.dispatch(onFinish()));
+    this.props.dispatch(onProgress());
+    AxiosMasterGet("supplier/get/all")
+      .then((res) =>
+        this.setState({
+          listSupplier: res.data.map((list) => {
+            let data = {
+              value: list.kode_supplier,
+              name: `${list.nama_supplier} - (${list.kode_supplier})`,
+            };
+            return data;
+          }),
+        })
+      )
+      .then(() => this.props.dispatch(onFinish()));
     AxiosMasterGet("konversi-barang/generate/no-trx").then((res) =>
       this.props.change("no_pindah", res.data[0].no_pindah)
     );
@@ -111,8 +122,17 @@ class HeadKonversiBarang extends Component {
             <div className="row">
               <div className="col-lg-6">
                 <div className="text-left">
-                  <button type="submit" className="btn btn-primary">
-                    Simpan <i className="fa fa-paper-plane"></i>
+                  <button className="btn btn-primary">
+                    {this.props.onSend ? (
+                      <>
+                        <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                        Menyimpan
+                      </>
+                    ) : (
+                      <>
+                        Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

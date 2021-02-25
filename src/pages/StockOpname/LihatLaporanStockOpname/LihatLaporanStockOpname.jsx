@@ -1,17 +1,38 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
+import { onFinish, onProgress } from "../../../actions/datamaster_action";
+import { AxiosMasterGet } from "../../../axios";
+import { ToastError } from "../../../components/notification/notification";
 import { Panel, PanelBody, PanelHeader } from "../../../components/panel/panel";
+import CetakStockOpname from "./CetakStockOpname";
 import HeadLihatLaporanStockOpname from "./HeadLihatLaporanStockOpname";
 
 class StockOpname extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      listLaporan: [],
+    };
   }
 
   handleSubmit(hasil) {
-    console.log(hasil);
+    this.props.dispatch(onProgress());
+    AxiosMasterGet(
+      `laporan/lap-stock-opname/${hasil.tanggal_awal}&${hasil.tanggal_akhir}`
+    )
+      .then((res) => console.log(res.data))
+      .then(() =>
+        CetakStockOpname(
+          hasil.tanggal_awal,
+          hasil.tanggal_akhir,
+          this.state.listLaporan
+        )
+      )
+      .then(() => this.props.dispatch(onFinish()))
+      .catch((err) =>
+        ToastError(`Error Get Data , Error : ${err.response.data}`)
+      );
   }
   render() {
     return (

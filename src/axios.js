@@ -10,10 +10,12 @@ export function AxiosMasterGet(endpoint) {
   return new Promise((resolve, reject) => {
     Axios.get(server + endpoint, config)
       .then((res) => resolve(res))
+
       .catch((err) => {
         if (err.response) {
           if (err.response.status === 402) {
             localStorage.setItem("islogin", false);
+
             window.location.reload();
           } else {
             reject(err);
@@ -29,10 +31,12 @@ export function AxiosMasterPost(endpoint, data) {
   return new Promise((resolve, reject) => {
     Axios.post(server + endpoint, data, config)
       .then((res) => resolve(res))
+
       .catch((err) => {
         if (err.response) {
           if (err.response.status === 402) {
             localStorage.setItem("islogin", false);
+
             window.location.reload();
           } else {
             reject(err);
@@ -48,10 +52,12 @@ export function AxiosMasterDelete(endpoint, data) {
   return new Promise((resolve, reject) => {
     Axios.delete(server + endpoint, config)
       .then((res) => resolve(res))
+
       .catch((err) => {
         if (err.response) {
           if (err.response.status === 402) {
             localStorage.setItem("islogin", false);
+
             window.location.reload();
           } else {
             reject(err);
@@ -67,10 +73,12 @@ export function AxiosMasterPut(endpoint, data) {
   return new Promise((resolve, reject) => {
     Axios.put(server + endpoint, data, config)
       .then((res) => resolve(res))
+
       .catch((err) => {
         if (err.response) {
           if (err.response.status === 402) {
             localStorage.setItem("islogin", false);
+
             window.location.reload();
           } else {
             reject(err);

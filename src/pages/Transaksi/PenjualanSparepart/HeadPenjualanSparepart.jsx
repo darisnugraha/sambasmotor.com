@@ -6,10 +6,12 @@ import { getToday } from "../../../components/notification/function";
 import {
   ReanderField,
   ReanderSelect,
+  ToastSucces,
   ToastWarning,
 } from "../../../components/notification/notification";
 import Tabel from "../../../components/Tabel/tabel";
 import { required } from "../../../validasi/normalize";
+import { getListBarang } from "../../../actions/transaksi_action";
 
 class HeadPenjualanSparepart extends Component {
   constructor(props) {
@@ -95,9 +97,21 @@ class HeadPenjualanSparepart extends Component {
     localStorage.setItem("penjualan_sparepart_telepon", data[2]);
     this.props.change("telepon", data[2]);
   }
+  DeleteTukar() {
+    if (localStorage.getItem("tukarSparepart_temp") !== null) {
+      localStorage.removeItem("tukarSparepart_temp");
+      ToastSucces("Tukar Berhasil Dihapus");
+      this.props.dispatch(getListBarang());
+    }
+  }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="row">
           <div className="col-lg-3">
             <Field
@@ -239,7 +253,7 @@ class HeadPenjualanSparepart extends Component {
                   <button
                     className="btn btn-danger mr-3"
                     type="button"
-                    onClick={() => this.props.setCariBarang("TUKAR")}
+                    onClick={() => this.DeleteTukar()}
                   >
                     Hapus Barang Tukar<i className="fa fa-trash ml-3"></i>
                   </button>

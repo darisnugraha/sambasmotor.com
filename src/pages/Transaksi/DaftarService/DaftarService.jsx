@@ -18,6 +18,8 @@ import { getListService } from "../../../actions/transaksi_action.jsx";
 import {
   getFaktur,
   hideModal,
+  onFinish,
+  onProgress,
   showModal,
 } from "../../../actions/datamaster_action.jsx";
 import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
@@ -53,6 +55,7 @@ class BookingService extends React.Component {
     );
   }
   handleSubmit(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
       no_booking: hasil.booking ? true : false,
       no_daftar: hasil.no_faktur,
@@ -80,9 +83,12 @@ class BookingService extends React.Component {
           .then(() => localStorage.removeItem("list_service_daftar_temp"))
           .then(() => this.props.dispatch(reset("ModalDaftarService")))
           .then(() => this.props.dispatch(getListService()))
+          .then(() => this.props.dispatch(onFinish()))
       )
       .catch((err) =>
-        ToastError(`Terjadi Kesalahan Saat Menyimpan, Error :${err}`)
+        ToastError(`Terjadi Kesalahan Saat Menyimpan, Error :${err}`).then(() =>
+          this.props.dispatch(onFinish())
+        )
       );
   }
   showBooking() {

@@ -1,7 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
-import { showModal } from "../../../actions/datamaster_action";
+import {
+  onFinish,
+  onProgress,
+  showModal,
+} from "../../../actions/datamaster_action";
 import {
   deleteLocalItemBarcode,
   ReanderField,
@@ -18,6 +22,7 @@ const maptostate = (state) => {
     initialValues: {
       no_permintaan: localStorage.getItem("kode_permintaan_barang") || "",
     },
+    onSend: state.datamaster.onSend,
   };
 };
 class HeadPermintaanBarang extends Component {
@@ -103,44 +108,52 @@ class HeadPermintaanBarang extends Component {
     });
   }
   componentDidMount() {
-    AxiosMasterGet("divisi/get/all").then((res) =>
-      this.setState({
-        listDivisi: res.data.map((list) => {
-          let data = {
-            value: list.kode_divisi,
-            name: list.nama_divisi,
-          };
-          return data;
-        }),
-      })
-    );
-    AxiosMasterGet("supplier/get/all").then((res) =>
-      this.setState({
-        listSupplier: res.data.map((list) => {
-          let data = {
-            value: list.kode_supplier,
-            name: `${list.nama_supplier} ( ${list.kode_supplier} )`,
-          };
-          return data;
-        }),
-      })
-    );
+    this.props.dispatch(onProgress());
+    AxiosMasterGet("divisi/get/all")
+      .then((res) =>
+        this.setState({
+          listDivisi: res.data.map((list) => {
+            let data = {
+              value: list.kode_divisi,
+              name: list.nama_divisi,
+            };
+            return data;
+          }),
+        })
+      )
+      .then(() => this.props.dispatch(onFinish()));
+    AxiosMasterGet("supplier/get/all")
+      .then((res) =>
+        this.setState({
+          listSupplier: res.data.map((list) => {
+            let data = {
+              value: list.kode_supplier,
+              name: `${list.nama_supplier} ( ${list.kode_supplier} )`,
+            };
+            return data;
+          }),
+        })
+      )
+      .then(() => this.props.dispatch(onFinish()));
     AxiosMasterGet("permintaan-barang/generate/no-trx").then((res) =>
       this.props.change("no_permintaan", res.data[0].no_permintaan)
     );
   }
   getSales(hasil) {
-    AxiosMasterGet("pegawai/get/by-kode-divisi/" + hasil).then((res) =>
-      this.setState({
-        listSales: res.data.map((list) => {
-          let data = {
-            value: list.kode_pegawai,
-            name: list.nama_pegawai,
-          };
-          return data;
-        }),
-      })
-    );
+    this.props.dispatch(onProgress());
+    AxiosMasterGet("pegawai/get/by-kode-divisi/" + hasil)
+      .then((res) =>
+        this.setState({
+          listSales: res.data.map((list) => {
+            let data = {
+              value: list.kode_pegawai,
+              name: list.nama_pegawai,
+            };
+            return data;
+          }),
+        })
+      )
+      .then(() => this.props.dispatch(onFinish()));
   }
   render() {
     return (
@@ -167,6 +180,7 @@ class HeadPermintaanBarang extends Component {
                   label="Divisi"
                   placeholder="Masukan Divisi"
                   onChange={(e) => this.getSales(e)}
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -177,6 +191,7 @@ class HeadPermintaanBarang extends Component {
                   type="text"
                   label="Pegawai"
                   placeholder="Masukan Pegawai"
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -220,7 +235,16 @@ class HeadPermintaanBarang extends Component {
         <div className="col-lg-12 mb-5 mt-3">
           <div className="text-right">
             <button className="btn btn-primary">
-              Simpan <i className="fa fa-paper-plane ml-3"></i>
+              {this.props.onSend ? (
+                <>
+                  <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                  Menyimpan
+                </>
+              ) : (
+                <>
+                  Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                </>
+              )}
             </button>
           </div>
         </div>

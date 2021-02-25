@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, submit } from "redux-form";
 import { createNumberMask } from "redux-form-input-masks";
+import { getParameter } from "../../../actions/member_action";
 import { ReanderField } from "../../../components/notification/notification";
 
 const currencyMask = createNumberMask({
@@ -14,13 +15,21 @@ class HeadParameterPoint extends Component {
     super(props);
     this.state = {};
   }
+  componentDidMount() {
+    this.props.dispatch(getParameter());
+  }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="row">
           <div className="col-lg-5">
             <Field
-              name="total_rupiah"
+              name="rupiah"
               component={ReanderField}
               type="telp"
               label="Total Rupiah (Rp)"
@@ -35,7 +44,7 @@ class HeadParameterPoint extends Component {
           </div>
           <div className="col-lg-5">
             <Field
-              name="total_point"
+              name="poin"
               component={ReanderField}
               type="number"
               label="Total Point"
@@ -44,8 +53,21 @@ class HeadParameterPoint extends Component {
           </div>
           <div className="col-lg-12">
             <div className="text-right">
-              <button className="btn btn-primary">
-                Simpan <i className="fa fa-paper-plane"></i>
+              <button
+                className="btn btn-primary"
+                disabled={this.props.onSend}
+                onClick={() => this.props(submit("HeadParameterPoint"))}
+              >
+                {this.props.onSend ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                    Menyimpan
+                  </>
+                ) : (
+                  <>
+                    Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -59,4 +81,13 @@ HeadParameterPoint = reduxForm({
   form: "HeadParameterPoint",
   enableReinitialize: true,
 })(HeadParameterPoint);
-export default connect()(HeadParameterPoint);
+export default connect((state) => {
+  return {
+    parameter: state.member.parameter,
+    initialValues: {
+      rupiah: state.member.parameter_rupiah,
+      poin: state.member.parameter_poin,
+    },
+    onSend: state.datamaster.onSend,
+  };
+})(HeadParameterPoint);

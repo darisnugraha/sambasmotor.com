@@ -8,6 +8,8 @@ import ModalPenjualanSparepart from "./ModalPenjualanSparepart";
 import {
   getFaktur,
   hideModal,
+  onFinish,
+  onProgress,
   showModal,
 } from "../../../actions/datamaster_action";
 import { connect } from "react-redux";
@@ -86,6 +88,7 @@ class PenjualanSparepart extends Component {
     localStorage.setItem("headSparepart", JSON.stringify(data));
   }
   sendData(hasil) {
+    this.props.dispatch(onProgress());
     let array = JSON.parse(localStorage.getItem("headSparepart")) || [];
     array["cash_rp"] = hasil.bayar;
     array["status_masuk_piutang"] = hasil.piutang || false;
@@ -150,8 +153,11 @@ class PenjualanSparepart extends Component {
       .then(() => this.props.dispatch(getListBarang()))
       .then(() => this.props.dispatch(getFaktur()))
       .then(() => this.props.dispatch(reset("HeadPenjualanSparepart")))
+      .then(() => this.props.dispatch(onFinish()))
       .catch((err) =>
-        ToastError(`Gagal Menambah Data, Error : ${err.response.data}`)
+        ToastError(
+          `Gagal Menambah Data, Error : ${err.response.data}`
+        ).then(() => this.props.dispatch(onFinish()))
       );
   }
   setCariBarang(data) {

@@ -72,6 +72,7 @@ const Menu = [
       { path: "stocking-pengeluaran", title: "Pengeluaran Barang" },
       { path: "stocking-konversi", title: "Konversi Barang" },
       { path: "stocking-hancur", title: "Hancur Barang" },
+      { path: "stocking-tambah", title: "Tambah Stock Barang" },
       { path: "stocking-kunci", title: "Kunci Barang" },
     ],
   },
@@ -188,7 +189,7 @@ const Menu = [
         children: [
           {
             path: "laporan-penjualan-sparepart",
-            title: "Laporan Penjualan Spearpart",
+            title: "Laporan Penjualan Sparepart",
           },
           { path: "laporan-penjualan-sales", title: "Laporan Penjualan Sales" },
           { path: "laporan-mekanik", title: "Laporan Laporan Mekanik" },
@@ -207,7 +208,7 @@ const Menu = [
           { path: "laporan-return-customer", title: "Laporan Retur Customer" },
           {
             path: "laporan-pembayaran-customer",
-            title: "Laporan Pembyaran Piutang",
+            title: "Laporan Pembayaran Piutang",
           },
         ],
       },

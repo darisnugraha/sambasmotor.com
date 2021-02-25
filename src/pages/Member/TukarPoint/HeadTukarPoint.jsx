@@ -1,94 +1,137 @@
 import React, { Component } from "react";
+import BootstrapTable from "react-bootstrap-table-next";
+import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit";
 import { connect } from "react-redux";
-import { Field, reduxForm } from "redux-form";
-import { ReanderField } from "../../../components/notification/notification";
+import { reduxForm, submit } from "redux-form";
+import {
+  getListHadiah,
+  getListMember,
+  pilihcustomer,
+} from "../../../actions/member_action";
+import paginationFactory from "react-bootstrap-table2-paginator";
+import { showModal } from "../../../actions/datamaster_action";
 
+const { SearchBar } = Search;
 class HeadTukarPoint extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      columns: [
+        {
+          dataField: "nama_customer",
+          text: "Nama Customer",
+        },
+        {
+          dataField: "alamat",
+          text: "Alamat",
+        },
+        {
+          dataField: "kota",
+          text: "Kota",
+        },
+        {
+          dataField: "no_ktp",
+          text: "Nomor KTP",
+        },
+        {
+          dataField: "tgl_lahir",
+          text: "Tangga Lahir",
+        },
+
+        {
+          dataField: "handphone",
+          text: "Handphone",
+        },
+        {
+          dataField: "nopol_kendaraan",
+          text: "Nomor Polisi",
+        },
+        {
+          dataField: "action",
+          text: "Action",
+          csvExport: false,
+          headerClasses: "text-center",
+          formatter: (rowcontent, hasil, rowIndex) => {
+            this.setState({});
+            return (
+              <div className="row text-center">
+                <div className="col-12">
+                  <button
+                    className="btn btn-warning mr-3"
+                    onClick={() => this.pilih(hasil.kode_customer)}
+                  >
+                    Pilih
+                    <i className="fa fa-gift ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            );
+          },
+        },
+      ],
+    };
+  }
+  componentDidMount() {
+    this.props.dispatch(getListHadiah());
+    this.props.dispatch(getListMember());
+  }
+  pilih(data) {
+    this.props.dispatch(pilihcustomer(data));
+    this.props.dispatch(showModal());
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="row">
-          <div className="col-lg-12 mt-3 mb-3">
-            <div className="text-center">
-              <h4>DATA MEMBER</h4>
-            </div>
-          </div>
-          <div className="col-lg-4">
-            <Field
-              name="kode_member"
-              component={ReanderField}
-              type="text"
-              label="Kode Member"
-              placeholder="Masukan Kode Member"
-            />
-          </div>
-          <div className="col-lg-4">
-            <Field
-              name="nama_member"
-              component={ReanderField}
-              type="text"
-              label="Nama Member"
-              placeholder="Masukan Nama Member"
-            />
-          </div>
-          <div className="col-lg-4">
-            <Field
-              name="jumlah_point"
-              component={ReanderField}
-              type="text"
-              label="Jumlah Point"
-              placeholder="Masukan Jumlah Point"
-            />
-          </div>
-          <div className="col-lg-12 mt-3 mb-3">
-            <div className="text-center">
-              <h4>TUKAR POINT</h4>
-            </div>
-          </div>
-          <div className="col-lg-3">
-            <Field
-              name="hadiah"
-              component={ReanderField}
-              type="text"
-              label="Hadiah"
-              placeholder="Masukan Hadiah"
-            />
-          </div>
-          <div className="col-lg-2">
-            <Field
-              name="point"
-              component={ReanderField}
-              type="text"
-              label="Point"
-              placeholder="Masukan Point"
-            />
-          </div>
-          <div className="col-lg-2">
-            <Field
-              name="sisa_point"
-              component={ReanderField}
-              type="text"
-              label="Sisa Point"
-              placeholder="Masukan Sisa Point"
-            />
-          </div>
-          <div className="col-lg-2">
-            <Field
-              name="sisa_hadiah"
-              component={ReanderField}
-              type="text"
-              label="Sisa Hadiah"
-              placeholder="Masukan Sisa Hadiah"
-            />
-          </div>
+          <ToolkitProvider
+            keyField="no_ktp"
+            data={this.props.listmember || []}
+            columns={this.state.columns}
+            search
+            exportCSV={{
+              fileName: "Export Master Kategori.csv",
+            }}
+          >
+            {(props) => (
+              <div className="row mt-3">
+                <div className="col-6">
+                  <div className="text-left">
+                    <SearchBar {...props.searchProps} />
+                  </div>
+                </div>
+                <hr />
+                <div className="col-12 mt-3">
+                  <BootstrapTable
+                    pagination={paginationFactory()}
+                    {...props.baseProps}
+                  />
+                  <br />
+                </div>
+              </div>
+            )}
+          </ToolkitProvider>
           <div className="col-lg-12">
             <div className="text-right">
-              <button className="btn btn-primary">
-                Simpan <i className="fa fa-paper-plane ml-3"></i>
+              <button
+                className="btn btn-primary"
+                disabled={this.props.onSend}
+                onClick={() => this.props(submit("HeadTukarPoint"))}
+              >
+                {this.props.onSend ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                    Menyimpan
+                  </>
+                ) : (
+                  <>
+                    Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -102,4 +145,10 @@ HeadTukarPoint = reduxForm({
   form: "HeadTukarPoint",
   enableReinitialize: true,
 })(HeadTukarPoint);
-export default connect()(HeadTukarPoint);
+export default connect((state) => {
+  return {
+    listhadiah: state.member.listhadiah,
+    listmember: state.member.listmember,
+    onSend: state.datamaster.onSend,
+  };
+})(HeadTukarPoint);

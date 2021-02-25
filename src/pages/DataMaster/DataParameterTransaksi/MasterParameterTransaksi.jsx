@@ -52,7 +52,10 @@ const hapusDataKategori = (params, dispatch) => {
     showConfirmButton: true,
   }).then((result) => {
     if (result.isConfirmed) {
-      AxiosMasterDelete("kategori-transaksi/delete/by-id-kategori/" + params)
+      AxiosMasterDelete(
+        this.props.dispatch,
+        "kategori-transaksi/delete/by-id-kategori/" + params
+      )
         .then(() => dispatch(hideModal()))
         .then(() => dispatch(getParameter()));
     }
@@ -143,6 +146,7 @@ class MasterParameterTransaksi extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "kategori-transaksi/update/by-id-kategori/" + hasil.id_kategori ||
             "-",
           dataEdit

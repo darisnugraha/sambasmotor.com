@@ -1,6 +1,8 @@
 // This optional code is used to register a service worker.
 // register() is not called by default.
 
+import Swal from "sweetalert2";
+
 // This lets the app load faster on subsequent visits in production, and gives
 // it offline capabilities. However, it also means that developers (and users)
 // will only see deployed updates on subsequent visits to a page, after all the
@@ -70,16 +72,23 @@ function registerValidSW(swUrl, config) {
               // At this point, the updated precached content has been fetched,
               // but the previous service worker will still serve the older
               // content until all client tabs are closed.
-              alert(
-                "Please Close the page, and open again for update the website"
-              );
+              Swal.fire({
+                title: "Update Available..",
+                text:
+                  "Please Close This Tab / Browser and Open Again, Thanks...",
+                icon: "info",
+                showConfirmButton: true,
+                confirmButtonText: "OK",
+              });
               waitingServiceWorker.postMessage({ type: "SKIP_WAITING" });
               if (waitingServiceWorker) {
                 waitingServiceWorker.addEventListener(
                   "statechange",
                   (event) => {
                     if (event.target.state === "activated") {
-                      window.location.reload();
+                      window.location.replace(
+                        "https://octavian25.github.io/sambasmotor.com/"
+                      );
                     }
                   }
                 );

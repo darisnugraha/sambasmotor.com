@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, submit } from "redux-form";
 import { AxiosMasterGet } from "../../../axios";
 import {
   ReanderField,
@@ -49,7 +49,12 @@ class FormModalSales extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="row">
           <div className="col-lg-6">
             <Field
@@ -155,7 +160,11 @@ class FormModalSales extends Component {
           </div> */}
         </div>
         <div className="col-lg-12">
-          <button className="btn btn-primary" disabled={this.props.onSend}>
+          <button
+            className="btn btn-primary"
+            disabled={this.props.onSend}
+            onClick={() => this.props(submit("dataSales"))}
+          >
             {this.props.onSend ? (
               <>
                 <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang

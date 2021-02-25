@@ -157,7 +157,12 @@ class HeadReturnSupplier extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="row">
           <div className="col-lg-3">
             <Field
@@ -174,8 +179,8 @@ class HeadReturnSupplier extends Component {
               name="no_bon"
               component={ReanderField}
               type="text"
-              label="Nomor Bon"
-              placeholder="Masukan Nomor Bon"
+              label="Nomor Faktur Penerimaan"
+              placeholder="Masukan Nomor Faktur Penerimaan"
               onChange={(hasil) => this.getTerimaBarang(hasil)}
               onBlur={(hasil) => this.getTerimaBarang(hasil)}
             />
@@ -275,8 +280,17 @@ class HeadReturnSupplier extends Component {
           </div>
           <div className="col-lg-12">
             <div className="text-right">
-              <button className="btn btn-primary">
-                Simpan <i className="fa fa-paper-plane ml-3"></i>
+              <button className="btn btn-primary" disabled={this.props.onSend}>
+                {this.props.onSend ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                    Menyimpan
+                  </>
+                ) : (
+                  <>
+                    Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -294,6 +308,7 @@ const selector = formValueSelector("HeadReturnSupplier"); // <-- same as form na
 export default connect((state) => {
   const { sub_total, discount } = selector(state, "sub_total", "discount");
   return {
+    onSend: state.datamaster.onSend,
     total: parseFloat(sub_total || 0) - parseFloat(discount || 0),
     initialValues: {
       sub_total: state.transaksi.sub_total,

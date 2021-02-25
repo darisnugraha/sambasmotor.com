@@ -164,6 +164,7 @@ class MasterKunci extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "kunci/update/by-kode-kunci/" + hasil.kode_kunci || "-",
           dataEdit
         )

@@ -164,6 +164,7 @@ class MasterCustomer extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "customer/update/by-kode-customer/" + hasil.kode_customer,
           dataEdit
         )

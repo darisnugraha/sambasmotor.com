@@ -144,6 +144,7 @@ class MasterMerkBarang extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "merk-barang/update/by-kode-merk-barang/" + hasil.merk_barang || "-",
           { nama_merk_barang: hasil.nama_barang }
         )

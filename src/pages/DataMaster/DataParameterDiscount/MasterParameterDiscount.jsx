@@ -140,6 +140,7 @@ class MasterParameterDiscount extends React.Component {
   handleSubmit(hasil) {
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "kategori/update-diskon/" + hasil.jenis_kategori || "-",
           {
             status_diskon: hasil.jenis_discount || "-",
@@ -150,6 +151,7 @@ class MasterParameterDiscount extends React.Component {
           .then(() => NotifSucces("Diskon Berhasil Ditambahkan"))
           .then(() => this.props.dispatch(getDiskon()))
       : AxiosMasterPut(
+          this.props.dispatch,
           "kategori/update-diskon/" + hasil.jenis_kategori || "-",
           {
             status_diskon: hasil.jenis_discount || "-",

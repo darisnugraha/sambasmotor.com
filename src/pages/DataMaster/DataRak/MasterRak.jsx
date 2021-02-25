@@ -151,6 +151,7 @@ class MasterRak extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "lokasi-rak/update/by-kode-lokasi-rak/" + hasil.kode_rak || "-",
           {
             kode_lokasi_gudang: hasil.kode_gudang || "-",

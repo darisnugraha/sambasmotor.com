@@ -42,7 +42,12 @@ class ModalPembayaranPiutang extends Component {
   render() {
     return (
       <div className="col-lg-12">
-        <form onSubmit={this.props.handleSubmit}>
+        <form
+          onSubmit={this.props.handleSubmit}
+          onKeyPress={(e) => {
+            e.key === "Enter" && e.preventDefault();
+          }}
+        >
           <div className="row">
             <div className="col-lg-6 text-center">
               <h3>Total Piutang</h3>
@@ -150,15 +155,17 @@ class ModalPembayaranPiutang extends Component {
             </div>
             <div className="col-lg-12">
               <div className="text-right">
-                <button
-                  className="btn btn-primary"
-                  disabled={
-                    this.props.total_pembayaran === this.props.total_piutang
-                      ? false
-                      : true
-                  }
-                >
-                  Simpan <i className="fa fa-paper-plane ml-3"></i>
+                <button className="btn btn-primary">
+                  {this.props.onSend ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                      Menyimpan
+                    </>
+                  ) : (
+                    <>
+                      Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                    </>
+                  )}
                 </button>
                 <p className="text-red mt-1">
                   Mohon Bayar Sesuai Nominal Piutang, agar Bisa disimpan
@@ -184,6 +191,7 @@ export default connect((state) => {
     total_piutang: state.transaksi.total_piutang.total_pembayaran,
     total_pembayaran: parseFloat(cash || 0) + parseFloat(transfer || 0),
     listbank: state.datamaster.listbank,
+    onSend: state.datamaster.onSend,
     initialValues: {
       total_piutang: state.transaksi.total_piutang.total_pembayaran,
       kode_customer: state.transaksi.total_piutang.kode_customer,

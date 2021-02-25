@@ -8,6 +8,7 @@ import {
 } from "../../../components/notification/notification";
 import { createNumberMask } from "redux-form-input-masks";
 import { AxiosMasterGet } from "../../../axios";
+import { onFinish, onProgress } from "../../../actions/datamaster_action";
 
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
@@ -30,10 +31,12 @@ class ModalSupplierPenerimaan extends Component {
     this.props.change("total", this.props.total);
   }
   getBarcode(hasil) {
+    this.props.dispatch(onProgress());
     AxiosMasterGet("/barang/get/by-kode-barcode/" + hasil.target.value)
       .then((res) => this.setState({ hasilBarcode: res.data }))
       .then(() => this.setDetail())
-      .catch((err) => console.log(err));
+      .then(() => this.props.dispatch(onFinish()))
+      .catch((err) => this.props.dispatch(onFinish()));
   }
   setDetail() {
     console.log(this.state.hasilBarcode[0].nama_barang);
@@ -70,7 +73,12 @@ class ModalSupplierPenerimaan extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="row">
           <div className="col-lg-4">
             <Field
@@ -78,7 +86,7 @@ class ModalSupplierPenerimaan extends Component {
               component={ReanderField}
               type="text"
               label="Kode Barcode"
-              placeholder="Masukan Kode Barang"
+              placeholder="Masukan Kode Barcode"
               onChange={(hasil) => this.getBarcode(hasil)}
               onBlur={(hasil) => this.getBarcode(hasil)}
               autoFocus
@@ -93,6 +101,7 @@ class ModalSupplierPenerimaan extends Component {
               label="Nama Barang"
               placeholder="Masukan Nama Barang"
               readOnly
+              loading={this.props.onSend}
             />
           </div>
           <div className="col-lg-3">
@@ -110,6 +119,7 @@ class ModalSupplierPenerimaan extends Component {
               label="Merk"
               placeholder="Masukan Merk"
               readOnly
+              loading={this.props.onSend}
             />
           </div>
           <div className="col-lg-3">
@@ -127,6 +137,7 @@ class ModalSupplierPenerimaan extends Component {
               label="Kualitas"
               placeholder="Masukan Kualitas"
               readOnly
+              loading={this.props.onSend}
             />
           </div>
           <div className="col-lg-3">
@@ -137,6 +148,7 @@ class ModalSupplierPenerimaan extends Component {
               label="Type"
               placeholder="Masukan Type"
               readOnly
+              loading={this.props.onSend}
             />
           </div>
           <div className="col-lg-3">
@@ -154,6 +166,7 @@ class ModalSupplierPenerimaan extends Component {
               label="Satuan"
               placeholder="Masukan Satuan"
               readOnly
+              loading={this.props.onSend}
             />
           </div>
           <div className="col-lg-3">
@@ -175,6 +188,7 @@ class ModalSupplierPenerimaan extends Component {
               placeholder="Masukan Harga Satuan"
               onChange={this.setTotal()}
               {...currencyMask}
+              loading={this.props.onSend}
             />
           </div>
           <div className="col-lg-3">
@@ -211,5 +225,6 @@ export default connect((state) => {
   const { harga_satuan, qty } = selector(state, "harga_satuan", "qty");
   return {
     total: parseFloat(harga_satuan || 0) * parseFloat(qty || 0),
+    onSend: state.datamaster.onSend,
   };
 })(ModalSupplierPenerimaan);

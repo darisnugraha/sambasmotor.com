@@ -50,7 +50,10 @@ const hapusDataKategori = (params, dispatch) => {
     showConfirmButton: true,
   }).then((result) => {
     if (result.isConfirmed) {
-      AxiosMasterDelete("ukuran/delete/by-kode-ukuran/" + params)
+      AxiosMasterDelete(
+        this.props.dispatch,
+        "ukuran/delete/by-kode-ukuran/" + params
+      )
         .then(() => dispatch(hideModal()))
         .then(() => dispatch(getUkuran()))
         .then(() => NotifSucces("Data Berhasil Dihapus"));
@@ -147,6 +150,7 @@ class MasterUkuran extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "ukuran/update/by-kode-ukuran/" + hasil.kode_ukuran,
           dataEdit
         )

@@ -48,7 +48,10 @@ const hapusDataKategori = (params, dispatch) => {
     showConfirmButton: true,
   }).then((result) => {
     if (result.isConfirmed) {
-      AxiosMasterDelete("merk-kendaraan/delete/" + params).then(() =>
+      AxiosMasterDelete(
+        this.props.dispatch,
+        "merk-kendaraan/delete/" + params
+      ).then(() =>
         NotifSucces("Berhasil Menghapus Data")
           .then(() => dispatch(getKendaraan()))
           .catch(() =>
@@ -150,6 +153,7 @@ class MasterKendaraan extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "merk-kendaraan/update/by-kode-merk-kendaraan/" +
             hasil.merk_kendaraan,
           { nama_merk_kendaraan: hasil.nama_kendaraan }

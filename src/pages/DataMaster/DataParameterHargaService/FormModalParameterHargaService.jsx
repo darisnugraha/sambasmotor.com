@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Skeleton from "react-loading-skeleton";
 import { connect } from "react-redux";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, submit } from "redux-form";
 import {
   ReanderField,
   ReanderSelect,
@@ -37,7 +37,12 @@ class FormModalParameterHargaService extends Component {
 
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         {this.props.listParameter ? (
           <Field
             name="jenis_kategori"
@@ -69,7 +74,11 @@ class FormModalParameterHargaService extends Component {
           placeholder="Masukan Jasa Service"
         />
 
-        <button className="btn btn-primary mb-3" disabled={this.props.onSend}>
+        <button
+          className="btn btn-primary mb-3"
+          disabled={this.props.onSend}
+          onClick={() => this.props(submit("dataHargaService"))}
+        >
           {this.props.onSend ? (
             <>
               <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang Menyimpan

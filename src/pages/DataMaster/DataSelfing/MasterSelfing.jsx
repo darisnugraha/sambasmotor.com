@@ -152,6 +152,7 @@ class MasterSelfing extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "lokasi-selving/update/by-kode-lokasi-selving/" + hasil.kode_selving,
           {
             kode_lokasi_rak: hasil.kode_rak || "-",

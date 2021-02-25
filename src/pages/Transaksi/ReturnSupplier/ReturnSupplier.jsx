@@ -14,6 +14,7 @@ import {
 } from "../../../components/notification/notification";
 import { AxiosMasterGet, AxiosMasterPost } from "../../../axios";
 import { multipleDeleteLocal } from "../../../components/notification/function";
+import { onFinish, onProgress } from "../../../actions/datamaster_action";
 
 const HeadReturnSupplier = lazy(() =>
   import("../ReturnSupplier/HeadReturnSupplier")
@@ -36,6 +37,7 @@ class SupplierPenerimaan extends Component {
     this.getKodeReturn();
   }
   handleHead(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
       no_retur_supplier: hasil.kode_return,
       tanggal_retur: hasil.tanggal,
@@ -130,8 +132,13 @@ class SupplierPenerimaan extends Component {
       .then(() => this.props.dispatch(reset("HeadSupplierPenerimaan")))
       .then(() => this.getKodeReturn())
       .then(() => this.props.dispatch(getListReturnSupplier()))
+      .then(() => this.props.dispatch(onFinish()))
       .then(() => window.location.reload())
-      .catch((err) => NotifError(err.response.data));
+      .catch((err) =>
+        NotifError(err.response.data).then(() =>
+          this.props.dispatch(onFinish())
+        )
+      );
   }
 
   getKodeReturn() {

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, submit } from "redux-form";
 import { ReanderField } from "../../../components/notification/notification";
 import { required } from "../../../validasi/normalize";
 import ValidasiMasterKategori from "../../../validasi/ValidasiMasterKategori";
@@ -28,7 +28,12 @@ class FormModalDivisi extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <Field
           name="kode_divisi"
           component={ReanderField}
@@ -46,7 +51,11 @@ class FormModalDivisi extends Component {
           placeholder="Masukan Nama Divisi"
           validate={required}
         />
-        <button className="btn btn-primary" disabled={this.props.onSend}>
+        <button
+          className="btn btn-primary"
+          disabled={this.props.onSend}
+          onClick={() => this.props(submit("dataDivisi"))}
+        >
           {this.props.onSend ? (
             <>
               <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang Menyimpan

@@ -142,6 +142,7 @@ class MasterKwalitas extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "kwalitas/update/by-kode-kwalitas/" + hasil.kode_kwalitas || "-",
           { nama_kwalitas: hasil.nama_kwalitas }
         )

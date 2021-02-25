@@ -13,7 +13,12 @@ class HeadCreateUser extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="row">
           <div className="col-lg-12 mb-3">
             <h4>Tambah Data User</h4>
@@ -40,7 +45,7 @@ class HeadCreateUser extends Component {
             <Field
               name="password"
               component={ReanderField}
-              type="text"
+              type="password"
               label="Password"
               placeholder="Masukan Password"
             />
@@ -49,7 +54,7 @@ class HeadCreateUser extends Component {
             <Field
               name="retype_password"
               component={ReanderField}
-              type="text"
+              type="password"
               label="Retype Password"
               placeholder="Masukan Retype Password"
             />
@@ -71,8 +76,17 @@ class HeadCreateUser extends Component {
           </div>
           <div className="col-lg-12">
             <div className="text-right">
-              <button className="btn btn-primary">
-                Simpan <i className="fa fa-paper-plane ml-3"></i>
+              <button className="btn btn-primary" disabled={this.props.onSend}>
+                {this.props.onSend ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                    Menyimpan
+                  </>
+                ) : (
+                  <>
+                    Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -86,4 +100,8 @@ HeadCreateUser = reduxForm({
   form: "HeadCreateUser",
   enableReinitialize: true,
 })(HeadCreateUser);
-export default connect()(HeadCreateUser);
+export default connect((state) => {
+  return {
+    onSend: state.datamaster.onSend,
+  };
+})(HeadCreateUser);

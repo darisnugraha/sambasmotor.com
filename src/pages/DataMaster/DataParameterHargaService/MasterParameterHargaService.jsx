@@ -148,6 +148,7 @@ class MasterParameterHargaService extends React.Component {
     this.state.isEdit
       ? console.log(data)
       : AxiosMasterPut(
+          this.props.dispatch,
           "kategori-service/update-harga-jasa-service/" +
             hasil.jenis_kategori || "-",
           data

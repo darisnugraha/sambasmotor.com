@@ -14,7 +14,11 @@ import {
   PanelHeader,
 } from "../../../components/panel/panel.jsx";
 import HeadHancurBarang from "./HeadHancurBarang.jsx";
-import { hideModal } from "../../../actions/datamaster_action.jsx";
+import {
+  hideModal,
+  onFinish,
+  onProgress,
+} from "../../../actions/datamaster_action.jsx";
 import CetakNota from "../CetakNota.jsx";
 import { getHancurTemp } from "../../../actions/stocking_action.jsx";
 import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
@@ -29,7 +33,7 @@ const maptostate = (state) => {
     hancur_temp: state.stocking.hancur_temp,
   };
 };
-const hapusDataKategori = (params, dispatch) => {
+const hapusDataKategori = (row, dispatch) => {
   Swal.fire({
     title: "Anda Yakin !!",
     text: "Ingin Menghapus Data Ini ?",
@@ -41,7 +45,14 @@ const hapusDataKategori = (params, dispatch) => {
     showConfirmButton: true,
   }).then((result) => {
     if (result.isConfirmed) {
-      NotifSucces("Data Berhasil Di Hapus");
+      let data = JSON.parse(localStorage.getItem("HancurBarang_temp"));
+      let data2 = JSON.parse(localStorage.getItem("HancurBarang_temp_kirim"));
+      data.splice(row, 1);
+      data2.splice(row, 1);
+      localStorage.setItem("HancurBarang_temp", JSON.stringify(data));
+      localStorage.setItem("HancurBarang_temp_kirim", JSON.stringify(data2));
+      NotifSucces("Berhasil Menghapus Data");
+      dispatch(getHancurTemp());
     }
   });
 };
@@ -163,6 +174,7 @@ class HancurBarang extends React.Component {
       .then(() => this.props.dispatch(hideModal()));
   }
   sendData(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
       no_hancur: localStorage.getItem("kode_hancur") || undefined,
       tanggal: hasil.tanggal,
@@ -230,7 +242,10 @@ class HancurBarang extends React.Component {
       )
       .then(() => this.props.dispatch(reset("permintaanBarang")))
       .then(() => this.props.dispatch(getHancurTemp()))
-      .catch((err) => NotifError(`Error: ${err}`));
+      .then(() => this.props.dispatch(onFinish()))
+      .catch((err) =>
+        NotifError(`Error: ${err}`).then(() => this.props.dispatch(onFinish()))
+      );
   }
   render() {
     return (

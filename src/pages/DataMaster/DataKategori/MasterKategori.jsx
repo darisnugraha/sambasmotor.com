@@ -147,6 +147,7 @@ class MasterKategori extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "kategori/update/by-kode-kategori/" +
             hasil.kode_kategori.toLowerCase() || "-",
           { nama_kategori: hasil.nama_kategori }

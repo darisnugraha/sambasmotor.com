@@ -22,6 +22,7 @@ import {
   getToday,
   multipleDeleteLocal,
 } from "../../../components/notification/function.jsx";
+import { onFinish, onProgress } from "../../../actions/datamaster_action.jsx";
 
 const ModalServiceLuar = lazy(() => import("./ModalServiceLuar.jsx"));
 
@@ -99,6 +100,7 @@ class ServiceLuar extends React.Component {
     }
   }
   sendData(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
       no_service_kirim: localStorage.getItem("kirim_service_luar_nomor"),
       tanggal: getToday(),
@@ -118,7 +120,12 @@ class ServiceLuar extends React.Component {
         ])
       )
       .then(() => this.props.dispatch(getKirimServiceBarang()))
-      .catch((err) => ToastError(`Transaksi Gagal, Error : ${err}`));
+      .then(() => this.props.dispatch(onFinish()))
+      .catch((err) =>
+        ToastError(`Transaksi Gagal, Error : ${err}`).then(() =>
+          this.props.dispatch(onFinish())
+        )
+      );
   }
 
   render() {

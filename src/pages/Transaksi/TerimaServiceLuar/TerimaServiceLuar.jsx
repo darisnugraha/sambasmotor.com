@@ -9,7 +9,12 @@ import {
 import HeadTerimaServiceLuar from "./HeadTerimaServiceLuar.jsx";
 import ModalGlobal from "../../ModalGlobal.jsx";
 import ModalTerimaServiceLuar from "./ModalTerimaServiceLuar.jsx";
-import { getFaktur, showModal } from "../../../actions/datamaster_action.jsx";
+import {
+  getFaktur,
+  onFinish,
+  onProgress,
+  showModal,
+} from "../../../actions/datamaster_action.jsx";
 import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
 import {
   NotifSucces,
@@ -100,6 +105,7 @@ class ServiceLuar extends React.Component {
     this.props.dispatch(getFaktur());
   }
   sendData(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
       no_service_terima: localStorage.getItem("terima_service_luar_nomor"),
       tanggal: getToday(),
@@ -160,10 +166,13 @@ class ServiceLuar extends React.Component {
       .then(() => this.props.dispatch(getListKirimServiceLuar()))
       .then(() => this.props.dispatch(reset("HeadServiceLuar")))
       .then(() => this.props.dispatch(getFaktur()))
+      .then(() => this.props.dispatch(onFinish()))
       .then(() => this.setBack())
       .then(() => this.props.dispatch(reset("ModalTerimaServiceLuar")))
       .catch((err) =>
-        ToastError(`Terima Service Gagal, Error : ${err.response.data}`)
+        ToastError(
+          `Terima Service Gagal, Error : ${err.response.data}`
+        ).then(() => this.props.dispatch(onFinish()))
       );
   }
   render() {

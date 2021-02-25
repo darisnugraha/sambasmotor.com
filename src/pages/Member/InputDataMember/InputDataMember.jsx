@@ -9,9 +9,20 @@ import ToolkitProvider, {
 } from "react-bootstrap-table2-toolkit";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import ModalGlobal from "../../ModalGlobal";
-import { showModal } from "../../../actions/datamaster_action";
+import {
+  hideModal,
+  onFinish,
+  onProgress,
+  showModal,
+} from "../../../actions/datamaster_action";
 import { connect } from "react-redux";
-import { simpanLocal } from "../../../config/Helper";
+import { AxiosMasterPost, AxiosMasterPut } from "../../../axios";
+import {
+  NotifSucces,
+  ToastError,
+} from "../../../components/notification/notification";
+import { reset } from "redux-form";
+import { getListMember, setListMember } from "../../../actions/member_action";
 
 const { SearchBar } = Search;
 const { ExportCSVButton } = CSVExport;
@@ -21,12 +32,8 @@ class InputDataMember extends Component {
     this.state = {
       columns: [
         {
-          dataField: "kode_member",
-          text: "Kode Member",
-        },
-        {
-          dataField: "nama_member",
-          text: "Nama Member",
+          dataField: "nama_customer",
+          text: "Nama Customer",
         },
         {
           dataField: "alamat",
@@ -37,42 +44,126 @@ class InputDataMember extends Component {
           text: "Kota",
         },
         {
-          dataField: "kode_pos",
-          text: "Kode Pos",
-        },
-        {
           dataField: "no_ktp",
           text: "Nomor KTP",
         },
         {
-          dataField: "tanggal_lahir",
+          dataField: "tgl_lahir",
           text: "Tangga Lahir",
         },
-        {
-          dataField: "telepon",
-          text: "Telepon",
-        },
+
         {
           dataField: "handphone",
           text: "Handphone",
         },
+        {
+          dataField: "nopol_kendaraan",
+          text: "Nomor Polisi",
+        },
+        {
+          dataField: "action",
+          text: "Action",
+          csvExport: false,
+          headerClasses: "text-center",
+          formatter: (rowcontent, hasil, rowIndex) => {
+            let dataEdit = {
+              nama_customer: hasil.nama_customer,
+              alamat: hasil.alamat,
+              kota: hasil.kota,
+              kode_pos: hasil.kode_pos,
+              no_ktp: hasil.no_ktp,
+              tgl_lahir: hasil.tgl_lahir,
+              telepon: hasil.telepon,
+              handphone: hasil.handphone,
+              nopol_kendaraan: hasil.nopol_kendaraan,
+              merk_kendaraan: hasil.merk_kendaraan,
+              type_kendaraan: hasil.type_kendaraan,
+              warna_kendaraan: hasil.warna_kendaraan,
+              nomesin_kendaraan: hasil.nomesin_kendaraan,
+              kode_customer: hasil.kode_customer,
+            };
+            this.setState({});
+            return (
+              <div className="row text-center">
+                <div className="col-12">
+                  <button
+                    onClick={() => this.editModal(dataEdit)}
+                    className="btn btn-warning mr-3"
+                  >
+                    Edit
+                    <i className="fa fa-edit ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            );
+          },
+        },
       ],
     };
   }
+
+  editModal(data) {
+    this.props.dispatch(setListMember(data));
+    this.props.dispatch(showModal());
+    this.setState({
+      isEdit: true,
+    });
+  }
+
   handleSubmit(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
-      kode_member: hasil.kode_member,
-      nama_member: hasil.nama_member,
+      nama_customer: hasil.nama_member,
       alamat: hasil.alamat,
       kota: hasil.kota,
       kode_pos: hasil.kode_pos,
-      nomor_ktp: hasil.nomor_ktp,
-      tanggal_lahir: hasil.tanggal_lahir,
+      no_ktp: hasil.no_ktp,
+      tgl_lahir: hasil.tanggal_lahir,
       telepon: hasil.telepon,
       handphone: hasil.handphone,
+      nopol_kendaraan: hasil.nopol_kendaraan,
+      merk_kendaraan: hasil.merk_kendaraan,
+      type_kendaraan: hasil.type_kendaraan,
+      warna_kendaraan: hasil.warna_kendaraan,
+      nomesin_kendaraan: hasil.nomesin_kendaraan,
     };
 
-    simpanLocal("DataMember_temp", data);
+    this.state.isEdit
+      ? AxiosMasterPut(
+          this.props.dispatch,
+          "member/update-member/" + hasil.kode_customer,
+          data
+        )
+          .then(() => NotifSucces("Tambah member berhasil"))
+          .then(() => this.props.dispatch(reset("HeadInputDataMember")))
+          .then(() => this.props.dispatch(getListMember()))
+          .then(() => this.props.dispatch(hideModal()))
+          .then(() => this.props.dispatch(onFinish()))
+          .catch((err) =>
+            ToastError(
+              `Error Tambah Member , Error: ${err.response.data}`
+            ).then(() => this.props.dispatch(onFinish()))
+          )
+      : AxiosMasterPost("member/tambah-member-baru", data)
+          .then(() => NotifSucces("Tambah member berhasil"))
+          .then(() => this.props.dispatch(reset("HeadInputDataMember")))
+          .then(() => this.props.dispatch(getListMember()))
+          .then(() => this.props.dispatch(onFinish()))
+          .catch((err) =>
+            ToastError(
+              `Error Tambah Member , Error: ${err.response.data}`
+            ).then(() => this.props.dispatch(onFinish()))
+          );
+  }
+  componentDidMount() {
+    this.props.dispatch(getListMember());
+  }
+  showTambah() {
+    this.setState({
+      isEdit: false,
+    });
+    this.props.dispatch(setListMember(""));
+    this.props.dispatch(showModal());
   }
   render() {
     return (
@@ -90,7 +181,7 @@ class InputDataMember extends Component {
             <div className="col-lg-12">
               <ToolkitProvider
                 keyField="no_acc"
-                data={this.state.datakategori || []}
+                data={this.props.listmember || []}
                 columns={this.state.columns}
                 search
                 exportCSV={{
@@ -101,7 +192,7 @@ class InputDataMember extends Component {
                   <div className="row mt-3">
                     <div className="col-6">
                       <button
-                        onClick={() => this.props.dispatch(showModal())}
+                        onClick={() => this.showTambah()}
                         className="btn btn-primary"
                       >
                         Tambah Data
@@ -141,4 +232,8 @@ class InputDataMember extends Component {
   }
 }
 
-export default connect()(InputDataMember);
+export default connect((state) => {
+  return {
+    listmember: state.member.listmember,
+  };
+})(InputDataMember);

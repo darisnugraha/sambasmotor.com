@@ -15,7 +15,12 @@ class ModalKonversiBarang extends Component {
   render() {
     return (
       <div>
-        <form onSubmit={this.props.handleSubmit}>
+        <form
+          onSubmit={this.props.handleSubmit}
+          onKeyPress={(e) => {
+            e.key === "Enter" && e.preventDefault();
+          }}
+        >
           <div className="col-lg-12">
             <div className="row">
               <div className="col-lg-3">

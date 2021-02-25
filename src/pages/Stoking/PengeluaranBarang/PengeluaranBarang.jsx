@@ -166,7 +166,11 @@ class PengeluaranBarang extends React.Component {
       "UKURAN",
       "QTY",
     ];
-    AxiosMasterPost("pengeluaran-barang/post-transaksi", array)
+    AxiosMasterPost(
+      this.props.dispatch,
+      "pengeluaran-barang/post-transaksi",
+      array
+    )
       .then(() => NotifSucces("Berhasil Menyimpan data"))
       .then(() =>
         CetakNota(

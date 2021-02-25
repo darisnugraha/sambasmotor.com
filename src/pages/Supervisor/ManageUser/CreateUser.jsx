@@ -17,6 +17,7 @@ import {
   NotifError,
   NotifSucces,
 } from "../../../components/notification/notification";
+import { onFinish, onProgress } from "../../../actions/datamaster_action";
 
 const { SearchBar } = Search;
 const { ExportCSVButton } = CSVExport;
@@ -50,6 +51,7 @@ class CreateUser extends Component {
     this.props.dispatch(getListUser());
   }
   handleSubmit(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
       user_name: hasil.nama_lengkap,
       user_id: hasil.user_id,
@@ -61,7 +63,12 @@ class CreateUser extends Component {
       .then(() => NotifSucces("Tambah User Berhasil"))
       .then(() => this.props.dispatch(reset("HeadCreateUser")))
       .then(() => this.props.dispatch(getListUser()))
-      .catch((err) => NotifError("Sepertinya ada kesalahan"));
+      .then(() => this.props.dispatch(onFinish()))
+      .catch((err) =>
+        NotifError("Sepertinya ada kesalahan").then(() =>
+          this.props.dispatch(onFinish())
+        )
+      );
   }
   render() {
     return (

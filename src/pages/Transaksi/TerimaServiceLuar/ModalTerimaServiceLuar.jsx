@@ -51,7 +51,12 @@ class ModalTerimaServiceLuar extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="row">
           <div className="col-lg-12 mb-3">
             <div className="col-lg-12">
@@ -130,14 +135,17 @@ class ModalTerimaServiceLuar extends Component {
             </div>
           </div>
           <div className="text-center col-lg-6">
-            <button
-              className="btn-lg btn-primary btn-block"
-              disabled={this.props.onSend}
-            >
+            <button className="btn btn-primary" disabled={this.props.onSend}>
               {this.props.onSend ? (
-                <i className="fas fa-spinner fa-spin"></i>
-              ) : null}
-              BAYAR <i className="fa fa-money-bill-alt ml-3"></i>
+                <>
+                  <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                  Menyimpan
+                </>
+              ) : (
+                <>
+                  Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -161,7 +169,7 @@ export default connect((state) => {
     total_bayar: state.transaksi.total_bayar,
     kembali:
       (selector(state, "bayar") || 0) -
-      state.transaksi.grand_total -
+      state.transaksi.total_bayar -
       state.transaksi.sum_pembayaran -
       (selector(state, "margin") || 0),
     onSend: state.datamaster.onSend,

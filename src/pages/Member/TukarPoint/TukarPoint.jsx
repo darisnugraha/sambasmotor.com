@@ -1,9 +1,20 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { reset } from "redux-form";
+import {
+  hideModal,
+  onFinish,
+  onProgress,
+} from "../../../actions/datamaster_action";
+import { AxiosMasterPost } from "../../../axios";
+import {
+  NotifError,
+  NotifSucces,
+} from "../../../components/notification/notification";
 import { Panel, PanelBody, PanelHeader } from "../../../components/panel/panel";
-import { simpanLocal } from "../../../config/Helper";
+import ModalGlobal from "../../ModalGlobal";
 import HeadTukarPoint from "./HeadTukarPoint";
+import ModalTukar from "./ModalTukar";
 
 class TukarPoint extends Component {
   constructor(props) {
@@ -11,18 +22,21 @@ class TukarPoint extends Component {
     this.state = {};
   }
   handleSubmit(hasil) {
+    this.props.dispatch(onProgress());
     let data = {
-      kode_member: hasil.kode_member,
-      nama_member: hasil.nama_member,
-      jumlah: hasil.jumlah,
-      hadiah: hasil.hadiah,
-      point: hasil.point,
-      sisa_point: hasil.sisa_point,
-      sisa_hadiah: hasil.sisa_hadiah,
+      kode_customer: hasil.kode_customer,
+      kode_hadiah: hasil.kode_hadiah,
     };
 
-    simpanLocal("TukarPoint", data);
-    this.props.dispatch(reset("HeadTukarPoint"));
+    AxiosMasterPost("member/tukar-poin", data)
+      .then(() => NotifSucces("Tukar Point Berhasil"))
+      .then(() => this.props.dispatch(hideModal()))
+      .then(() => this.props.dispatch(onFinish()))
+      .catch((err) =>
+        NotifError(`Gagal Tukar Point , ${err}`).then(() =>
+          this.props.dispatch(onFinish())
+        )
+      );
   }
   render() {
     return (
@@ -38,13 +52,18 @@ class TukarPoint extends Component {
           <PanelHeader> Tukar Point</PanelHeader>
           <PanelBody>
             <div className="col-lg-12 mt-3">
-              <HeadTukarPoint onSubmit={(data) => this.handleSubmit(data)} />
+              <HeadTukarPoint />
             </div>
           </PanelBody>
         </Panel>
+
+        <ModalGlobal
+          size="l"
+          content={<ModalTukar onSubmit={(data) => this.handleSubmit(data)} />}
+        />
       </div>
     );
   }
 }
 
-export default TukarPoint;
+export default connect()(TukarPoint);

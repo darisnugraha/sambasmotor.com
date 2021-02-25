@@ -47,7 +47,10 @@ const hapusDataJenis = (params, dispatch) => {
     showConfirmButton: true,
   }).then((result) => {
     if (result.isConfirmed) {
-      AxiosMasterDelete("jenis/delete/by-kode-jenis/" + params)
+      AxiosMasterDelete(
+        this.props.dispatch,
+        "jenis/delete/by-kode-jenis/" + params
+      )
         .then(() => NotifSucces("Data Berhasil Di Hapus"))
         .then(() => dispatch(getJenis()));
     }
@@ -134,11 +137,15 @@ class MasterJenis extends React.Component {
     };
     // this.props.dispatch(onProgress());
     this.state.isEdit
-      ? AxiosMasterPut("jenis/edit/by-kode-jenis/" + hasil.kode_jenis || "-", {
-          kode_kategori: hasil.kode_kategori || "-",
+      ? AxiosMasterPut(
+          this.props.dispatch,
+          "jenis/edit/by-kode-jenis/" + hasil.kode_jenis || "-",
+          {
+            kode_kategori: hasil.kode_kategori || "-",
 
-          nama_jenis: hasil.nama_jenis || "-",
-        })
+            nama_jenis: hasil.nama_jenis || "-",
+          }
+        )
           .then(() => this.props.dispatch(reset("DataJenis")))
           .then(() => this.props.dispatch(hideModal()))
           .then(() => this.props.dispatch(getJenis()))

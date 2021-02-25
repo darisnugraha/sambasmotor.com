@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, submit } from "redux-form";
 import { ReanderField } from "../../../components/notification/notification";
 import ValidasiMasterKategori from "../../../validasi/ValidasiMasterKategori";
 
@@ -27,7 +27,12 @@ class FormModalKendaraan extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <Field
           name="merk_kendaraan"
           component={ReanderField}
@@ -43,7 +48,11 @@ class FormModalKendaraan extends Component {
           label="Nama Kendaraan"
           placeholder="Masukan Nama Kendaraan"
         />
-        <button className="btn btn-primary" disabled={this.props.onSend}>
+        <button
+          className="btn btn-primary"
+          disabled={this.props.onSend}
+          onClick={() => this.props(submit("dataKendaraan"))}
+        >
           {this.props.onSend ? (
             <>
               <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang Menyimpan

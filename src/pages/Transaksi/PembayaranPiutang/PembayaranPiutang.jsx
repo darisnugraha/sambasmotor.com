@@ -20,7 +20,11 @@ import {
   getToday,
   multipleDeleteLocal,
 } from "../../../components/notification/function.jsx";
-import { getFaktur } from "../../../actions/datamaster_action.jsx";
+import {
+  getFaktur,
+  onFinish,
+  onProgress,
+} from "../../../actions/datamaster_action.jsx";
 
 const maptostate = (state) => {
   return {
@@ -58,6 +62,7 @@ class PembayaranPiutang extends React.Component {
     } else {
       console.log("INI TRANSFER");
     }
+    this.props.dispatch(onProgress());
     let data = {
       no_bayar_customer: localStorage.getItem("nomor_bayar_piutang"),
       tanggal: hasil.tanggal,
@@ -72,7 +77,11 @@ class PembayaranPiutang extends React.Component {
       no_ac_tujuan: `${hasil.ac_tujuan}`,
     };
     console.log(JSON.stringify(data));
-    AxiosMasterPost("bayar-piutang-customer/post-transaksi", data)
+    AxiosMasterPost(
+      this.props.dispatch,
+      "bayar-piutang-customer/post-transaksi",
+      data
+    )
       .then(() => NotifSucces("Pembayaran Berhasl"))
       .then(() =>
         CetakPiutang(
@@ -120,7 +129,13 @@ class PembayaranPiutang extends React.Component {
         ])
       )
       .then(() => this.props.dispatch(getFaktur()))
-      .catch((err) => ToastError(`Gagal, Error : ${err.response.data}`));
+      .then(() => this.props.dispatch(onFinish()))
+
+      .catch((err) =>
+        ToastError(`Gagal, Error : ${err.response.data}`).then(() =>
+          this.props.dispatch(onFinish())
+        )
+      );
   }
 
   render() {

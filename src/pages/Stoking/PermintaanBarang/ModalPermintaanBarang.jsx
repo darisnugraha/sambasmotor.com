@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
+import { onFinish, onProgress } from "../../../actions/datamaster_action";
 import { AxiosMasterGet } from "../../../axios";
 import {
   ReanderField,
@@ -25,11 +26,13 @@ class ModalPermintaanBarang extends Component {
   }
 
   getBarcode(hasil) {
+    this.props.dispatch(onProgress());
     AxiosMasterGet(
       "permintaan-barang/get/BarangByBarcode/" + hasil.target.value
     )
       .then((res) => this.setState({ hasilBarcode: res.data }))
       .then(() => this.setDetail())
+      .then(() => this.props.dispatch(onFinish()))
       .catch((err) => console.log(err));
   }
 
@@ -60,7 +63,12 @@ class ModalPermintaanBarang extends Component {
   }
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
         <div className="col-lg-12">
           <div className="row">
             <div className="col-lg-6">
@@ -83,6 +91,7 @@ class ModalPermintaanBarang extends Component {
                 label="Nama Barang"
                 placeholder="Masukan Nama Barang"
                 readOnly
+                loading={this.props.onSend}
               />
             </div>
             <div className="col-lg-3">
@@ -93,6 +102,7 @@ class ModalPermintaanBarang extends Component {
                 label="Merk"
                 placeholder="Masukan Merk"
                 readOnly
+                loading={this.props.onSend}
               />
             </div>
             <div className="col-lg-3">
@@ -103,6 +113,7 @@ class ModalPermintaanBarang extends Component {
                 label="Kualitas"
                 placeholder="Masukan Kualitas"
                 readOnly
+                loading={this.props.onSend}
               />
             </div>
             <div className="col-lg-3">
@@ -113,6 +124,7 @@ class ModalPermintaanBarang extends Component {
                 label="Ukuran"
                 placeholder="Masukan Ukuran"
                 readOnly
+                loading={this.props.onSend}
               />
             </div>
             <div className="col-lg-3">
@@ -143,6 +155,7 @@ class ModalPermintaanBarang extends Component {
                 label="Stock"
                 placeholder="Masukan Stock"
                 readOnly
+                loading={this.props.onSend}
               />
             </div>
             <div className="col-lg-3">
@@ -174,4 +187,8 @@ ModalPermintaanBarang = reduxForm({
   enableReinitialize: true,
   validate,
 })(ModalPermintaanBarang);
-export default connect()(ModalPermintaanBarang);
+export default connect((state) => {
+  return {
+    onSend: state.datamaster.onSend,
+  };
+})(ModalPermintaanBarang);

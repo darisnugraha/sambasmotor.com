@@ -1,5 +1,7 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
+import { onFinish, onProgress } from "../../../actions/datamaster_action";
 import { AxiosMasterGet } from "../../../axios";
 import {
   ReanderField,
@@ -21,11 +23,14 @@ class ModalHancurBarang extends Component {
     };
   }
   getBarcode(e) {
+    this.props.dispatch(onProgress());
     let lokasi_hancur = localStorage.getItem("lokasi_hancur") || "";
     AxiosMasterGet(
       "hancur-barang/get/BarangByBarcodeLokasi/" +
         `${e.target.value}&${lokasi_hancur}`
-    ).then((res) => this.setBarang(res.data));
+    )
+      .then((res) => this.setBarang(res.data))
+      .then(() => this.props.dispatch(onFinish()));
   }
   setBarang(res) {
     console.log(res);
@@ -53,7 +58,12 @@ class ModalHancurBarang extends Component {
   render() {
     return (
       <div>
-        <form onSubmit={this.props.handleSubmit}>
+        <form
+          onSubmit={this.props.handleSubmit}
+          onKeyPress={(e) => {
+            e.key === "Enter" && e.preventDefault();
+          }}
+        >
           <div className="col-lg-12">
             <div className="row">
               <div className="col-lg-3">
@@ -85,6 +95,7 @@ class ModalHancurBarang extends Component {
                   label="Nama Barang"
                   placeholder="Masukan Nama Barang"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -95,6 +106,7 @@ class ModalHancurBarang extends Component {
                   label="Merk"
                   placeholder="Masukan Merk"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -104,6 +116,7 @@ class ModalHancurBarang extends Component {
                   label="Kualitas"
                   placeholder="Masukan Kualitas"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -114,6 +127,7 @@ class ModalHancurBarang extends Component {
                   label="Satuan"
                   placeholder="Masukan Satuan"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -135,6 +149,7 @@ class ModalHancurBarang extends Component {
                   label="Stock"
                   placeholder="Masukan Stock"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-2">
@@ -175,4 +190,8 @@ ModalHancurBarang = reduxForm({
   enableReinitialize: true,
   validate: validate,
 })(ModalHancurBarang);
-export default ModalHancurBarang;
+export default connect((state) => {
+  return {
+    onSend: state.datamaster.onSend,
+  };
+})(ModalHancurBarang);

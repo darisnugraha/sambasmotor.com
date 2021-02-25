@@ -50,7 +50,10 @@ const hapusDataKategori = (params, dispatch) => {
     showConfirmButton: true,
   }).then((result) => {
     if (result.isConfirmed) {
-      AxiosMasterDelete("warna/delete/by-kode-warna/" + params)
+      AxiosMasterDelete(
+        this.props.dispatch,
+        "warna/delete/by-kode-warna/" + params
+      )
         .then(() => dispatch(hideModal()))
         .then(() => dispatch(getWarna()))
         .then(() => NotifSucces("Data Berhasil Dihapus"));
@@ -147,6 +150,7 @@ class MasterWarna extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "warna/update/by-kode-warna/" + hasil.kode_warna,
           dataEdit
         )

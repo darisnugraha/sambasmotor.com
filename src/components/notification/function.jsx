@@ -1,3 +1,6 @@
+import React from "react";
+import Skeleton from "react-loading-skeleton";
+
 export const getToday = () => {
   return (
     new Date().getFullYear() +
@@ -106,3 +109,10 @@ export const formatDateISO = (value) => {
     date = value.toString();
   return pattern.replace(/#/g, (_) => date[i++]);
 };
+
+export const SkeletonLoading = ({ label }) => (
+  <div className="form-group">
+    <label> {label} </label>
+    <Skeleton className="form-control" />
+  </div>
+);

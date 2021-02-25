@@ -31,7 +31,12 @@ class ModalBookingService extends Component {
   render() {
     return (
       <div>
-        <form onSubmit={this.props.handleSubmit}>
+        <form
+          onSubmit={this.props.handleSubmit}
+          onKeyPress={(e) => {
+            e.key === "Enter" && e.preventDefault();
+          }}
+        >
           <div className="col-lg-12">
             <div className="row">
               <div className="col-lg-3">
@@ -52,6 +57,7 @@ class ModalBookingService extends Component {
                   label="Nama customer"
                   placeholder="Masukan Nama customer"
                   validate={required}
+                  loading={this.props.listCustomer === [] ? true : false}
                 />
               </div>
               <div className="col-lg-3 d-none">
@@ -78,6 +84,7 @@ class ModalBookingService extends Component {
                   label="Jenis Service"
                   placeholder="Masukan Jenis Service"
                   validate={required}
+                  loading={this.props.listkategoriservice === [] ? true : false}
                 />
               </div>
               <div className="col-lg-2">
@@ -116,6 +123,7 @@ class ModalBookingService extends Component {
                   label="ID Mekanik"
                   placeholder="Masukan ID Mekanik"
                   validate={required}
+                  loading={this.props.listsales === [] ? true : false}
                 />
               </div>
               <div className="col-lg-12">
@@ -134,8 +142,17 @@ class ModalBookingService extends Component {
           </div>
           <div className="col-lg-12 mt-3">
             <div className="text-right">
-              <button className="btn btn-primary">
-                Simpan <i className="fa fa-paper-plane"></i>
+              <button className="btn btn-primary" disabled={this.props.onSend}>
+                {this.props.onSend ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                    Menyimpan
+                  </>
+                ) : (
+                  <>
+                    Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -154,5 +171,6 @@ export default connect((state) => {
     listCustomer: state.datamaster.listcustomer,
     listkategoriservice: state.datamaster.listkategoriservice,
     listsales: state.datamaster.listsales,
+    onSend: state.datamaster.onSend,
   };
 })(ModalBookingService);

@@ -48,7 +48,10 @@ const hapusDataKategori = (params, dispatch) => {
     showConfirmButton: true,
   }).then((result) => {
     if (result.isConfirmed) {
-      AxiosMasterDelete("jenis-kunci/delete/by-kode-jenis-kunci/" + params)
+      AxiosMasterDelete(
+        this.props.dispatch,
+        "jenis-kunci/delete/by-kode-jenis-kunci/" + params
+      )
         .then(() => dispatch(hideModal()))
         .then(() => dispatch(getJenisKunci()))
         .then(() => NotifSucces("Berhasil Dihapus"));
@@ -145,6 +148,7 @@ class MasterJenisKunci extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "jenis-kunci/update/by-kode-jenis-kunci/" + hasil.kode_jenis_kunci ||
             "-",
           { nama_jenis_kunci: hasil.nama_jenis_kunci }

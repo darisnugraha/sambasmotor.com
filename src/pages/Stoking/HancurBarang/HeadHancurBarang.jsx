@@ -1,7 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
-import { showModal } from "../../../actions/datamaster_action";
+import {
+  onFinish,
+  onProgress,
+  showModal,
+} from "../../../actions/datamaster_action";
 import { AxiosMasterGet } from "../../../axios";
 import {
   ReanderField,
@@ -19,19 +23,22 @@ class HeadHancurBarang extends Component {
     AxiosMasterGet("hancur-barang/generate/no-trx").then((res) =>
       this.props.change("no_pindah", res.data[0].no_hancur)
     );
-    AxiosMasterGet("lokasi-gudang/get/all").then((res) =>
-      this.setState({
-        listGudang:
-          res &&
-          res.data.map((list) => {
-            let data = {
-              value: list.kode_lokasi_gudang,
-              name: list.nama_lokasi_gudang,
-            };
-            return data;
-          }),
-      })
-    );
+    this.props.dispatch(onProgress());
+    AxiosMasterGet("lokasi-gudang/get/all")
+      .then((res) =>
+        this.setState({
+          listGudang:
+            res &&
+            res.data.map((list) => {
+              let data = {
+                value: list.kode_lokasi_gudang,
+                name: list.nama_lokasi_gudang,
+              };
+              return data;
+            }),
+        })
+      )
+      .then(() => this.props.dispatch(onFinish()));
   }
   render() {
     return (
@@ -65,14 +72,24 @@ class HeadHancurBarang extends Component {
                 label="Lokasi Gudang"
                 placeholder="Pilih Lokasi Gudang"
                 onChange={(e) => localStorage.setItem("lokasi_hancur", e)}
+                loading={this.props.onSend}
               />
             </div>
           </div>
           <div className="row mb-3">
             <div className="col-lg-6">
               <div className="text-left">
-                <button type="submit" className="btn btn-primary">
-                  Simpan <i className="fa fa-paper-plane"></i>
+                <button className="btn btn-primary">
+                  {this.props.onSend ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                      Menyimpan
+                    </>
+                  ) : (
+                    <>
+                      Simpan <i className="fa fa-paper-plane ml-3 "></i>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -97,4 +114,8 @@ HeadHancurBarang = reduxForm({
   form: "permintaanBarang",
   enableReinitialize: true,
 })(HeadHancurBarang);
-export default connect()(HeadHancurBarang);
+export default connect((state) => {
+  return {
+    onSend: state.datamaster.onSend,
+  };
+})(HeadHancurBarang);

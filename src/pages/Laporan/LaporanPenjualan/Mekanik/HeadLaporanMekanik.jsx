@@ -1,72 +1,83 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
+import { getSales } from "../../../../actions/datamaster_action";
 import {
   ReanderField,
   ReanderSelect,
 } from "../../../../components/notification/notification";
-import CetakMekanik from "./CetakMekanik";
 
 class HeadLaporanMekanik extends Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
+  componentDidMount() {
+    this.props.dispatch(getSales());
+  }
   render() {
     return (
-      <div className="row">
-        <div className="col-lg-3">
-          <Field
-            name="tanggal_awal"
-            component={ReanderField}
-            type="date"
-            label="Dari Tanggal"
-            placeholder="Masukan Tanggal Awal"
-          />
-        </div>
-        <div className="col-lg-3">
-          <Field
-            name="tanggal_akhir"
-            component={ReanderField}
-            type="date"
-            label="Sampai Tanggal"
-            placeholder="Masukan Sampai Tanggal"
-          />
-        </div>
-        <div className="col-lg-3">
-          <Field
-            name="kode_mekanik"
-            component={ReanderSelect}
-            options={[
-              { value: "MEKANIK01", name: "MEKANIK 01" },
-              { value: "MEKANIK02", name: "MEKANIK 02" },
-              { value: "MEKANIK03", name: "MEKANIK 03" },
-              { value: "MEKANIK04", name: "MEKANIK 04" },
-            ]}
-            type="text"
-            label="Kode Mekanik"
-            placeholder="Masukan Kode Mekanik"
-          />
-        </div>
-        <div className="col-lg-12">
-          <div className="text-right">
-            <button
-              className="btn btn-primary"
-              onClick={() =>
-                CetakMekanik(
-                  "2 Februari 2021",
-                  "SEMUA",
-                  "ADMIN",
-                  "2 FEBRUARI 2021",
-                  "ADMIN"
-                )
-              }
-            >
-              Lihat Data <i className="fa fa-print ml-3"></i>
-            </button>
+      <form
+        onSubmit={this.props.handleSubmit}
+        onKeyPress={(e) => {
+          e.key === "Enter" && e.preventDefault();
+        }}
+      >
+        <div className="row">
+          <div className="col-lg-3">
+            <Field
+              name="tanggal_awal"
+              component={ReanderField}
+              type="date"
+              label="Tanggal Awal"
+              placeholder="Masukan Tanggal Awal"
+            />
+          </div>
+          <div className="col-lg-3">
+            <Field
+              name="tanggal_akhir"
+              component={ReanderField}
+              type="date"
+              label="Tanggal Akhir"
+              placeholder="Masukan Sampai Tanggal"
+            />
+          </div>
+          <div className="col-lg-3">
+            <Field
+              name="kode_mekanik"
+              component={ReanderSelect}
+              options={this.props.listsales
+                .filter((data) => data.kode_divisi === "MKN")
+                .map((list) => {
+                  let data = {
+                    value: list.kode_pegawai,
+                    name: list.nama_pegawai,
+                  };
+                  return data;
+                })}
+              type="text"
+              label="Kode Mekanik"
+              placeholder="Masukan Kode Mekanik"
+            />
+          </div>
+          <div className="col-lg-12">
+            <div className="text-right">
+              <button className="btn btn-primary" disabled={this.props.onSend}>
+                {this.props.onSend ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang
+                    Menyiapkan Laporan
+                  </>
+                ) : (
+                  <>
+                    Lihat Data <i className="fa fa-print ml-3 "></i>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </form>
     );
   }
 }
@@ -75,4 +86,9 @@ HeadLaporanMekanik = reduxForm({
   form: "HeadLaporanMekanik",
   enableReinitialize: true,
 })(HeadLaporanMekanik);
-export default connect()(HeadLaporanMekanik);
+export default connect((state) => {
+  return {
+    listsales: state.datamaster.listsales,
+    onSend: state.datamaster.onSend,
+  };
+})(HeadLaporanMekanik);

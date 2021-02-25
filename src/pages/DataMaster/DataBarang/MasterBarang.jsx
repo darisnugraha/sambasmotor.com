@@ -173,6 +173,7 @@ class MasterBarang extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
+          this.props.dispatch,
           "barang/update/by-kode-barang/" + hasil.kode_barang,
           dataEdit
         )

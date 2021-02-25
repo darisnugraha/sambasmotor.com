@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import { onFinish, onProgress } from "../../../../actions/datamaster_action";
 import { AxiosMasterGet } from "../../../../axios";
+import { ToastError } from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
@@ -15,6 +17,7 @@ class LaporanPenjualanRongsok extends Component {
     this.state = {};
   }
   getLaporan(hasil) {
+    this.props.dispatch(onProgress());
     AxiosMasterGet(
       "laporan/penjualan-rosok/lap-penjualan-rosok/" +
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}`
@@ -30,7 +33,10 @@ class LaporanPenjualanRongsok extends Component {
           hasil.tanggal_akhir,
           this.state.listLaporan
         )
-      );
+      )
+      .then(() => this.props.dispatch(onFinish()))
+      .catch((err) => ToastError(`Error Get Data, Error: ${err.response.data}`))
+      .then(() => this.props.dispatch(onFinish()));
   }
   render() {
     return (

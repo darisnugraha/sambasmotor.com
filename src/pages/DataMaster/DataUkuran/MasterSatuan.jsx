@@ -140,9 +140,13 @@ class MasterSatuan extends React.Component {
       nama_satuan: hasil.nama_satuan || "-",
     };
     this.state.isEdit
-      ? AxiosMasterPut("satuan/update/by-kode-satuan/" + hasil.kode_satuan, {
-          nama_satuan: hasil.nama_satuan,
-        })
+      ? AxiosMasterPut(
+          this.props.dispatch,
+          "satuan/update/by-kode-satuan/" + hasil.kode_satuan,
+          {
+            nama_satuan: hasil.nama_satuan,
+          }
+        )
           .then(() => NotifSucces("Berhasil Dirubah"))
           .then(() => this.props.dispatch(reset("dataSatuan")))
           .then(() => this.props.dispatch(hideModal()))
