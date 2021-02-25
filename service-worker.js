@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/sambasmotor.com/precache-manifest.77a52c4d22943d6688a9d8d97ce26f4a.js"
+  "/sambasmotor.com/precache-manifest.2cbfa1dcf9218841d7bfefcffeeb2719.js"
 );
 
 self.addEventListener('message', (event) => {
