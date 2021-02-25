@@ -1,7 +1,7 @@
 {
-  "short_name": "Sambas Motor",
+  "short_name": "SambasApp",
   "name": "Sambas Motor",
-  "description": "Website untuk Transaksi Emas ",
+  "description": "Website Sambas Motor ",
   "icons": [
     {
       "src": "maskable_icon_x72.png",
