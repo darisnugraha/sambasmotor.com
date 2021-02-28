@@ -77,7 +77,6 @@ class BookingService extends React.Component {
 
     console.log(JSON.stringify(data));
     CetakSPK([data]);
-    return false;
     AxiosMasterPost("daftar-service/post-transaksi", data)
       .then(() =>
         NotifSucces("Berhasil Menambahan Data Booking")

@@ -448,7 +448,7 @@ class PembayaranService extends React.Component {
       no_ref_cash: this.props.noFaktur,
       status_masuk_piutang: hasil.piutang || false,
       detail_barang:
-        JSON.parse(localStorage.getItem("list_tambahan_bayar_temp")) || [],
+        JSON.parse(localStorage.getItem("list_barang_bayar")) || [],
       detail_non_tunai:
         localStorage.getItem("listPembayaran_temp") === "[]"
           ? [
@@ -515,11 +515,11 @@ class PembayaranService extends React.Component {
             ToastError(`Error Print Faktur, Detail : ${err.response.data}`)
           );
       })
-      .then(() =>
-        this.setState({
-          bayar: true,
-        })
-      )
+      // .then(() =>
+      //   this.setState({
+      //     bayar: true,
+      //   })
+      // )
       .catch((err) =>
         ToastError(`Error : ${err.response.data}`).then(() =>
           this.props.dispatch(onFinish())

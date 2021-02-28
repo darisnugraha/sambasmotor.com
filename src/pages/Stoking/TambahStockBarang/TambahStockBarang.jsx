@@ -243,9 +243,12 @@ class TambahBarang extends React.Component {
       )
       .then(() => this.props.dispatch(reset("permintaanBarang")))
       .then(() => this.props.dispatch(getHancurTemp()))
+      .then(() => this.props.dispatch(getTambahStockTemp()))
       .then(() => this.props.dispatch(onFinish()))
       .catch((err) =>
-        NotifError(`Error: ${err}`).then(() => this.props.dispatch(onFinish()))
+        NotifError(`Gagal Mengirim Data, Detail: ${err}`).then(() =>
+          this.props.dispatch(onFinish())
+        )
       );
   }
   render() {

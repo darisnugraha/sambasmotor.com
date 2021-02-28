@@ -1,11 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
-import {
-  onFinish,
-  onProgress,
-  showModal,
-} from "../../../actions/datamaster_action";
+import { getSales, showModal } from "../../../actions/datamaster_action";
 import {
   deleteLocalItemBarcode,
   ReanderField,
@@ -16,6 +12,7 @@ import Swal from "sweetalert2";
 import { getPermintaanTemp } from "../../../actions/stocking_action";
 import { AxiosMasterGet } from "../../../axios";
 import Tabel from "../../../components/Tabel/tabel";
+import { getToday } from "../../../components/notification/function";
 
 const maptostate = (state) => {
   return {
@@ -23,6 +20,7 @@ const maptostate = (state) => {
       no_permintaan: localStorage.getItem("kode_permintaan_barang") || "",
     },
     onSend: state.datamaster.onSend,
+    listsales: state.datamaster.listsales,
   };
 };
 class HeadPermintaanBarang extends Component {
@@ -108,52 +106,11 @@ class HeadPermintaanBarang extends Component {
     });
   }
   componentDidMount() {
-    this.props.dispatch(onProgress());
-    AxiosMasterGet("divisi/get/all")
-      .then((res) =>
-        this.setState({
-          listDivisi: res.data.map((list) => {
-            let data = {
-              value: list.kode_divisi,
-              name: list.nama_divisi,
-            };
-            return data;
-          }),
-        })
-      )
-      .then(() => this.props.dispatch(onFinish()));
-    AxiosMasterGet("supplier/get/all")
-      .then((res) =>
-        this.setState({
-          listSupplier: res.data.map((list) => {
-            let data = {
-              value: list.kode_supplier,
-              name: `${list.nama_supplier} ( ${list.kode_supplier} )`,
-            };
-            return data;
-          }),
-        })
-      )
-      .then(() => this.props.dispatch(onFinish()));
+    this.props.dispatch(getSales());
     AxiosMasterGet("permintaan-barang/generate/no-trx").then((res) =>
       this.props.change("no_permintaan", res.data[0].no_permintaan)
     );
-  }
-  getSales(hasil) {
-    this.props.dispatch(onProgress());
-    AxiosMasterGet("pegawai/get/by-kode-divisi/" + hasil)
-      .then((res) =>
-        this.setState({
-          listSales: res.data.map((list) => {
-            let data = {
-              value: list.kode_pegawai,
-              name: list.nama_pegawai,
-            };
-            return data;
-          }),
-        })
-      )
-      .then(() => this.props.dispatch(onFinish()));
+    this.props.change("tanggal", getToday());
   }
   render() {
     return (
@@ -173,21 +130,17 @@ class HeadPermintaanBarang extends Component {
               </div>
               <div className="col-lg-3">
                 <Field
-                  name="divisi"
-                  component={ReanderSelect}
-                  options={this.state.listDivisi}
-                  type="text"
-                  label="Divisi"
-                  placeholder="Masukan Divisi"
-                  onChange={(e) => this.getSales(e)}
-                  loading={this.props.onSend}
-                />
-              </div>
-              <div className="col-lg-3">
-                <Field
                   name="pegawai"
                   component={ReanderSelect}
-                  options={this.state.listSales}
+                  options={this.props.listsales
+                    .filter((data) => data.kode_divisi === "MKN")
+                    .map((list) => {
+                      let data = {
+                        value: list.kode_pegawai,
+                        name: list.nama_pegawai,
+                      };
+                      return data;
+                    })}
                   type="text"
                   label="Pegawai"
                   placeholder="Masukan Pegawai"

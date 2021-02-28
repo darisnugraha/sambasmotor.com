@@ -115,7 +115,7 @@ class PermintaanBarang extends React.Component {
     this.props.dispatch(onProgress());
     let kirim = {
       no_permintaan: hasil.no_permintaan,
-      kode_divisi: hasil.divisi,
+      kode_divisi: hasil.divisi || "MKN",
       kode_pegawai: hasil.pegawai,
       tanggal: hasil.tanggal,
       detail_barang: JSON.parse(

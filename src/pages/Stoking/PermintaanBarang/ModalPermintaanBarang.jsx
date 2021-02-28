@@ -33,7 +33,10 @@ class ModalPermintaanBarang extends Component {
       .then((res) => this.setState({ hasilBarcode: res.data }))
       .then(() => this.setDetail())
       .then(() => this.props.dispatch(onFinish()))
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        this.props.dispatch(onFinish());
+      });
   }
 
   setDetail() {

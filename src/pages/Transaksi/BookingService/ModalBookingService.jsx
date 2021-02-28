@@ -11,6 +11,7 @@ import {
   getSales,
 } from "../../../actions/datamaster_action";
 import { required } from "../../../validasi/normalize";
+import { getToday } from "../../../components/notification/function";
 
 class ModalBookingService extends Component {
   constructor(props) {
@@ -26,6 +27,7 @@ class ModalBookingService extends Component {
     this.props.dispatch(getCustomer());
     this.props.dispatch(getKategoriService());
     this.props.dispatch(getSales());
+    this.props.change("tanggal", getToday());
   }
 
   render() {

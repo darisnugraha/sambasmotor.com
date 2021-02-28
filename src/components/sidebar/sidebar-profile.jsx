@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { getUserData } from "../notification/notification.jsx";
 import { PageSettings } from "./../../config/page-settings.js";
 
 class SidebarProfile extends React.Component {
@@ -38,36 +39,10 @@ class SidebarProfile extends React.Component {
                 </div>
                 <div className="info">
                   <b className="caret pull-right"></b>
-                  Sambas Motor
-                  <small>Admin Toko</small>
+                  {getUserData().user_name}
+                  <small>{getUserData().level}</small>
                 </div>
               </Link>
-            </li>
-            <li>
-              <ul
-                className={
-                  "nav nav-profile " +
-                  (this.state.profileActive && !pageSidebarMinify
-                    ? "d-block "
-                    : "")
-                }
-              >
-                <li>
-                  <Link to="/">
-                    <i className="fa fa-cog"></i> Settings
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/">
-                    <i className="fa fa-pencil-alt"></i> Send Feedback
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/">
-                    <i className="fa fa-question-circle"></i> Helps
-                  </Link>
-                </li>
-              </ul>
             </li>
           </ul>
         )}

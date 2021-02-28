@@ -13,6 +13,7 @@ import {
   ReanderSelect,
   ToastError,
 } from "../../../components/notification/notification";
+import { required } from "../../../validasi/normalize";
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
   locale: "id-ID",
@@ -80,6 +81,7 @@ class TambahJasa extends Component {
                   type="text"
                   label="Jenis Service"
                   placeholder="Masukan Jenis Service"
+                  validate={required}
                 />
               </div>
               <div className="col-lg-12 d-none">
@@ -89,6 +91,7 @@ class TambahJasa extends Component {
                   type="text"
                   label="Harga Service"
                   placeholder="Masukan Harga Service"
+                  validate={required}
                 />
               </div>
               <div className="col-lg-12 ">
@@ -109,6 +112,7 @@ class TambahJasa extends Component {
                   type="text"
                   label="Keterangan Service"
                   placeholder="Masukan Keterangan Service"
+                  validate={required}
                 />
               </div>
               <div className="col-lg-12 d-none ">

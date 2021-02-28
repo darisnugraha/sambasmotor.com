@@ -1,6 +1,5 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import angkaTerbilang from "@develoka/angka-terbilang-js";
 import { getToday } from "../../../components/notification/function";
 import { AxiosMasterGet } from "../../../axios";
 // Date Fns is used to format the dates we receive
@@ -11,7 +10,7 @@ const CetakSPK = (data) => {
   const doc = new jsPDF();
   //   let data = JSON.parse(localStorage.getItem("tt_pengeluaran_barang")) || [];
   doc.setFontSize(15);
-  doc.text("FAKTUR PENJUALAN", 14, 15);
+  doc.text("FAKTUR SPK", 14, 15);
   doc.setFontSize(10);
 
   //   let data = [
@@ -53,265 +52,266 @@ const CetakSPK = (data) => {
   //     },
   //   ];
 
-  AxiosMasterGet(
-    `customer/get/by-nopol/${data[0].nopol_kendaraan}`
-  ).then((res) =>
-    localStorage.setItem("detail_customer", JSON.stringify(res && res.data))
+  AxiosMasterGet(`customer/get/by-nopol/${data[0].nopol_kendaraan}`).then(
+    (res) => {
+      localStorage.setItem("detail_customer", JSON.stringify(res && res.data));
+
+      let hasil = JSON.parse(localStorage.getItem("detail_customer")) || [];
+      let tableRowsBarang = [];
+      let tableRowsService = [];
+      let finalY = 30;
+      let tableColumnService = [
+        [
+          {
+            content: `SERVICE LIST`,
+            colSpan: 2,
+          },
+        ],
+        [
+          {
+            content: `RINCIAN`,
+          },
+          {
+            content: `KETERANGAN`,
+          },
+        ],
+      ];
+      console.log(hasil.nama_customer);
+
+      data.forEach((barang, index) => {
+        let tableColumn1 = [
+          [
+            {
+              content: `TANGGAL : ${getToday()}`,
+              colSpan: 1,
+            },
+            {
+              content: `NO FAKTUR : ${barang.no_daftar} `,
+              colSpan: 1,
+            },
+            {
+              content: `MEKANIK : ${barang.id_mekanik}`,
+              colSpan: 2,
+            },
+          ],
+          [
+            {
+              content: `DATA PEMILIK`,
+              colSpan: 2,
+              styles: {
+                fontStyle: "bold",
+                fontSize: 9,
+              },
+            },
+            {
+              content: `DATA KENDARAAN`,
+              colSpan: 2,
+              styles: {
+                fontStyle: "bold",
+                fontSize: 9,
+              },
+            },
+          ],
+          [
+            //   ROW 1
+            {
+              content: `NAMA : `,
+            },
+            {
+              content: `${hasil.nama_customer}`,
+            },
+            {
+              content: `NOMOR POLISI: `,
+            },
+            {
+              content: `${hasil.nopol_kendaraan}`,
+            },
+          ],
+          //   ROW 2
+          [
+            {
+              content: `ALAMAT : `,
+              rowSpan: 2,
+            },
+            {
+              content: `${hasil.alamat}`,
+              rowSpan: 2,
+            },
+            {
+              content: `MERK : `,
+            },
+            {
+              content: `${hasil.merk_kendaraan}`,
+            },
+          ],
+          //   ROW 3
+          [
+            {
+              content: `TYPE : `,
+            },
+            {
+              content: `${hasil.type_kendaraan}`,
+            },
+          ],
+          //   ROW 4
+          [
+            {
+              content: `KOTA : `,
+            },
+            {
+              content: `${hasil.kota}`,
+            },
+            {
+              content: `WARNA : `,
+            },
+            {
+              content: `${hasil.warna_kendaraan}`,
+            },
+          ],
+          //   ROW 5
+          [
+            {
+              content: `NO HP : `,
+            },
+            {
+              content: `${hasil.handphone}`,
+            },
+            {
+              content: `NO. MESIN : `,
+            },
+            {
+              content: `${hasil.nomesin_kendaraan}`,
+            },
+          ],
+          // ROW 6   =======================================================================
+          [
+            {
+              content: `============================================================================================================`,
+              colSpan: 4,
+            },
+          ],
+        ];
+        // INISIALISASI TABEL DETAIL PELANGGAN
+        doc.autoTable({
+          body: tableColumn1,
+          startY: 30,
+          theme: "plain",
+          rowPageBreak: "avoid",
+          margin: { top: 20 },
+          styles: {
+            fontSize: 8,
+            rowWidth: 15,
+          },
+        });
+        finalY = doc.autoTableEndPosY() + 3;
+        barang.detail_barang.forEach((item) => {
+          let rows = [item.nama, item.keterangan];
+          if (item.jenis_barang === "JASA SERVICE") {
+            tableRowsService.push(rows);
+          } else {
+            tableRowsBarang.push(rows);
+          }
+        });
+        doc.autoTable({
+          head: tableColumnService,
+          body: tableRowsService,
+          startY: finalY,
+          theme: "plain",
+          rowPageBreak: "avoid",
+          pageBreak: "avoid",
+          margin: { top: 20 },
+          bodyStyles: { lineWidth: 0.02, lineColor: "#000" },
+          headStyles: {
+            lineWidth: 0.02,
+            lineColor: "#000",
+            fillColor: [212, 212, 211],
+            valign: "middle",
+            halign: "center",
+          },
+          styles: {
+            fontSize: 8,
+            rowWidth: 15,
+          },
+        });
+        finalY = doc.autoTableEndPosY() + 3;
+        let signed = [
+          [
+            {
+              content: `Supervisor Advisor`,
+              style: {
+                halign: "center",
+              },
+            },
+            {
+              content: `Mekanik`,
+              style: {
+                halign: "center",
+              },
+            },
+          ],
+          //   CELL KOSONG
+          [
+            {
+              content: ``,
+              styles: {
+                minCellHeight: 20,
+              },
+            },
+            {
+              content: ``,
+              styles: {
+                minCellHeight: 20,
+              },
+            },
+          ],
+
+          //   AKHIR CELL KOSONG
+          [
+            {
+              content: `(...............................)`,
+            },
+            {
+              content: `(...............................)`,
+            },
+          ],
+        ];
+        finalY = doc.autoTableEndPosY() + 3;
+        doc.autoTable({
+          body: signed,
+          startY: finalY,
+          theme: "plain",
+          rowPageBreak: "avoid",
+          pageBreak: "avoid",
+          margin: { top: 20 },
+          styles: {
+            fontSize: 8,
+          },
+          bodyStyles: {
+            valign: "middle",
+            halign: "center",
+          },
+        });
+      });
+
+      // const date = Date().split(" ");
+      // we use a date string to generate our filename.
+      // const dateStr = date[2] + date[3] + date[4];
+      // ticket title. and margin-top + margin-left
+
+      // doc.text(`User	: ${username}`, 14, finalY + 10);
+      // doc.text(`Cetak	: ${tanggal}`, 14, finalY + 16);
+      // doc.text(`Valid	: ${validby}`, 14, finalY + 22);
+
+      // doc.autoPrint();
+      // doc.save(`${title}_${dateStr}.pdf`);
+      var string = doc.output("datauristring");
+      var embed = "<embed width='100%' height='100%' src='" + string + "'/>";
+      var x = window.open();
+      x.document.open();
+      x.document.write(embed);
+      x.document.close();
+    }
   );
-  let hasil = JSON.parse(localStorage.getItem("detail_customer")) || [];
-  let tableRowsBarang = [];
-  let tableRowsService = [];
-  let finalY = 30;
-  let tableColumnService = [
-    [
-      {
-        content: `SERVICE LIST`,
-        colSpan: 2,
-      },
-    ],
-    [
-      {
-        content: `RINCIAN`,
-      },
-      {
-        content: `KETERANGAN`,
-      },
-    ],
-  ];
-  console.log(hasil.nama_customer);
-
-  data.forEach((barang, index) => {
-    let tableColumn1 = [
-      [
-        {
-          content: `TANGGAL : ${getToday()}`,
-          colSpan: 1,
-        },
-        {
-          content: `NO FAKTUR : ${barang.no_daftar} `,
-          colSpan: 1,
-        },
-        {
-          content: `MEKANIK : ${barang.id_mekanik}`,
-          colSpan: 2,
-        },
-      ],
-      [
-        {
-          content: `DATA PEMILIK`,
-          colSpan: 2,
-          styles: {
-            fontStyle: "bold",
-            fontSize: 9,
-          },
-        },
-        {
-          content: `DATA KENDARAAN`,
-          colSpan: 2,
-          styles: {
-            fontStyle: "bold",
-            fontSize: 9,
-          },
-        },
-      ],
-      [
-        //   ROW 1
-        {
-          content: `NAMA : `,
-        },
-        {
-          content: `${hasil.nama_customer}`,
-        },
-        {
-          content: `NOMOR POLISI: `,
-        },
-        {
-          content: `${hasil.nopol_kendaraan}`,
-        },
-      ],
-      //   ROW 2
-      [
-        {
-          content: `ALAMAT : `,
-          rowSpan: 2,
-        },
-        {
-          content: `${hasil.alamat}`,
-          rowSpan: 2,
-        },
-        {
-          content: `MERK : `,
-        },
-        {
-          content: `${hasil.merk_kendaraan}`,
-        },
-      ],
-      //   ROW 3
-      [
-        {
-          content: `TYPE : `,
-        },
-        {
-          content: `${hasil.type_kendaraan}`,
-        },
-      ],
-      //   ROW 4
-      [
-        {
-          content: `KOTA : `,
-        },
-        {
-          content: `${hasil.kota}`,
-        },
-        {
-          content: `WARNA : `,
-        },
-        {
-          content: `${hasil.warna_kendaraan}`,
-        },
-      ],
-      //   ROW 5
-      [
-        {
-          content: `NO HP : `,
-        },
-        {
-          content: `${hasil.handphone}`,
-        },
-        {
-          content: `NO. MESIN : `,
-        },
-        {
-          content: `${hasil.nomesin_kendaraan}`,
-        },
-      ],
-      // ROW 6   =======================================================================
-      [
-        {
-          content: `============================================================================================================`,
-          colSpan: 4,
-        },
-      ],
-    ];
-    // INISIALISASI TABEL DETAIL PELANGGAN
-    doc.autoTable({
-      body: tableColumn1,
-      startY: 30,
-      theme: "plain",
-      rowPageBreak: "avoid",
-      margin: { top: 20 },
-      styles: {
-        fontSize: 8,
-        rowWidth: 15,
-      },
-    });
-    finalY = doc.autoTableEndPosY() + 3;
-    barang.detail_barang.forEach((item) => {
-      let rows = [item.nama, item.keterangan];
-      if (item.jenis_barang === "JASA SERVICE") {
-        tableRowsService.push(rows);
-      } else {
-        tableRowsBarang.push(rows);
-      }
-    });
-    doc.autoTable({
-      head: tableColumnService,
-      body: tableRowsService,
-      startY: finalY,
-      theme: "plain",
-      rowPageBreak: "avoid",
-      pageBreak: "avoid",
-      margin: { top: 20 },
-      bodyStyles: { lineWidth: 0.02, lineColor: "#000" },
-      headStyles: {
-        lineWidth: 0.02,
-        lineColor: "#000",
-        fillColor: [212, 212, 211],
-        valign: "middle",
-        halign: "center",
-      },
-      styles: {
-        fontSize: 8,
-        rowWidth: 15,
-      },
-    });
-    finalY = doc.autoTableEndPosY() + 3;
-    let signed = [
-      [
-        {
-          content: `Supervisor Advisor`,
-          style: {
-            halign: "center",
-          },
-        },
-        {
-          content: `Mekanik`,
-          style: {
-            halign: "center",
-          },
-        },
-      ],
-      //   CELL KOSONG
-      [
-        {
-          content: ``,
-          styles: {
-            minCellHeight: 20,
-          },
-        },
-        {
-          content: ``,
-          styles: {
-            minCellHeight: 20,
-          },
-        },
-      ],
-
-      //   AKHIR CELL KOSONG
-      [
-        {
-          content: `(...............................)`,
-        },
-        {
-          content: `(...............................)`,
-        },
-      ],
-    ];
-    finalY = doc.autoTableEndPosY() + 3;
-    doc.autoTable({
-      body: signed,
-      startY: finalY,
-      theme: "plain",
-      rowPageBreak: "avoid",
-      pageBreak: "avoid",
-      margin: { top: 20 },
-      styles: {
-        fontSize: 8,
-      },
-      bodyStyles: {
-        valign: "middle",
-        halign: "center",
-      },
-    });
-  });
-
-  // const date = Date().split(" ");
-  // we use a date string to generate our filename.
-  // const dateStr = date[2] + date[3] + date[4];
-  // ticket title. and margin-top + margin-left
-
-  // doc.text(`User	: ${username}`, 14, finalY + 10);
-  // doc.text(`Cetak	: ${tanggal}`, 14, finalY + 16);
-  // doc.text(`Valid	: ${validby}`, 14, finalY + 22);
-
-  // doc.autoPrint();
-  // doc.save(`${title}_${dateStr}.pdf`);
-  var string = doc.output("datauristring");
-  var embed = "<embed width='100%' height='100%' src='" + string + "'/>";
-  var x = window.open();
-  x.document.open();
-  x.document.write(embed);
-  x.document.close();
 };
 
 export default CetakSPK;

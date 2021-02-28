@@ -18,7 +18,6 @@ import {
   getListBarangPembayaran,
   ListBarangBayar,
 } from "../../../actions/transaksi_action";
-import CetakFaktur from "./CetakFaktur";
 
 const { SearchBar } = Search;
 const { ExportCSVButton } = CSVExport;

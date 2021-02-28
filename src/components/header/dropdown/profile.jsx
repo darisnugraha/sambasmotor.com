@@ -8,6 +8,7 @@ import {
 } from "reactstrap";
 import Swal from "sweetalert2";
 import user_foto from "../../../assets/img/user/user-13.jpg";
+import { getUserData } from "../../notification/notification";
 
 const logout = () => {
   Swal.fire({
@@ -54,12 +55,11 @@ class DropdownProfile extends React.Component {
         <DropdownToggle tag="a">
           <img src={user_foto} alt="" />
           <span className="d-none d-md-inline" style={{ cursor: "pointer" }}>
-            Sambas Motor
+            {getUserData().user_name}
           </span>
           <b className="caret"></b>
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu dropdown-menu-right" tag="ul">
-          <DropdownItem>Edit Profile</DropdownItem>
           <DropdownItem>Setting</DropdownItem>
           <div className="dropdown-divider"></div>
           <DropdownItem>

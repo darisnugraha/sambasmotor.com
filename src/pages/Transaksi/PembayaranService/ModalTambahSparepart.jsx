@@ -13,6 +13,7 @@ import {
   ReanderSelect,
   ToastError,
 } from "../../../components/notification/notification";
+import { required } from "../../../validasi/normalize";
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
   locale: "id-ID",
@@ -108,6 +109,7 @@ class TambahService extends Component {
                   type="text"
                   label="Keterangan Service"
                   placeholder="Masukan Keterangan Service"
+                  validate={required}
                 />
               </div>
               <div className="col-lg-12 d-none ">
@@ -207,15 +209,6 @@ class TambahService extends Component {
                   placeholder="Masukan Harga Service"
                   {...currencyMask}
                   readOnly
-                />
-              </div>
-              <div className="col-lg-12 ">
-                <Field
-                  name="keterangan_sparepart"
-                  component={ReanderFieldInline}
-                  type="text"
-                  label="Keterangan Sparepart"
-                  placeholder="Masukan Keterangan Sparepart"
                 />
               </div>
             </div>
