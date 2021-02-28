@@ -182,7 +182,7 @@ const Test = (row1isi = "", row2isi = "", row3isi = "") => {
       headStyles: {
         lineWidth: 0.02,
         lineColor: "#000",
-        fillColor: [187, 187, 187],
+        fillColor: [212, 212, 211],
         fontSize: 8,
       },
       footStyles: {

@@ -18,6 +18,7 @@ import {
   getListBarangPembayaran,
   ListBarangBayar,
 } from "../../../actions/transaksi_action";
+import CetakFaktur from "./CetakFaktur";
 
 const { SearchBar } = Search;
 const { ExportCSVButton } = CSVExport;
@@ -102,6 +103,15 @@ class HeadPembayaranService extends Component {
                   onChange={(e) => this.setCustomer(e)}
                 />
               </div>
+              {/* <div className="col-lg-4">
+                <button
+                  type="button"
+                  className="btn btn-block btn-primary"
+                  onClick={() => CetakFaktur("123", "123")}
+                >
+                  Print
+                </button>
+              </div> */}
             </div>
             <div className="row">
               <div className="col-lg-6 mb-3">

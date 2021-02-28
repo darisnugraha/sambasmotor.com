@@ -181,7 +181,7 @@ class ModalDaftarService extends Component {
           this.setState({
             dataBooking: res.data,
           });
-          this.props.change("booking_customer", res.data.kode_customer);
+          this.props.change("booking_customer", String(res.data.kode_customer));
           this.props.change("booking_nopol", res.data.nopol_kendaraan);
           this.props.change("kode_mekanik", res.data.kode_pegawai);
           this.setState({

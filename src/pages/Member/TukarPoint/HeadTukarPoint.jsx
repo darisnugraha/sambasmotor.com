@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit";
 import { connect } from "react-redux";
-import { reduxForm, submit } from "redux-form";
+import { reduxForm } from "redux-form";
 import {
   getListHadiah,
   getListMember,
@@ -117,11 +117,7 @@ class HeadTukarPoint extends Component {
           </ToolkitProvider>
           <div className="col-lg-12">
             <div className="text-right">
-              <button
-                className="btn btn-primary"
-                disabled={this.props.onSend}
-                onClick={() => this.props(submit("HeadTukarPoint"))}
-              >
+              <button className="btn btn-primary" disabled={this.props.onSend}>
                 {this.props.onSend ? (
                   <>
                     <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang

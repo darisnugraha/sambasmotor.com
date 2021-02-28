@@ -10,11 +10,14 @@ import HeadLaporanKeuanganBank from "./HeadLaporanKeuanganBank";
 import CetakKeuanganBank from "./CetakKeuanganBank";
 import { ToastError } from "../../../../components/notification/notification";
 import { onFinish, onProgress } from "../../../../actions/datamaster_action";
+import { connect } from "react-redux";
 
 class LaporanKeuanganBank extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      listLaporan: [],
+    };
   }
 
   getLaporan(hasil) {
@@ -23,17 +26,17 @@ class LaporanKeuanganBank extends Component {
       "laporan/keuangan/lap-bank/" +
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}&${hasil.no_ac}`
     )
-      .then(() => this.props.dispatch(onFinish()))
       .then((res) =>
         this.setState({
-          listLaporan: res.data,
+          listLaporan: res && res.data,
         })
       )
+      .then(() => this.props.dispatch(onFinish()))
       .then(() =>
         CetakKeuanganBank(
           hasil.tanggal_awal,
           hasil.tanggal_akhir,
-          this.state.listLaporan
+          this.state.listLaporan || []
         )
       )
       .catch((err) => ToastError("Error Get Data"))
@@ -62,4 +65,4 @@ class LaporanKeuanganBank extends Component {
   }
 }
 
-export default LaporanKeuanganBank;
+export default connect()(LaporanKeuanganBank);

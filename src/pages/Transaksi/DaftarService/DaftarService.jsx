@@ -24,6 +24,7 @@ import {
 } from "../../../actions/datamaster_action.jsx";
 import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
 import CekBooking from "./CekBooking.jsx";
+import CetakSPK from "./CetakSPK";
 
 const ModalDaftarService = lazy(() => import("./ModalDaftarService.jsx"));
 
@@ -57,7 +58,7 @@ class BookingService extends React.Component {
   handleSubmit(hasil) {
     this.props.dispatch(onProgress());
     let data = {
-      no_booking: hasil.booking ? true : false,
+      no_booking: String(hasil.booking),
       no_daftar: hasil.no_faktur,
       nopol_kendaraan: hasil.nopol_kendaraan || hasil.booking_nopol,
       tgl_masuk: hasil.tanggal_masuk,
@@ -68,14 +69,15 @@ class BookingService extends React.Component {
       km_service: hasil.km_service_berikutnya,
       keluhan: hasil.keluhan_konsumen,
       id_mekanik: hasil.kode_mekanik,
-      status_booking: hasil.booking === undefined ? "false" : "true",
+      status_booking: hasil.booking === undefined ? false : true,
       detail_barang: JSON.parse(
         localStorage.getItem("list_service_daftar_temp")
       ),
     };
 
     console.log(JSON.stringify(data));
-    // return false;
+    CetakSPK([data]);
+    return false;
     AxiosMasterPost("daftar-service/post-transaksi", data)
       .then(() =>
         NotifSucces("Berhasil Menambahan Data Booking")

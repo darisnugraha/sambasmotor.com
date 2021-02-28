@@ -1,11 +1,16 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { onFinish, onProgress } from "../../../actions/datamaster_action";
+import { AxiosMasterGet } from "../../../axios";
+import { ToastError } from "../../../components/notification/notification";
 import Tabel from "../../../components/Tabel/tabel";
+import CetakFaktur from "../PembayaranService/CetakFaktur";
 
 class ModalLihatService extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      listLaporan: [],
       columns: [
         {
           dataField: "no_service",
@@ -58,8 +63,18 @@ class ModalLihatService extends Component {
             return (
               <div className="text-center">
                 <div className="col-12">
-                  <button className="btn btn-warning ">
-                    <i className="fa fa-print"></i>
+                  <button
+                    className="btn btn-warning"
+                    type="button"
+                    onClick={() => this.printLaporan(row.no_service)}
+                  >
+                    {this.props.onSend ? (
+                      <>
+                        <i className="fas fa-spinner fa-spin"></i>
+                      </>
+                    ) : (
+                      <i className="fa fa-print"></i>
+                    )}
                   </button>
                 </div>
               </div>
@@ -69,7 +84,22 @@ class ModalLihatService extends Component {
       ],
     };
   }
-
+  printLaporan(hasil) {
+    this.props.dispatch(onProgress());
+    AxiosMasterGet(`bayar-service/getDataServiceByNoService/${hasil}`)
+      .then((res) =>
+        this.setState({
+          listLaporan: res && res.data,
+        })
+      )
+      .then(() => CetakFaktur(this.state.listLaporan))
+      .then(() => this.props.dispatch(onFinish()))
+      .catch((err) =>
+        ToastError(
+          `Error Mengambil Data, Detail : ${err.response.data}`
+        ).then(() => this.props.dispatch(onFinish()))
+      );
+  }
   render() {
     return (
       <div className="col-lg-12">
@@ -85,4 +115,8 @@ class ModalLihatService extends Component {
   }
 }
 
-export default connect()(ModalLihatService);
+export default connect((state) => {
+  return {
+    onSend: state.datamaster.onSend,
+  };
+})(ModalLihatService);

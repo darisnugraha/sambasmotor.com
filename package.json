@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@develoka/angka-terbilang-js": "^1.4.2",
     "@rowno/sparkline": "^4.0.0",
     "apexcharts": "^3.8.3",
     "axios": "^0.21.1",

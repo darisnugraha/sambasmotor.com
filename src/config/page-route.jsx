@@ -598,7 +598,7 @@ const routes = [
   {
     path: "/stockopname-tambah",
     exact: true,
-    title: "Hak Akses User",
+    title: "Stock Opname",
     component: () => <StockOpname />,
   },
   {

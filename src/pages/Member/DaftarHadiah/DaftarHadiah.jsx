@@ -35,6 +35,7 @@ class DaftarHadiah extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isEdit: false,
       columns: [
         {
           dataField: "kode_hadiah",
@@ -101,11 +102,15 @@ class DaftarHadiah extends Component {
     this.props.dispatch(setListHadiah(""));
   }
   deleteModal(data) {
+    this.props.dispatch(onProgress());
     AxiosMasterDelete("hadiah/delete-hadiah/" + data)
       .then(() => NotifSucces("Berhasi Hapus Hadiah"))
       .then(() => this.props.dispatch(getListHadiah()))
+      .then(() => this.props.dispatch(onFinish()))
       .catch((err) =>
-        ToastError(`Hadiah Gagal Dihapus,Error : ${err.response.data}`)
+        ToastError(
+          `Hadiah Gagal Dihapus,Error : ${err.response.data}`
+        ).then(() => this.props.dispatch(onFinish()))
       );
   }
   editModal(data) {
@@ -124,15 +129,11 @@ class DaftarHadiah extends Component {
       poin: hasil.poin,
     };
     this.state.isEdit
-      ? AxiosMasterPut(
-          this.props.dispatch,
-          "hadiah/update-hadiah/" + hasil.kode_hadiah,
-          {
-            nama_hadiah: hasil.nama_hadiah,
-            stock: hasil.stock,
-            poin: hasil.poin,
-          }
-        )
+      ? AxiosMasterPut("hadiah/update-hadiah/" + hasil.kode_hadiah, {
+          nama_hadiah: hasil.nama_hadiah,
+          stock: hasil.stock,
+          poin: hasil.poin,
+        })
           .then(() => NotifSucces("Hadiah berhasil ditambahkan"))
           .then(() => this.props.dispatch(reset("ModalDaftarHadiah")))
           .then(() => this.props.dispatch(hideModal()))
@@ -187,7 +188,7 @@ class DaftarHadiah extends Component {
                   <div className="row">
                     <div className="col-6">
                       <button
-                        onClick={() => this.props.dispatch(showModal())}
+                        onClick={() => this.showTambah()}
                         className="btn btn-primary"
                       >
                         Tambah Data
@@ -220,7 +221,11 @@ class DaftarHadiah extends Component {
         <ModalGlobal
           title="Simpan Data Hadiah"
           content={
-            <ModalDaftarHadiah onSubmit={(data) => this.handleSubmit(data)} />
+            <ModalDaftarHadiah
+              onSubmit={(data) => this.handleSubmit(data)}
+              isEdit={this.state.isEdit}
+              showTambah={() => this.showTambah()}
+            />
           }
         />
       </div>

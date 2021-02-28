@@ -138,11 +138,7 @@ class PermintaanBarang extends React.Component {
     });
     let columnTabel = ["NO", "BARCODE", "JENIS BARANG", "MERK", "KW", "QTY"];
     // INISIALISASI SELESAI -> PANGGIL AXIOS DAN PANGGIL PRINT SAAT AXIOS BERHASIL
-    AxiosMasterPost(
-      this.props.dispatch,
-      "permintaan-barang/post-transaksi",
-      kirim
-    )
+    AxiosMasterPost("permintaan-barang/post-transaksi", kirim)
       .then(() => NotifSucces("Berhasil Menyimpan Data"))
       .then(() =>
         CetakNota(

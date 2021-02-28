@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { onFinish, onProgress } from "../../../actions/datamaster_action";
 import { AxiosMasterPost } from "../../../axios";
@@ -22,11 +23,7 @@ class TambahPointManual extends Component {
       poin: hasil.poin,
     };
 
-    AxiosMasterPost(
-      this.props.dispatch,
-      "member/tambah-ambil-poin-manual",
-      data
-    )
+    AxiosMasterPost("member/tambah-ambil-poin-manual", data)
       .then(() => this.props.dispatch(onFinish()))
       .then(() =>
         NotifSucces(`${hasil.jenis} Berhasil`).catch((err) =>
@@ -63,4 +60,4 @@ class TambahPointManual extends Component {
   }
 }
 
-export default TambahPointManual;
+export default connect()(TambahPointManual);

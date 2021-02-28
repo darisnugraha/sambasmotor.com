@@ -14,6 +14,7 @@ import {
   GET_LIST_BARANG_KIRIM_SERVICE,
   GET_LIST_KIRIM_SERVICE_LUAR,
   SET_GRAND_TOTAL,
+  SET_BARANG_JASA,
 } from "../actions/transaksi_action";
 
 const initialState = {
@@ -38,6 +39,7 @@ const initialState = {
   listkirimserviceluar: [],
   grand_total: 0,
   no_bon_kirim: "",
+  barang_jasa: [],
 };
 
 const transaksi = (state = initialState, actions) => {
@@ -121,6 +123,11 @@ const transaksi = (state = initialState, actions) => {
       return {
         ...state,
         listkirimserviceluar: actions.payload.data,
+      };
+    case SET_BARANG_JASA:
+      return {
+        ...state,
+        barang_jasa: actions.payload.data,
       };
     case SET_GRAND_TOTAL:
       return {

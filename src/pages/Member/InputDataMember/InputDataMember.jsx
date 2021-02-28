@@ -129,11 +129,7 @@ class InputDataMember extends Component {
     };
 
     this.state.isEdit
-      ? AxiosMasterPut(
-          this.props.dispatch,
-          "member/update-member/" + hasil.kode_customer,
-          data
-        )
+      ? AxiosMasterPut("member/update-member/" + hasil.kode_customer, data)
           .then(() => NotifSucces("Tambah member berhasil"))
           .then(() => this.props.dispatch(reset("HeadInputDataMember")))
           .then(() => this.props.dispatch(getListMember()))

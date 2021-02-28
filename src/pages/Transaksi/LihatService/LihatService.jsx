@@ -1,7 +1,10 @@
 import React, { lazy } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { NotifSucces } from "../../../components/notification/notification.jsx";
+import {
+  NotifSucces,
+  ToastError,
+} from "../../../components/notification/notification.jsx";
 import {
   Panel,
   PanelBody,
@@ -80,11 +83,19 @@ class LihatService extends React.Component {
     AxiosMasterGet(
       "bayar-service/getLihatDataService/" +
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}`
-    ).then((res) =>
-      this.setState({
-        listService: res && res.data,
+    )
+      .then((res) => {
+        if (res && !res.data) {
+          ToastError("Data Kosong");
+        } else {
+          this.setState({
+            listService: res && res.data,
+          });
+        }
       })
-    );
+      .catch((err) =>
+        ToastError(`Error Mengambil Data, Detial : ${err.response.data}`)
+      );
   }
   render() {
     return (

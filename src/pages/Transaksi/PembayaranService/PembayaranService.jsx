@@ -16,6 +16,7 @@ import {
   getListBarangPembayaran,
   getListBayarService,
   getListPembayaran,
+  tambahJasa,
 } from "../../../actions/transaksi_action.jsx";
 import ModalGlobal from "../../ModalGlobal.jsx";
 import {
@@ -29,8 +30,10 @@ import ModalBayarService from "./ModalBayarService.jsx";
 import ModalCC from "./ModalCC.jsx";
 import TambahService from "../DaftarService/TambahService.jsx";
 import { getToday } from "../../../components/helpers/function.jsx";
-import { AxiosMasterPost } from "../../../axios.js";
+import { AxiosMasterGet, AxiosMasterPost } from "../../../axios.js";
 import { multipleDeleteLocal } from "../../../components/notification/function.jsx";
+import ModalTambahJasa from "./ModalTambahJasa.jsx";
+import CetakFaktur from "./CetakFaktur.jsx";
 
 const HeadPembayaranService = lazy(() => import("./HeadPembayaranService.jsx"));
 
@@ -85,6 +88,63 @@ class PembayaranService extends React.Component {
           dataField: "harga_total",
           text: "Harga Total",
           formatter: (data) => `${parseFloat(data).toLocaleString("id-ID")}`,
+        },
+        {
+          dataField: "action",
+          text: "Action",
+          csvExport: false,
+          headerClasses: "text-center",
+          formatter: (rowcontent, row) => {
+            let data = {
+              kode_supplier: row.kode_supplier || "-",
+              kode: row.kode || "-",
+              nama: row.nama || "-",
+              qty: 1,
+              harga_satuan: row.harga_satuan || "-",
+              harga_total: row.harga_total || "-",
+              keterangan: row.keterangan || "-",
+              jenis_barang: "SPAREPART",
+            };
+            return (
+              <div className="text-center">
+                <div className="col-12">
+                  {row.keterangan === "-" ? (
+                    <button
+                      className="btn btn-warning"
+                      type="button"
+                      onClick={() => this.tambahJasa(data)}
+                    >
+                      {this.props.onSend ? (
+                        <>
+                          <i className="fas fa-spinner fa-spin"></i>
+                        </>
+                      ) : (
+                        <>
+                          <i className="fa fa-money-bill-alt"></i> + Jasa
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-warning"
+                      type="button"
+                      disabled={true}
+                    >
+                      {this.props.onSend ? (
+                        <>
+                          <i className="fas fa-spinner fa-spin"></i>
+                        </>
+                      ) : (
+                        <>
+                          <i className="fa fa-money-bill-alt"></i> + Jasa
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          },
         },
       ],
       columnsSparepart: [
@@ -211,9 +271,13 @@ class PembayaranService extends React.Component {
   }
 
   componentDidMount() {
+    localStorage.setItem("list_barang_bayar", JSON.stringify([]));
     this.props.dispatch(getFaktur());
     this.props.dispatch(getListBayarService());
     this.props.dispatch(getListBarangPembayaran());
+    AxiosMasterGet("bayar-service/generate/no-trx").then((res) =>
+      localStorage.setItem("no_pembayaran_service", res.data[0].no_service)
+    );
   }
   showBayar() {
     this.setState({
@@ -237,6 +301,10 @@ class PembayaranService extends React.Component {
     this.setState({
       jenisModal: "CC",
     });
+  }
+  tambahJasa(data) {
+    this.props.dispatch(tambahJasa(data));
+    this.props.dispatch(showModal());
   }
   handleSimpanCC(hasil) {
     let data = {
@@ -290,8 +358,22 @@ class PembayaranService extends React.Component {
       let array =
         JSON.parse(localStorage.getItem("list_tambahan_bayar_temp")) || [];
       let array2 = JSON.parse(localStorage.getItem("list_barang_bayar")) || [];
+      let index = array2.findIndex(
+        (list) =>
+          list.kode_supplier === hasil.kode_supplier &&
+          list.kode === hasil.kode_sparepart
+      );
+      if (index !== -1) {
+        array2.splice(index, 1);
+        array.splice(index, 1);
+      }
       array.push(service, barang);
       array2.push(service, barang);
+      // console.log(index);
+
+      // console.log(array);
+      // console.log(array2);
+      // return false;
       localStorage.setItem("list_tambahan_bayar_temp", JSON.stringify(array));
       localStorage.setItem("list_barang_bayar", JSON.stringify(array2));
       ToastSucces("Tambah Data Berhasil");
@@ -350,6 +432,7 @@ class PembayaranService extends React.Component {
       this.props.dispatch(getFaktur());
     }
   }
+
   bayarservice(hasil) {
     this.props.dispatch(onProgress());
     let data = {
@@ -411,7 +494,6 @@ class PembayaranService extends React.Component {
           "list_tambahan_bayar_temp",
           "list_barang_bayar",
           "no_daftar",
-          "list_tambahan_bayar_temp",
           "listPembayaran_temp",
           "noFaktur",
         ])
@@ -421,6 +503,18 @@ class PembayaranService extends React.Component {
       .then(() => this.props.dispatch(getFaktur()))
       .then(() => this.props.dispatch(onFinish()))
       .then(() => this.props.getListBayarService())
+      .then(() => {
+        AxiosMasterGet(
+          `bayar-service/getDataServiceByNoService/${localStorage.getItem(
+            "no_pembayaran_service"
+          )}`
+        )
+          .then((res) => CetakFaktur(res.data))
+          .then(() => localStorage.removeItem("no_pembayaran_service"))
+          .catch((err) =>
+            ToastError(`Error Print Faktur, Detail : ${err.response.data}`)
+          );
+      })
       .then(() =>
         this.setState({
           bayar: true,
@@ -479,7 +573,11 @@ class PembayaranService extends React.Component {
                 />
               ) : this.state.jenisModal === "CC" ? (
                 <ModalCC onSubmit={(data) => this.handleSimpanCC(data)} />
-              ) : null
+              ) : (
+                <ModalTambahJasa
+                  onSubmit={(data) => this.tambahSparepart(data)}
+                />
+              )
             }
             title={
               this.state.jenisModal === "SPAREPART"
@@ -488,7 +586,7 @@ class PembayaranService extends React.Component {
                 ? "Tambah Data Jasa"
                 : this.state.jenisModal === "BAYAR"
                 ? "Tambah pembayaran"
-                : null
+                : "Tambah Jasa"
             }
           />
         </Panel>

@@ -15,6 +15,7 @@ export const GET_LIST_BARANG_PEMBAYARAN = "GET_LIST_BARANG_PEMBAYARAN";
 export const GET_LIST_BARANG_KIRIM_SERVICE = "GET_LIST_BARANG_KIRIM_SERVICE";
 export const GET_LIST_KIRIM_SERVICE_LUAR = "GET_LIST_KIRIM_SERVICE_LUAR";
 export const SET_GRAND_TOTAL = "SET_GRAND_TOTAL";
+export const SET_BARANG_JASA = "SET_BARANG_JASA";
 
 export const getListTerimaSupplier = () => {
   let data = JSON.parse(localStorage.getItem("PenerimaanSupplier_temp")) || [];
@@ -172,6 +173,15 @@ export const ListBarangBayar = (data) => {
   return (dispatch) =>
     dispatch({
       type: GET_LIST_BARANG_BAYAR,
+      payload: {
+        data: data,
+      },
+    });
+};
+export const tambahJasa = (data) => {
+  return (dispatch) =>
+    dispatch({
+      type: SET_BARANG_JASA,
       payload: {
         data: data,
       },

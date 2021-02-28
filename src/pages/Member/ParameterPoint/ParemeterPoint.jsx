@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { onFinish, onProgress } from "../../../actions/datamaster_action";
 import { AxiosMasterPost } from "../../../axios";
@@ -55,4 +56,4 @@ class ParameterPoint extends Component {
   }
 }
 
-export default ParameterPoint;
+export default connect()(ParameterPoint);

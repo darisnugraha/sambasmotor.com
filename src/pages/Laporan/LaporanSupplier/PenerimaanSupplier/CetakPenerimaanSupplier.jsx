@@ -116,7 +116,7 @@ const CetakPenerimaanSupplier = (
       headStyles: {
         lineWidth: 0.02,
         lineColor: "#000",
-        fillColor: [187, 187, 187],
+        fillColor: [212, 212, 211],
       },
     });
     finalY = doc.autoTableEndPosY() + 10;

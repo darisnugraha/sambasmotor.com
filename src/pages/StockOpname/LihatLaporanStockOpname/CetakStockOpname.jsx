@@ -85,7 +85,7 @@ const CetakStockOpname = (row1isi = "", row2isi = "", data) => {
       headStyles: {
         lineWidth: 0.02,
         lineColor: "#000",
-        fillColor: [187, 187, 187],
+        fillColor: [212, 212, 211],
       },
     });
     tableRows = [];

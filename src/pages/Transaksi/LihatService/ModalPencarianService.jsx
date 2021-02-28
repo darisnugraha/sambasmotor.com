@@ -5,6 +5,15 @@ import { getCustomer } from "../../../actions/datamaster_action";
 import { getToday } from "../../../components/notification/function";
 import { ReanderField } from "../../../components/notification/notification";
 
+const validate = (value) => {
+  const error = {};
+  if (value.tanggal_akhir < value.tanggal_awal) {
+    error.tanggal_akhir = "Tanggal Akhir Kurang Dari Tanggal Awal";
+  }
+
+  return error;
+};
+
 class ModalPencarianService extends Component {
   constructor(props) {
     super(props);
@@ -43,7 +52,16 @@ class ModalPencarianService extends Component {
             />
           </div>
           <div className="col-lg-12 mt-4">
-            <button className="btn btn-block btn-primary">CARI</button>
+            <button className="btn btn-block btn-primary">
+              {this.props.onSend ? (
+                <>
+                  <i className="fas fa-spinner fa-spin"></i>
+                </>
+              ) : (
+                <i className="fa fa-search mr-3"></i>
+              )}
+              CARI
+            </button>
           </div>
         </div>
       </form>
@@ -54,9 +72,11 @@ class ModalPencarianService extends Component {
 ModalPencarianService = reduxForm({
   form: "ModalPencarianService",
   enableReinitialize: true,
+  validate: validate,
 })(ModalPencarianService);
 export default connect((state) => {
   return {
     listcustomer: state.datamaster.listcustomer,
+    onSend: state.datamaster.onSend,
   };
 })(ModalPencarianService);

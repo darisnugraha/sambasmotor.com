@@ -93,7 +93,7 @@ class Login extends React.Component {
             <h4 className="caption-title">
               <b>Sambas</b> Motor
             </h4>
-            <p>Sambas Motor Admin Website ( PROGRESS : QC-3 )</p>
+            <p>Sambas Motor Admin Website ( PROGRESS : QC-4 )</p>
           </div>
         </div>
         <div className="right-content">

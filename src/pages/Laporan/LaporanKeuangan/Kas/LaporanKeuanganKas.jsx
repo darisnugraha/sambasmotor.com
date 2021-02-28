@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { onFinish, onProgress } from "../../../../actions/datamaster_action";
 import { AxiosMasterGet } from "../../../../axios";
@@ -28,12 +29,12 @@ class LaporanKeuanganKas extends Component {
       "laporan/keuangan/lap-cash/" +
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}`
     )
-      .then(() => this.props.dispatch(onFinish()))
       .then((res) =>
         this.setState({
-          listLaporan: res.data,
+          listLaporan: (res && res.data) || [],
         })
       )
+      .then(() => this.props.dispatch(onFinish()))
       .then(() =>
         CetakKeuanganKas(
           hasil.tanggal_awal,
@@ -73,4 +74,4 @@ class LaporanKeuanganKas extends Component {
   }
 }
 
-export default LaporanKeuanganKas;
+export default connect()(LaporanKeuanganKas);

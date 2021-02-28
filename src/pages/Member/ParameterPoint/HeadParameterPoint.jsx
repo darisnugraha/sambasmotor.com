@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, submit } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { createNumberMask } from "redux-form-input-masks";
 import { getParameter } from "../../../actions/member_action";
 import { ReanderField } from "../../../components/notification/notification";
@@ -53,11 +53,7 @@ class HeadParameterPoint extends Component {
           </div>
           <div className="col-lg-12">
             <div className="text-right">
-              <button
-                className="btn btn-primary"
-                disabled={this.props.onSend}
-                onClick={() => this.props(submit("HeadParameterPoint"))}
-              >
+              <button className="btn btn-primary" disabled={this.props.onSend}>
                 {this.props.onSend ? (
                   <>
                     <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang

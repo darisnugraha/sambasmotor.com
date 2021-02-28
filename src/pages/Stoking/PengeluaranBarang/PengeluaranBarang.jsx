@@ -30,6 +30,7 @@ const maptostate = (state) => {
     permintaan_temp: state.stocking.permintaan_temp,
     pengeluaran_selected: state.stocking.pengeluaran_selected,
     pengeluaran: state.stocking.pengeluaran,
+    onSend: state.datamaster.onSend,
   };
 };
 
@@ -166,11 +167,7 @@ class PengeluaranBarang extends React.Component {
       "UKURAN",
       "QTY",
     ];
-    AxiosMasterPost(
-      this.props.dispatch,
-      "pengeluaran-barang/post-transaksi",
-      array
-    )
+    AxiosMasterPost("pengeluaran-barang/post-transaksi", array)
       .then(() => NotifSucces("Berhasil Menyimpan data"))
       .then(() =>
         CetakNota(
@@ -364,7 +361,16 @@ class PengeluaranBarang extends React.Component {
                       className="btn btn-primary"
                       onClick={() => this.getPermintaan()}
                     >
-                      CARI DATA
+                      {this.props.onSend ? (
+                        <>
+                          <i className="fas fa-spinner fa-spin"></i> &nbsp;
+                          Sedang Menyiapkan
+                        </>
+                      ) : (
+                        <>
+                          Cari Data <i className="fa fa-search ml-3 "></i>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
