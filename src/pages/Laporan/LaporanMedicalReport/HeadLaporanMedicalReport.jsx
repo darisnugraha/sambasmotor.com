@@ -1,12 +1,19 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
-import { ReanderField } from "../../../components/notification/notification";
+import { getCustomer } from "../../../actions/datamaster_action";
+import {
+  ReanderField,
+  ReanderSelect,
+} from "../../../components/notification/notification";
 
 class HeadLaporanMedicalReport extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+  }
+  componentDidMount() {
+    this.props.dispatch(getCustomer());
   }
   render() {
     return (
@@ -15,7 +22,14 @@ class HeadLaporanMedicalReport extends Component {
           <div className="col-lg-3">
             <Field
               name="nopol_kendaran"
-              component={ReanderField}
+              component={ReanderSelect}
+              options={this.props.listcustomer.map((list) => {
+                let data = {
+                  value: list.nopol_kendaraan,
+                  name: `${list.nopol_kendaraan} - ${list.nama_customer}`,
+                };
+                return data;
+              })}
               type="text"
               label="Nomor Polisi"
               placeholder="Masukan Nomor Polisi"
@@ -65,4 +79,9 @@ HeadLaporanMedicalReport = reduxForm({
   form: "HeadLaporanMedicalReport",
   enableReinitialize: true,
 })(HeadLaporanMedicalReport);
-export default connect()(HeadLaporanMedicalReport);
+export default connect((state) => {
+  return {
+    listcustomer: state.datamaster.listcustomer,
+    onSend: state.datamaster.onSend,
+  };
+})(HeadLaporanMedicalReport);

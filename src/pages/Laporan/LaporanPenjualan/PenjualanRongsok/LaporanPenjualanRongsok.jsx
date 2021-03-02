@@ -14,7 +14,9 @@ import HeadLaporanPenjualanRongsok from "./HeadLaporanPenjualanRongsok";
 class LaporanPenjualanRongsok extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      listLaporan: [],
+    };
   }
   getLaporan(hasil) {
     this.props.dispatch(onProgress());
@@ -22,17 +24,24 @@ class LaporanPenjualanRongsok extends Component {
       "laporan/penjualan-rosok/lap-penjualan-rosok/" +
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}`
     )
-      .then((res) =>
-        this.setState({
-          listLaporan: res.data,
-        })
-      )
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        } else {
+          this.setState({
+            listLaporan: res.data,
+          });
+        }
+      })
       .then(() =>
-        CetakPenjualanRongsok(
-          hasil.tanggal_awal,
-          hasil.tanggal_akhir,
-          this.state.listLaporan
-        )
+        this.state.listLaporan.length
+          ? CetakPenjualanRongsok(
+              hasil.tanggal_awal,
+              hasil.tanggal_akhir,
+              this.state.listLaporan
+            )
+          : ToastError("Data Laporan Kosong")
       )
       .then(() => this.props.dispatch(onFinish()))
       .catch((err) => ToastError(`Error Get Data, Error: ${err.response.data}`))

@@ -8,29 +8,39 @@ import {
 } from "../../../../components/panel/panel";
 import HeadLaporanPenjualanSales from "./HeadLaporanPenjualanSales";
 import CetakPenjualanSales from "./CetakPenjualanSales";
+import { ToastError } from "../../../../components/notification/notification";
 
 class LaporanPenjualanSales extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      listLaporan: [],
+    };
   }
   getLaporan(hasil) {
     AxiosMasterGet(
       "laporan/penjualan/lap-penjualan-sales/" +
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}&${hasil.kode_sales}`
     )
-      .then((res) =>
-        this.setState({
-          listLaporan: res.data,
-        })
-      )
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        } else {
+          this.setState({
+            listLaporan: res.data,
+          });
+        }
+      })
       .then(() =>
-        CetakPenjualanSales(
-          hasil.tanggal_awal,
-          hasil.tanggal_akhir,
-          hasil.kode_sales,
-          this.state.listLaporan
-        )
+        this.state.listLaporan.length
+          ? CetakPenjualanSales(
+              hasil.tanggal_awal,
+              hasil.tanggal_akhir,
+              hasil.kode_sales,
+              this.state.listLaporan
+            )
+          : ToastError("Data Laporan Kosong")
       );
   }
   render() {

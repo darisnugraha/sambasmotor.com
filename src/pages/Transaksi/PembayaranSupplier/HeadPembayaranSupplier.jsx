@@ -160,7 +160,7 @@ class HeadPembayaranSupplier extends Component {
             </div>
             <div className="col-lg-12">
               <div className="text-right">
-                <button className="btn btn-primary">
+                <button className="btn btn-primary" type="button">
                   Cari <i className="fa fa-search ml-3"></i>
                 </button>
               </div>

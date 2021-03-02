@@ -2,7 +2,10 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { AxiosMasterGet } from "../../../../axios";
 import { getToday } from "../../../../components/notification/function";
-import { NotifError } from "../../../../components/notification/notification";
+import {
+  NotifError,
+  ToastError,
+} from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
@@ -23,13 +26,18 @@ class LaporanPembayaranSupplier extends Component {
       "laporan/supplier/lap-bayar-hutang-supplier/" +
         `${data.kode_supplier}&${data.tanggal_awal}&${data.tanggal_akhir}`
     )
-      .then((res) =>
-        this.setState({
-          hasilLaporan: res.data,
-        })
-      )
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        } else {
+          this.setState({
+            hasilLaporan: res.data,
+          });
+        }
+      })
       .then(() =>
-        this.state.hasilLaporan !== []
+        this.state.hasilLaporan.length
           ? CetakPembayaranSupplier(
               data.kode_supplier || "SEMUA",
               getToday(),

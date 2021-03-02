@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, submit } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { createNumberMask } from "redux-form-input-masks";
 import { AxiosMasterGet } from "../../../axios";
 import {
@@ -115,15 +115,7 @@ class FormModalBarang extends Component {
       .catch(() =>
         NotifError("Sepertinya ada gangguan, coba check koneksi anda")
       );
-    AxiosMasterGet("lokasi-selving/get/all")
-      .then((res) =>
-        this.setState({
-          listSelving: res.data,
-        })
-      )
-      .catch(() =>
-        NotifError("Sepertinya ada gangguan, coba check koneksi anda")
-      );
+
     AxiosMasterGet("satuan/get/all")
       .then((res) =>
         this.setState({
@@ -133,6 +125,59 @@ class FormModalBarang extends Component {
       .catch(() =>
         NotifError("Sepertinya ada gangguan, coba check koneksi anda")
       );
+    AxiosMasterGet("lokasi-selving/get/all")
+      .then((res) =>
+        this.setState({
+          listSelving: res.data,
+        })
+      )
+      .catch(() =>
+        NotifError("Sepertinya ada gangguan, coba check koneksi anda")
+      );
+  }
+  getJenis(hasil = "") {
+    this.props.change("jenis_barang", "");
+    hasil === ""
+      ? AxiosMasterGet("jenis/get/all")
+          .then((res) =>
+            this.setState({
+              listJenis: res.data,
+            })
+          )
+          .catch(() =>
+            NotifError("Sepertinya ada gangguan, coba check koneksi anda")
+          )
+      : AxiosMasterGet("jenis/get/by-kode-kategori/" + hasil)
+          .then((res) =>
+            this.setState({
+              listJenis: res.data,
+            })
+          )
+          .catch(() =>
+            NotifError("Sepertinya ada gangguan, coba check koneksi anda")
+          );
+  }
+  getShelving(hasil = "") {
+    this.props.change("selving", "");
+    hasil === ""
+      ? AxiosMasterGet("lokasi-selving/get/all")
+          .then((res) =>
+            this.setState({
+              listSelving: res.data,
+            })
+          )
+          .catch(() =>
+            NotifError("Sepertinya ada gangguan, coba check koneksi anda")
+          )
+      : AxiosMasterGet("lokasi-selving/get/by-kode-lokasi-rak/" + hasil)
+          .then((res) =>
+            this.setState({
+              listSelving: res.data,
+            })
+          )
+          .catch(() =>
+            NotifError("Sepertinya ada gangguan, coba check koneksi anda")
+          );
   }
   render() {
     return (
@@ -158,6 +203,7 @@ class FormModalBarang extends Component {
               label="Kode Kategori"
               placeholder="Masukan kode Kategori"
               readOnly={this.props.isEdit}
+              onChange={(data) => this.getJenis(data)}
             />
           </div>
           <div className="col-lg-6">
@@ -274,6 +320,7 @@ class FormModalBarang extends Component {
               })}
               label="Rak"
               placeholder="Masukan Rak"
+              onChange={(data) => this.getShelving(data)}
             />
           </div>
           <div className="col-lg-6">
@@ -289,6 +336,9 @@ class FormModalBarang extends Component {
               })}
               label="Selfing"
               placeholder="Masukan Selfing"
+              emptyMessage={() => (
+                <div style={{ textAlign: "center" }}>Data Shelving Kosong</div>
+              )}
             />
           </div>
           <div className="col-lg-6">
@@ -320,11 +370,7 @@ class FormModalBarang extends Component {
           </div>
         </div>
         <div className="col-lg-12">
-          <button
-            className="btn btn-primary"
-            disabled={this.props.onSend}
-            onClick={() => this.props(submit("dataBarang"))}
-          >
+          <button className="btn btn-primary" disabled={this.props.onSend}>
             {this.props.onSend ? (
               <>
                 <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang

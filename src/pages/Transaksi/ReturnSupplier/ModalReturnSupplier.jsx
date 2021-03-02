@@ -97,6 +97,7 @@ class ModalReturnSupplier extends Component {
               type="text"
               label="Nama Barang"
               placeholder="Masukan Nama Barang"
+              readOnly
             />
           </div>
           <div className="col-lg-3">
@@ -113,6 +114,7 @@ class ModalReturnSupplier extends Component {
               type="text"
               label="Merk"
               placeholder="Masukan Merk"
+              readOnly
             />
           </div>
           <div className="col-lg-3">
@@ -129,6 +131,7 @@ class ModalReturnSupplier extends Component {
               type="text"
               label="Kualitas"
               placeholder="Masukan Kualitas"
+              readOnly
             />
           </div>
           <div className="col-lg-3">
@@ -138,6 +141,7 @@ class ModalReturnSupplier extends Component {
               type="text"
               label="Type"
               placeholder="Masukan Type"
+              readOnly
             />
           </div>
           <div className="col-lg-3">
@@ -154,6 +158,7 @@ class ModalReturnSupplier extends Component {
               type="text"
               label="Satuan"
               placeholder="Masukan Satuan"
+              readOnly
             />
           </div>
           <div className="col-lg-3">
@@ -175,6 +180,7 @@ class ModalReturnSupplier extends Component {
               placeholder="Masukan Harga Satuan"
               onChange={this.setTotal()}
               {...currencyMask}
+              readOnly
             />
           </div>
           <div className="col-lg-3">
@@ -185,6 +191,7 @@ class ModalReturnSupplier extends Component {
               label="Total"
               placeholder="Masukan Total"
               {...currencyMask}
+              readOnly
             />
           </div>
           <div className="col-lg-12">

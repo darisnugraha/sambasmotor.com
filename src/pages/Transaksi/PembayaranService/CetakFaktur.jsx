@@ -106,7 +106,7 @@ const CetakFaktur = (data) => {
     ],
     [
       {
-        content: `SPK`,
+        content: `NAMA`,
       },
       {
         content: `QTY`,
@@ -131,7 +131,7 @@ const CetakFaktur = (data) => {
     ],
     [
       {
-        content: `SPK`,
+        content: `NAMA`,
       },
       {
         content: `QTY`,
@@ -320,7 +320,7 @@ const CetakFaktur = (data) => {
     finalY = doc.autoTableEndPosY() + 3;
     barang.detail_barang.forEach((item) => {
       let rows = [
-        item.kode,
+        item.nama,
         item.qty,
         item.harga_satuan,
         item.harga_total,
@@ -431,9 +431,9 @@ const CetakFaktur = (data) => {
       ],
       [
         {
-          content: `TERBBILANG # ${angkaTerbilang(
+          content: `TERBILANG # ${angkaTerbilang(
             parseInt(barang.total_bayar)
-          ).toUpperCase()}`,
+          ).toUpperCase()} #`,
           styles: {
             fontStyle: "bold",
             fontSize: 9,

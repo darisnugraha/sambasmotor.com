@@ -29,21 +29,28 @@ class LaporanKeuanganKas extends Component {
       "laporan/keuangan/lap-cash/" +
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}`
     )
-      .then((res) =>
-        this.setState({
-          listLaporan: (res && res.data) || [],
-        })
-      )
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        } else {
+          this.setState({
+            listLaporan: (res && res.data) || [],
+          });
+        }
+      })
       .then(() => this.props.dispatch(onFinish()))
       .then(() =>
-        CetakKeuanganKas(
-          hasil.tanggal_awal,
-          hasil.tanggal_akhir,
-          getUserData().user_name,
-          getToday(),
-          getUserData().level,
-          this.state.listLaporan
-        )
+        this.state.listLaporan
+          ? CetakKeuanganKas(
+              hasil.tanggal_awal,
+              hasil.tanggal_akhir,
+              getUserData().user_name,
+              getToday(),
+              getUserData().level,
+              this.state.listLaporan
+            )
+          : ToastError("Data Laporan Kosong")
       )
       .catch((err) =>
         ToastError(

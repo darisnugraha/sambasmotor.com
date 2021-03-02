@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, formValueSelector, submit } from "redux-form";
+import { Field, reduxForm, formValueSelector } from "redux-form";
 import {
   ReanderField,
   ReanderSelect,
@@ -294,11 +294,7 @@ class FormModalSupplier extends Component {
           </div>
         </div>
         <div className="col-lg-12 mt-5">
-          <button
-            className="btn btn-primary"
-            disabled={this.props.onSend}
-            onClick={() => this.props(submit("dataBarang"))}
-          >
+          <button className="btn btn-primary" disabled={this.props.onSend}>
             {this.props.onSend ? (
               <>
                 <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang

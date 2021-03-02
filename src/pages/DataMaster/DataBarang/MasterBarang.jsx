@@ -9,6 +9,7 @@ import { connect } from "react-redux";
 import {
   NotifError,
   NotifSucces,
+  ToastError,
 } from "../../../components/notification/notification.jsx";
 import {
   editBarang,
@@ -173,7 +174,6 @@ class MasterBarang extends React.Component {
     };
     this.state.isEdit
       ? AxiosMasterPut(
-          this.props.dispatch,
           "barang/update/by-kode-barang/" + hasil.kode_barang,
           dataEdit
         )
@@ -182,16 +182,16 @@ class MasterBarang extends React.Component {
           .then(() => this.props.dispatch(hideModal()))
           .then(() => this.props.dispatch(getBarang()))
           .catch((err) =>
-            NotifError(
-              "Sepertinya ada gangguan, Mohon ulang beberapa saat lagi"
-            )
+            NotifError(`Gagal Merubah Data, Detial : ${err.response.data}`)
           )
       : AxiosMasterPost("barang/add", data)
           .then(() => NotifSucces("Berhasil Ditambahkan"))
           .then(() => this.props.dispatch(reset("dataBarang")))
           .then(() => this.props.dispatch(hideModal()))
           .then(() => this.props.dispatch(getBarang()))
-          .catch((err) => NotifError(err));
+          .catch((err) =>
+            ToastError(`Error Simpan Barang, Detail :  ${err.response.data}`)
+          );
   }
 
   render() {

@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import Skeleton from "react-loading-skeleton";
 import { connect } from "react-redux";
-import { Field, reduxForm, submit } from "redux-form";
+import { Field, reduxForm } from "redux-form";
+import { createNumberMask } from "redux-form-input-masks";
 import {
   ReanderField,
   ReanderSelect,
@@ -9,6 +10,11 @@ import {
 import { required } from "../../../validasi/normalize";
 import ValidasiMasterKategori from "../../../validasi/ValidasiMasterKategori";
 
+const currencyMask = createNumberMask({
+  prefix: "Rp. ",
+  suffix: " ,-",
+  locale: "id-ID",
+});
 const maptostate = (state) => {
   if (state.datamaster.datahargaservice !== undefined) {
     return {
@@ -69,16 +75,13 @@ class FormModalParameterHargaService extends Component {
         <Field
           name="jasa_service"
           component={ReanderField}
-          type="number"
+          type="telp"
           label="Jasa Service (RP)"
           placeholder="Masukan Jasa Service"
+          {...currencyMask}
         />
 
-        <button
-          className="btn btn-primary mb-3"
-          disabled={this.props.onSend}
-          onClick={() => this.props(submit("dataHargaService"))}
-        >
+        <button className="btn btn-primary mb-3" disabled={this.props.onSend}>
           {this.props.onSend ? (
             <>
               <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang Menyimpan

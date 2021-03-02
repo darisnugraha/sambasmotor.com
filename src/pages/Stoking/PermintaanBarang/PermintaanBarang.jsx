@@ -44,6 +44,8 @@ class PermintaanBarang extends React.Component {
   }
 
   componentDidMount() {
+    localStorage.removeItem("PermintaanBarang_temp");
+    localStorage.removeItem("PermintaanBarang_temp_kirim");
     this.props.dispatch(getPermintaanTemp());
     AxiosMasterGet("permintaan-barang/generate/no-trx").then((res) =>
       localStorage.setItem("kode_permintaan_barang", res.data[0].no_permintaan)
@@ -70,7 +72,7 @@ class PermintaanBarang extends React.Component {
       let dataTable = {
         kode_barcode: hasil.kode_barcode,
         nama_barang: hasil.nama_barang,
-        merk: hasil.merk,
+        merk_barang: hasil.merk,
         kwalitas: hasil.kwalitas,
         ukuran: hasil.ukuran,
         stock: hasil.stock,
@@ -97,7 +99,7 @@ class PermintaanBarang extends React.Component {
       let dataTable = {
         kode_barcode: hasil.kode_barcode,
         nama_barang: hasil.nama_barang,
-        merk: hasil.merk,
+        merk_barang: hasil.merk,
         kwalitas: hasil.kwalitas,
         ukuran: hasil.ukuran,
         stock: hasil.stock,
@@ -117,6 +119,7 @@ class PermintaanBarang extends React.Component {
       no_permintaan: hasil.no_permintaan,
       kode_divisi: hasil.divisi || "MKN",
       kode_pegawai: hasil.pegawai,
+      no_daftar_service: hasil.no_spk,
       tanggal: hasil.tanggal,
       detail_barang: JSON.parse(
         localStorage.getItem("PermintaanBarang_temp_kirim")
@@ -130,7 +133,7 @@ class PermintaanBarang extends React.Component {
         ++i,
         data.kode_barcode,
         data.nama_barang,
-        data.merk,
+        data.merk_barang,
         data.kwalitas,
         data.qty,
       ];

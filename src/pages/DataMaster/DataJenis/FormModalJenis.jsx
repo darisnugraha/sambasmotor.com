@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, submit } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { AxiosMasterGet } from "../../../axios";
 import {
   ReanderField,
@@ -84,11 +84,7 @@ class FormModalJenis extends Component {
           placeholder="Masukan Nama Jenis"
           validate={required}
         />
-        <button
-          className="btn btn-primary"
-          disabled={this.props.onSend}
-          onClick={() => this.props(submit("dataJenis"))}
-        >
+        <button className="btn btn-primary" disabled={this.props.onSend}>
           {this.props.onSend ? (
             <>
               <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang Menyimpan

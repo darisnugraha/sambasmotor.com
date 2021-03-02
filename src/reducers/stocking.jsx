@@ -2,6 +2,7 @@ import {
   GET_HANCUR_BARANG_TEMP,
   GET_KONVERSI_BARANG_TEMP,
   GET_KUNCI_BARANG_TEMP,
+  GET_LIST_PENGELUARAN_BARANG,
   GET_PENGELUARAN_BARANG_SELECTED,
   GET_PENGELUARAN_BARANG_TEMP,
   GET_PERMINTAAN_TEMP,
@@ -28,6 +29,11 @@ const stocking = (state = initialState, actions) => {
       };
     case GET_PENGELUARAN_BARANG_TEMP:
       return {
+        pengeluaran: actions.payload.data,
+      };
+    case GET_LIST_PENGELUARAN_BARANG:
+      return {
+        ...state,
         pengeluaran: actions.payload.data,
       };
     case GET_PENGELUARAN_BARANG_SELECTED:

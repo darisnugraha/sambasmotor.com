@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, submit } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { ReanderField } from "../../../components/notification/notification";
 import { required } from "../../../validasi/normalize";
 import ValidasiMasterKategori from "../../../validasi/ValidasiMasterKategori";
@@ -52,11 +52,7 @@ class FormModalWarna extends Component {
           validate={required}
         />
 
-        <button
-          className="btn btn-primary"
-          disabled={this.props.onSend}
-          onClick={() => this.props(submit("dataWarna"))}
-        >
+        <button className="btn btn-primary" disabled={this.props.onSend}>
           {this.props.onSend ? (
             <>
               <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang Menyimpan

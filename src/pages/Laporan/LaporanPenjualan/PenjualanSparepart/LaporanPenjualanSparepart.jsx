@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { AxiosMasterGet } from "../../../../axios";
+import { ToastError } from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
@@ -12,25 +13,34 @@ import HeadLaporanPenjualanSparepart from "./HeadLaporanPenjualanSparepart";
 class LaporanPenjualanSparepart extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      listLaporan: [],
+    };
   }
   getLaporan(hasil) {
     AxiosMasterGet(
       "laporan/penjualan/lap-penjualan-sparepart/" +
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}&${hasil.kriteria_sparepart}`
     )
-      .then((res) =>
-        this.setState({
-          listLaporan: res && res.data,
-        })
-      )
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        } else {
+          this.setState({
+            listLaporan: res && res.data,
+          });
+        }
+      })
       .then(() =>
-        CetakPenjualanSparepart(
-          hasil.tanggal_awal,
-          hasil.tanggal_akhir,
-          hasil.kriteria_sparepart,
-          this.state.listLaporan
-        )
+        this.state.listLaporan.length
+          ? CetakPenjualanSparepart(
+              hasil.tanggal_awal,
+              hasil.tanggal_akhir,
+              hasil.kriteria_sparepart,
+              this.state.listLaporan
+            )
+          : ToastError("Data Laporan Kosong")
       );
   }
   render() {

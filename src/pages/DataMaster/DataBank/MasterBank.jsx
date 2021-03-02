@@ -151,11 +151,7 @@ class MasterBank extends React.Component {
       atas_nama: hasil.atas_nama || "-",
     };
     this.state.isEdit
-      ? AxiosMasterPut(
-          this.props.dispatch,
-          "bank/update/by-no-ac/" + hasil.nomor_bank,
-          dataEdit
-        )
+      ? AxiosMasterPut("bank/update/by-no-ac/" + hasil.nomor_bank, dataEdit)
           .then(() => NotifSucces("Berhasil Dirubah"))
           .then(() => this.props.dispatch(reset("")))
           .then(() => this.props.dispatch(hideModal()))

@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { AxiosMasterGet } from "../../../../axios";
 import { getToday } from "../../../../components/notification/function";
 import {
+  getUserData,
+  ToastError,
+} from "../../../../components/notification/notification";
+import {
   Panel,
   PanelBody,
   PanelHeader,
@@ -22,20 +26,27 @@ class LaporanPengeluaranBarang extends Component {
       "laporan/stocking/lap-pengeluaran-barang/" +
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}`
     )
-      .then((res) =>
-        this.setState({
-          listLaporan: res.data,
-        })
-      )
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        } else {
+          this.setState({
+            listLaporan: res.data,
+          });
+        }
+      })
       .then(() =>
-        CetakPengeluaranBarang(
-          hasil.tanggal_awal,
-          hasil.tanggal_akhir,
-          "ADMIN",
-          getToday(),
-          "ADMIN",
-          this.state.listLaporan
-        )
+        this.state.listLaporan.length
+          ? CetakPengeluaranBarang(
+              hasil.tanggal_awal,
+              hasil.tanggal_akhir,
+              getUserData().user_name,
+              getToday(),
+              getUserData().user_name,
+              this.state.listLaporan
+            )
+          : ToastError("Data Laporan Kosong")
       );
   }
   panggilLaporan() {}

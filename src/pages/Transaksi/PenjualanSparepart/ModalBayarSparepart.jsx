@@ -6,6 +6,14 @@ import { getListPembayaran } from "../../../actions/transaksi_action";
 import { ReanderField } from "../../../components/notification/notification";
 import Tabel from "../../../components/Tabel/tabel";
 
+const validate = (value) => {
+  let errors = {};
+  if (!value.bayar && !value.piutang) {
+    errors.bayar = "Tidak boleh Kosong";
+  }
+  return errors;
+};
+
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
   locale: "id-ID",
@@ -74,6 +82,7 @@ class ModalBayarSparepart extends Component {
                           className=" form-control-lg"
                           onChange={(e) => this.setBayar(e)}
                           {...currencyMask}
+                          readOnly={this.props.piutangCheck}
                         />
                       </div>
                     </div>
@@ -135,6 +144,7 @@ class ModalBayarSparepart extends Component {
 ModalBayarSparepart = reduxForm({
   form: "ModalBayarSparepart",
   enableReinitialize: true,
+  validate: validate,
 })(ModalBayarSparepart);
 const selector = formValueSelector("ModalBayarSparepart");
 export default connect((state) => {
@@ -151,5 +161,6 @@ export default connect((state) => {
       state.transaksi.sum_pembayaran,
     bayar: selector(state, "bayar") || 0,
     onSend: state.datamaster.onSend,
+    piutangCheck: selector(state, "piutang") || false,
   };
 })(ModalBayarSparepart);

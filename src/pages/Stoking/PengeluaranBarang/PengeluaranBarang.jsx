@@ -11,6 +11,7 @@ import {
   PanelHeader,
 } from "../../../components/panel/panel.jsx";
 import {
+  getListPengeluaranBarang,
   getPengeluaranBarang,
   getPengeluaranBarangSelected,
 } from "../../../actions/stocking_action.jsx";
@@ -24,6 +25,11 @@ import {
 } from "../../../components/notification/function.jsx";
 import BootstrapTable from "react-bootstrap-table-next";
 import EmptyTable from "../../../assets/emptyTable.jsx";
+import ModalGlobal from "../../ModalGlobal.jsx";
+import ModalPermintaanBarang from "../PermintaanBarang/ModalPermintaanBarang.jsx";
+import { showModal } from "../../../actions/datamaster_action.jsx";
+import { reset } from "redux-form";
+import { simpanLocal } from "../../../config/Helper.jsx";
 
 const maptostate = (state) => {
   return {
@@ -75,6 +81,29 @@ class PengeluaranBarang extends React.Component {
           dataField: "qty",
           text: "Qty",
         },
+        // {
+        //   dataField: "action",
+        //   text: "Action",
+        //   csvExport: false,
+        //   headerClasses: "text-center",
+        //   formatter: (rowcontent, row) => {
+        //     this.setState({});
+        //     return (
+        //       <div className="row text-center">
+        //         <div className="col-12">
+        //           <button
+        //             type="button"
+        //             onClick={() => this.deleteBarang(row)}
+        //             className="btn btn-danger"
+        //           >
+        //             Hapus
+        //             <i className="fa fa-trash ml-2"></i>
+        //           </button>
+        //         </div>
+        //       </div>
+        //     );
+        //   },
+        // },
       ],
       columns2: [
         {
@@ -93,7 +122,24 @@ class PengeluaranBarang extends React.Component {
       ],
     };
   }
-
+  // deleteBarang(row) {
+  //   Swal.fire({
+  //     title: "Anda Yakin !!",
+  //     text: "Ingin Menghapus Data Ini ?",
+  //     icon: "warning",
+  //     position: "top-center",
+  //     cancelButtonText: "Tidak",
+  //     showCancelButton: true,
+  //     confirmButtonText: "OK",
+  //     showConfirmButton: true,
+  //   }).then((result) => {
+  //     if (result.isConfirmed) {
+  //       deleteLocalItemBarcode("pengeluaran_barang", row.kode_barcode);
+  //       // deleteLocalItemBarcode("pengeluaran_barang", row.kode_barcode);
+  //       this.props.dispatch(getPermintaanTemp());
+  //     }
+  //   });
+  // }
   componentDidMount() {
     localStorage.setItem("FakturTerpilih", "[]");
     localStorage.setItem("FakturTerpilih_detail", "[]");
@@ -202,6 +248,44 @@ class PengeluaranBarang extends React.Component {
   }
   getPermintaan(e) {
     this.props.dispatch(getPengeluaranBarang(this.state.nomor_pb));
+  }
+  handleModal(hasil) {
+    let local = JSON.parse(localStorage.getItem("pengeluaran_barang")) || [];
+    let filtered = local.findIndex(
+      (list) => list.kode_barcode === hasil.kode_barcode
+    );
+    if (filtered !== -1) {
+      let data = {
+        kode_barcode: hasil.kode_barcode,
+        kode_supplier: hasil.kode_supplier,
+        nama_barang: hasil.nama_barang,
+        merk_barang: hasil.merk,
+        kwalitas: hasil.kwalitas,
+        ukuran: hasil.ukuran,
+        stock: hasil.stock,
+        qty: parseInt(hasil.qty) + parseInt(local[filtered].qty),
+      };
+      local.splice(filtered, 1);
+      local.push(data);
+      localStorage.setItem("pengeluaran_barang", JSON.stringify(local));
+      NotifSucces("Berhasil");
+      this.props.dispatch(reset("ModalReturnSupplier"));
+      this.props.dispatch(getListPengeluaranBarang());
+    } else {
+      let data = {
+        kode_barcode: hasil.kode_barcode,
+        kode_supplier: hasil.kode_supplier,
+        nama_barang: hasil.nama_barang,
+        merk_barang: hasil.merk,
+        kwalitas: hasil.kwalitas,
+        ukuran: hasil.ukuran,
+        stock: hasil.stock,
+        qty: hasil.qty,
+      };
+      simpanLocal("pengeluaran_barang", data)
+        .then(() => this.props.dispatch(reset("ModalPermintaanBarang")))
+        .then(() => this.props.dispatch(getListPengeluaranBarang()));
+    }
   }
   render() {
     const selectRow = {
@@ -378,13 +462,16 @@ class PengeluaranBarang extends React.Component {
 
               {/* Master Kategori */}
               <div className="col-lg-12 mt-2">
-                {/* <BootstrapTable
-                  bootstrap4
-                  data={this.props.pengeluaran}
-                  columns={this.state.columns}
-                  keyField="kode_barcode"
-                  selectRow={selectRow}
-                /> */}
+                <div className="col-lg-12">
+                  <div className="text-left">
+                    <button
+                      className="btn btn-primary mb-3"
+                      onClick={() => this.props.dispatch(showModal())}
+                    >
+                      + Tambah Data
+                    </button>
+                  </div>
+                </div>
                 <BootstrapTable
                   keyField="kode_barcode"
                   data={this.props.pengeluaran || []}
@@ -428,6 +515,14 @@ class PengeluaranBarang extends React.Component {
             </div>
           </PanelBody>
         </Panel>
+        <ModalGlobal
+          title="Tambah Barang Pengeluaran"
+          content={
+            <ModalPermintaanBarang
+              onSubmit={(data) => this.handleModal(data)}
+            />
+          }
+        />
       </div>
     );
   }

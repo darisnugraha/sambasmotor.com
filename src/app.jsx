@@ -14,6 +14,8 @@ import {
   getToday,
   localStoragedecryp,
 } from "./components/helpers/function.jsx";
+import { connect } from "react-redux";
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -399,7 +401,19 @@ class App extends React.Component {
       }));
     }
   };
+  updateServiceWorker = () => {
+    const registrationWaiting = this.props.serviceWorkerRegistration.waiting;
 
+    if (registrationWaiting) {
+      registrationWaiting.postMessage({ type: "SKIP_WAITING" });
+
+      registrationWaiting.addEventListener("statechange", (e) => {
+        if (e.target.state === "activated") {
+          window.location.reload();
+        }
+      });
+    }
+  };
   render() {
     const isAuthenticated = localStoragedecryp("islogin");
     return isAuthenticated === getToday() ? (
@@ -457,4 +471,10 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default connect((state) => {
+  return {
+    serviceWorkerInitialized: state.sw.serviceWorkerInitialized,
+    serviceWorkerUpdated: state.sw.serviceWorkerUpdated,
+    serviceWorkerRegistration: state.sw.serviceWorkerRegistration,
+  };
+})(App);

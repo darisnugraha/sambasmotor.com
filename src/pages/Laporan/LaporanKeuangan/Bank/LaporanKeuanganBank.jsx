@@ -26,18 +26,25 @@ class LaporanKeuanganBank extends Component {
       "laporan/keuangan/lap-bank/" +
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}&${hasil.no_ac}`
     )
-      .then((res) =>
-        this.setState({
-          listLaporan: res && res.data,
-        })
-      )
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        } else {
+          this.setState({
+            listLaporan: res && res.data,
+          });
+        }
+      })
       .then(() => this.props.dispatch(onFinish()))
       .then(() =>
-        CetakKeuanganBank(
-          hasil.tanggal_awal,
-          hasil.tanggal_akhir,
-          this.state.listLaporan || []
-        )
+        this.state.listLaporan.length
+          ? CetakKeuanganBank(
+              hasil.tanggal_awal,
+              hasil.tanggal_akhir,
+              this.state.listLaporan || []
+            )
+          : ToastError("Data Laporan Kosong")
       )
       .catch((err) => ToastError("Error Get Data"))
       .then(() => this.props.dispatch(onFinish()));

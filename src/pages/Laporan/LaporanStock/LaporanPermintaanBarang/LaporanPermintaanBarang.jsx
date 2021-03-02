@@ -2,7 +2,10 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { AxiosMasterGet } from "../../../../axios";
 import { getToday } from "../../../../components/notification/function";
-import { getUserData } from "../../../../components/notification/notification";
+import {
+  getUserData,
+  ToastError,
+} from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
@@ -14,27 +17,31 @@ import HeadLaporanPermintaanBarang from "./HeadLaporanPermintaanBarang";
 class LaporanPermintaanBarang extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      listLaporan: [],
+    };
   }
   getLaporan(hasil) {
     AxiosMasterGet(
       "laporan/stocking/lap-permintaan-barang/" +
         `${hasil.divisi}&${hasil.tanggal_awal}&${hasil.tanggal_akhir}`
     )
-      .then((res) =>
+      .then((res) => {
         this.setState({
           listLaporan: res.data,
-        })
-      )
+        });
+      })
       .then(() =>
-        CetakPermintaanBarang(
-          hasil.tanggal_awal,
-          hasil.tanggal_akhir,
-          getUserData().user_name,
-          getToday(),
-          getUserData().user_name,
-          this.state.listLaporan
-        )
+        this.state.listLaporan.length
+          ? CetakPermintaanBarang(
+              hasil.tanggal_awal,
+              hasil.tanggal_akhir,
+              getUserData().user_name,
+              getToday(),
+              getUserData().user_name,
+              this.state.listLaporan
+            )
+          : ToastError("Data Laporan Kosong")
       );
   }
   render() {

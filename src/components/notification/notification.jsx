@@ -356,8 +356,7 @@ export const ReanderSelect = ({
   placeholder,
   options,
   getOptions,
-  value,
-  disabled,
+  emptyMessage,
   loading,
   meta: { touched, error, warning },
 }) => (
@@ -378,6 +377,7 @@ export const ReanderSelect = ({
         onKeyPress={(e) => {
           e.key === "Enter" && e.preventDefault();
         }}
+        emptyMessage={emptyMessage}
       />
     )}
 

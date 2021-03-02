@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, submit } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { createNumberMask } from "redux-form-input-masks";
 import { getBank, getParameter } from "../../../actions/datamaster_action";
 import { getToday } from "../../../components/notification/function";
@@ -97,11 +97,7 @@ class HeadTambahBank extends Component {
           </div>
           <div className="col-lg-12">
             <div className="text-right">
-              <button
-                className="btn btn-primary"
-                disabled={this.props.onSend}
-                onClick={() => this.props(submit("HeadTambahBank"))}
-              >
+              <button className="btn btn-primary" disabled={this.props.onSend}>
                 {this.props.onSend ? (
                   <>
                     <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang

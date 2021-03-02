@@ -44,16 +44,16 @@ const CetakMedicalReport = (row1isi = "", row2isi = "", row3isi = "", data) => {
   doc.setFontSize(10);
   //row 1
   doc.text(`Tanggal : ${row1isi} s/d ${row2isi}`, 14, 25);
-  doc.text(`Nomor Poloso : ${row3isi}`, 14, 30);
+  doc.text(`Nomor Polisi : ${row3isi}`, 14, 30);
   data.forEach((item, index) => {
     let rows = [
       item.tanggal,
-      item.km_service,
-      item.keterangan,
+      item.km,
+      item.keterangan_service,
       item.sparepart,
       item.qty,
       item.satuan,
-      item.nama_mekanik,
+      item.mekanik,
     ];
     tableRows.push(rows);
   });

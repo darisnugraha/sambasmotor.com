@@ -7,6 +7,7 @@ import {
 } from "../../components/panel/panel.jsx";
 // import { Line } from "react-chartjs-2";
 import hasil from "../../assets/QC/QC.docx";
+import developed from "../../assets/developed.svg";
 
 class DashboardV1 extends React.Component {
   constructor(props) {
@@ -169,76 +170,8 @@ class DashboardV1 extends React.Component {
           </li>
           <li className="breadcrumb-item active">Dashboard</li>
         </ol>
-        <h1 className="page-header">
-          Dashboard <small>header small text goes here...</small>
-        </h1>
+        <h1 className="page-header">Dashboard</h1>
 
-        <div className="row">
-          <div className="col-xl-3 col-md-6">
-            <div className="widget widget-stats bg-red">
-              <div className="stats-icon">
-                <i className="fa fa-desktop"></i>
-              </div>
-              <div className="stats-info">
-                <h4>TOTAL VISITORS</h4>
-                <p>3,291,922</p>
-              </div>
-              <div className="stats-link">
-                <Link to="/dashboard/v1">
-                  View Detail <i className="fa fa-arrow-alt-circle-right"></i>
-                </Link>
-              </div>
-            </div>
-          </div>
-          <div className="col-xl-3 col-md-6">
-            <div className="widget widget-stats bg-orange">
-              <div className="stats-icon">
-                <i className="fa fa-link"></i>
-              </div>
-              <div className="stats-info">
-                <h4>BOUNCE RATE</h4>
-                <p>20.44%</p>
-              </div>
-              <div className="stats-link">
-                <Link to="/dashboard/v1">
-                  View Detail <i className="fa fa-arrow-alt-circle-right"></i>
-                </Link>
-              </div>
-            </div>
-          </div>
-          <div className="col-xl-3 col-md-6">
-            <div className="widget widget-stats bg-grey-darker">
-              <div className="stats-icon">
-                <i className="fa fa-users"></i>
-              </div>
-              <div className="stats-info">
-                <h4>UNIQUE VISITORS</h4>
-                <p>1,291,922</p>
-              </div>
-              <div className="stats-link">
-                <Link to="/dashboard/v1">
-                  View Detail <i className="fa fa-arrow-alt-circle-right"></i>
-                </Link>
-              </div>
-            </div>
-          </div>
-          <div className="col-xl-3 col-md-6">
-            <div className="widget widget-stats bg-black-lighter">
-              <div className="stats-icon">
-                <i className="fa fa-clock"></i>
-              </div>
-              <div className="stats-info">
-                <h4>AVG TIME ON SITE</h4>
-                <p>00:12:23</p>
-              </div>
-              <div className="stats-link">
-                <Link to="/dashboard/v1">
-                  View Detail <i className="fa fa-arrow-alt-circle-right"></i>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
         <div className="row">
           {/* <div className="col-xl-12">
             <Panel>
@@ -257,14 +190,22 @@ class DashboardV1 extends React.Component {
               <PanelHeader>
                 <PanelBody>
                   <h2>Changelog :</h2>
-                  <h4>2/25/2021</h4>
-                  <h5>Perbaikan Hasil QC 3</h5>
-                  <a href={hasil} download>
-                    DOWNLOAD LAMPIRAN
+                  <h4>3/2/2021</h4>
+                  <h5>Perbaikan Hasil QC 6</h5>
+                  <h5>Tambah Nomor Daftar pada Permintaan barang</h5>
+                  <h5>Penerimaan barang sudah bisa tambah barang baru</h5>
+                  <a href="https://docs.google.com/document/d/18FE3l2LX9PMwF9n5YOkOicmDinPujY2xBpWziMyW_XQ/edit?usp=sharing">
+                    LAMPIRAN HASIL QC
                   </a>
                 </PanelBody>
               </PanelHeader>
             </Panel>
+          </div>
+          <div className="col-lg-12 text-center">
+            <img src={developed} alt="Developed" width={300} />
+            <h3>Dear User, This Website Is Under Developed</h3>
+            <h5>Sorry if you got some errors..</h5>
+            <p>Cheerss..</p>
           </div>
         </div>
       </div>

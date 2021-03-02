@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { AxiosMasterGet } from "../../../../axios";
 import { getToday } from "../../../../components/notification/function";
+import { ToastError } from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
@@ -13,7 +14,9 @@ import HeadLaporanKartuHutangSupplier from "./HeadLaporanKartuHutangSupplier";
 class LaporanKartuHutangSupplier extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      listLaporan: [],
+    };
   }
   handleSubmit(data) {
     AxiosMasterGet(
@@ -21,13 +24,26 @@ class LaporanKartuHutangSupplier extends Component {
         `${data.kode_supplier || "SEMUA"}&${data.tanggal_awal}&${
           data.tanggal_akhir
         }`
-    ).then((res) =>
-      CetakKartuHutangSupplier(
-        getToday(),
-        data.kode_supplier || "SEMUA",
-        res.data
-      )
-    );
+    )
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        } else {
+          this.setState({
+            listLaporan: res.data,
+          });
+        }
+      })
+      .then(() =>
+        this.state.listLaporan.length
+          ? CetakKartuHutangSupplier(
+              getToday(),
+              data.kode_supplier || "SEMUA",
+              this.state.lihatLaporan
+            )
+          : ToastError("Data Laporan Kosong")
+      );
   }
   render() {
     return (

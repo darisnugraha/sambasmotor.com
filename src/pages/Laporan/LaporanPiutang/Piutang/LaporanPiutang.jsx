@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { AxiosMasterGet } from "../../../../axios";
+import { ToastError } from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
@@ -17,12 +18,20 @@ class LaporanPiutang extends Component {
 
   getLaporan() {
     AxiosMasterGet("laporan/piutang/saldo-piutang-global")
-      .then((res) =>
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        }
         this.setState({
           listLaporan: res.data,
-        })
-      )
-      .then(() => CetakLaporanPiutang(this.state.listLaporan));
+        });
+      })
+      .then(() =>
+        this.state.listLaporan.length
+          ? CetakLaporanPiutang(this.state.listLaporan)
+          : ToastError("Data Laporan Kosong")
+      );
   }
   render() {
     return (

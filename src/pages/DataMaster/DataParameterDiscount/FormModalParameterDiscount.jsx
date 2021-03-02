@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, submit } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { AxiosMasterGet } from "../../../axios";
 import {
   ReanderField,
@@ -107,11 +107,7 @@ class FormModalParameterDiscount extends Component {
           placeholder="Masukan Nominal Discount"
         />
 
-        <button
-          className="btn btn-primary"
-          disabled={this.props.onSend}
-          onClick={() => this.props(submit("dataParameterDiscount"))}
-        >
+        <button className="btn btn-primary" disabled={this.props.onSend}>
           {this.props.onSend ? (
             <>
               <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang Menyimpan

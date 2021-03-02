@@ -43,9 +43,11 @@ class CekBooking extends Component {
     return (
       <div>
         <Tabel
-          data={this.state.listBooking}
+          data={this.state.listBooking || []}
           columns={this.state.columns}
           keyField="no_booking"
+          empty={"true"}
+          emptyText="Data Kosong"
         />
         <div className="col-lg-12">
           <p>

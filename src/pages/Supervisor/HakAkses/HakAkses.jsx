@@ -3,10 +3,8 @@ import { Link } from "react-router-dom";
 import hakakses from "../../../assets/HakAkses.svg";
 import { Panel, PanelBody, PanelHeader } from "../../../components/panel/panel";
 import HeadHakAkses from "./HeadHakAkses";
-import { simpanLocal } from "../../../config/Helper";
 import { getListUser } from "../../../actions/supervisor_action";
 import { connect } from "react-redux";
-import { reset } from "redux-form";
 
 const maptostate = (state) => {
   return {
@@ -37,16 +35,7 @@ class CreateUser extends Component {
     this.props.dispatch(getListUser());
   }
   handleSubmit(hasil) {
-    let data = {
-      nama_lengkap: hasil.nama_lengkap,
-      user_id: hasil.user_id,
-      password: hasil.password,
-      retype_password: hasil.retype_password,
-      level: hasil.level,
-    };
-    simpanLocal("DataUser", data);
-    this.props.dispatch(reset("HeadHakAkses"));
-    this.props.dispatch(getListUser());
+    console.log(hasil);
   }
   render() {
     return (
@@ -73,6 +62,21 @@ class CreateUser extends Component {
             <div className="col-lg-12 mb-3">
               <HeadHakAkses onSubmit={(data) => this.handleSubmit(data)} />
             </div>
+            {/* <div className="container text-center mt-5 ">
+              <div className="align-item-center">
+                <img src={access} alt="Access" width="30%" />
+                <h1> Mohon Maaf</h1>
+                <h1 className="f-w-900">Menu ini Masih Dalam Pengembangan</h1>
+                <h5>Mungkin akan ada dalam update selanjutnya</h5>
+                <div>
+                  <Link to="/dashboard">
+                    <button className="btn btn-primary mt-3">
+                      <i className="fa fa-chevron-left mr-3"></i> Go Home
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            </div> */}
           </PanelBody>
         </Panel>
       </div>

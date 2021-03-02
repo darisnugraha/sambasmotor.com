@@ -284,6 +284,11 @@ class PembayaranService extends React.Component {
       bayar: false,
     });
   }
+  setBack() {
+    this.setState({
+      bayar: true,
+    });
+  }
   showSparepart() {
     this.props.dispatch(showModal());
     this.setState({
@@ -432,7 +437,6 @@ class PembayaranService extends React.Component {
       this.props.dispatch(getFaktur());
     }
   }
-
   bayarservice(hasil) {
     this.props.dispatch(onProgress());
     let data = {
@@ -444,7 +448,7 @@ class PembayaranService extends React.Component {
         parseFloat(this.props.grand_total_all) -
         parseFloat(hasil.barang || 0) -
         parseFloat(hasil.jasa || 0),
-      cash_rp: hasil.bayar,
+      cash_rp: hasil.bayar || 0,
       no_ref_cash: this.props.noFaktur,
       status_masuk_piutang: hasil.piutang || false,
       detail_barang:
@@ -502,7 +506,7 @@ class PembayaranService extends React.Component {
       .then(() => this.props.dispatch(getListPembayaran()))
       .then(() => this.props.dispatch(getFaktur()))
       .then(() => this.props.dispatch(onFinish()))
-      .then(() => this.props.getListBayarService())
+      .then(() => this.props.dispatch(getListBayarService()))
       .then(() => {
         AxiosMasterGet(
           `bayar-service/getDataServiceByNoService/${localStorage.getItem(
@@ -511,19 +515,18 @@ class PembayaranService extends React.Component {
         )
           .then((res) => CetakFaktur(res.data))
           .then(() => localStorage.removeItem("no_pembayaran_service"))
+          .then(() => this.setBack())
           .catch((err) =>
-            ToastError(`Error Print Faktur, Detail : ${err.response.data}`)
+            ToastError(
+              `Error Print Faktur, Detail : ${err.response.data}`
+            ).then(() => this.props.dispatch(onFinish()))
           );
       })
-      // .then(() =>
-      //   this.setState({
-      //     bayar: true,
-      //   })
-      // )
+      .then(() => this.props.dispatch(onFinish()))
       .catch((err) =>
-        ToastError(`Error : ${err.response.data}`).then(() =>
-          this.props.dispatch(onFinish())
-        )
+        ToastError(
+          `Gagal Menyimpan pembayaran , Error : ${err.response.data}`
+        ).then(() => this.props.dispatch(onFinish()))
       );
   }
   render() {

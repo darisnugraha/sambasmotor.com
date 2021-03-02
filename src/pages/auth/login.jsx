@@ -74,9 +74,20 @@ class Login extends React.Component {
         localStorageencryp("userdata", JSON.stringify(resposn.data));
         localStorageencryp("token", resposn.data.token);
         localStorageencryp("islogin", getToday());
+        localStorageencryp("Menu", this.handleMenu(resposn.data.akses));
       })
       .then(() => this.props.history.push("/dashboard"))
       .catch((err) => this.onfiled(err));
+  }
+
+  handleMenu(json) {
+    let hasil = [];
+    json
+      .map((list) => list.menu_name)
+      .forEach((data) => {
+        hasil.push(data);
+      });
+    return JSON.stringify(hasil);
   }
 
   render() {
@@ -93,7 +104,7 @@ class Login extends React.Component {
             <h4 className="caption-title">
               <b>Sambas</b> Motor
             </h4>
-            <p>Sambas Motor Admin Website ( PROGRESS : QC-4 )</p>
+            <p>Sambas Motor Admin Website ( PROGRESS : QC-6 2/3/2021 )</p>
           </div>
         </div>
         <div className="right-content">

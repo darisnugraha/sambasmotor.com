@@ -1,11 +1,5 @@
 import React, { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-import BootstrapTable from "react-bootstrap-table-next";
-import ToolkitProvider, {
-  Search,
-  CSVExport,
-} from "react-bootstrap-table2-toolkit";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import Skeleton from "react-loading-skeleton";
@@ -16,12 +10,11 @@ import {
   PanelBody,
   PanelHeader,
 } from "../../../components/panel/panel.jsx";
-import { hideModal, showModal } from "../../../actions/datamaster_action.jsx";
+import { hideModal } from "../../../actions/datamaster_action.jsx";
 import { getKunciBarang } from "../../../actions/stocking_action.jsx";
+import access from "../../../assets/accessDenied.svg";
 
 const ModalKunciBarang = lazy(() => import("./ModalKunciBarang.jsx"));
-const { SearchBar } = Search;
-const { ExportCSVButton } = CSVExport;
 
 const maptostate = (state) => {
   return {
@@ -150,57 +143,21 @@ class KunciBarang extends React.Component {
         <Panel>
           <PanelHeader>Kunci Barang</PanelHeader>
           <PanelBody>
-            <br />
-            {/* Master Kategori */}
-            {this.props.kunci_temp ? (
-              <div className="col-lg-12">
-                <ToolkitProvider
-                  keyField="no_acc"
-                  data={this.props.kunci_temp || []}
-                  columns={this.state.columns}
-                  search
-                  exportCSV={{
-                    fileName: "Export Master Kategori.csv",
-                  }}
-                >
-                  {(props) => (
-                    <div className="row">
-                      <div className="col-6">
-                        <div className="text-left">
-                          <SearchBar {...props.searchProps} />
-                        </div>
-                      </div>
-                      <div className="col-6">
-                        <div className="text-right">
-                          <button
-                            className="btn btn-primary"
-                            onClick={() =>
-                              this.props.dispatch(showModal(showModal()))
-                            }
-                          >
-                            Tambah Data <i className="fa fa-plus ml-3"></i>
-                          </button>
-                        </div>
-                      </div>
-                      <hr />
-                      <div className="col-12">
-                        <BootstrapTable
-                          pagination={paginationFactory()}
-                          {...props.baseProps}
-                        />
-                        <br />
-                        <ExportCSVButton {...props.csvProps}>
-                          Export CSV!!
-                        </ExportCSVButton>
-                      </div>
-                    </div>
-                  )}
-                </ToolkitProvider>
+            <div className="container text-center mt-5 ">
+              <div className="align-item-center">
+                <img src={access} alt="Access" width="30%" />
+                <h1> Mohon Maaf</h1>
+                <h1 className="f-w-900">Akses Di Menu Ini Tidak Di Izinkan</h1>
+                <h5>Hubungi Admin Jika Ingin Memakai Menu Ini</h5>
+                <div>
+                  <Link to="/dashboard">
+                    <button className="btn btn-primary mt-3">
+                      <i className="fa fa-chevron-left mr-3"></i> Go Home
+                    </button>
+                  </Link>
+                </div>
               </div>
-            ) : (
-              <Skeleton width={"100%"} height={400} />
-            )}
-            <br />
+            </div>
             {/* End Master Kategori */}
             <ModalGlobal
               title={

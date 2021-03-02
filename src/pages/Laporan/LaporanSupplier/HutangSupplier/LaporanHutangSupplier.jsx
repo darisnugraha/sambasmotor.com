@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { AxiosMasterGet } from "../../../../axios";
 import { getToday } from "../../../../components/notification/function";
+import { ToastError } from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
@@ -16,9 +17,11 @@ class LaporanHutangSupplier extends Component {
     this.state = {};
   }
   handleSubmit() {
-    AxiosMasterGet("laporan/supplier/lap-saldo-hutang-supplier").then((res) =>
-      CetakHutangSupplier(getToday(), res.data)
-    );
+    AxiosMasterGet("laporan/supplier/lap-saldo-hutang-supplier")
+      .then((res) => CetakHutangSupplier(getToday(), res.data))
+      .catch((err) =>
+        ToastError(`Error Mendapat Laporan, Detail : ${err.response.data}`)
+      );
   }
   render() {
     return (

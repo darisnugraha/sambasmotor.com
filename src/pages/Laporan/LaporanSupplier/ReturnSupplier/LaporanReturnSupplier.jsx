@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { AxiosMasterGet } from "../../../../axios";
 import { getToday } from "../../../../components/notification/function";
+import { ToastError } from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
@@ -14,7 +15,9 @@ import HeadLaporanReturnSupplier from "./HeadLaporanReturnSupplier";
 class LaporanReturnSupplier extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      hasilLaporan: [],
+    };
   }
 
   handleSubmit(data) {
@@ -24,14 +27,30 @@ class LaporanReturnSupplier extends Component {
           data.tanggal_akhir
         }`
     )
-      .then((res) =>
-        this.setState({
-          hasilLaporan: res.data,
-        })
-      )
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        } else {
+          this.setState({
+            hasilLaporan: res.data,
+          });
+        }
+      })
       .then(() =>
         data.type === "DETAIL"
-          ? CetakReturnSupplier(
+          ? this.state.hasilLaporan.length
+            ? CetakReturnSupplier(
+                data.kode_supplier || "SEMUA",
+                getToday(),
+                "ADMIN",
+                getToday(),
+                "ADMIN",
+                this.state.hasilLaporan
+              )
+            : ToastError("Data Laporan Kosong")
+          : this.state.hasilLaporan.length
+          ? CetakReturnSupplierRekap(
               data.kode_supplier || "SEMUA",
               getToday(),
               "ADMIN",
@@ -39,14 +58,7 @@ class LaporanReturnSupplier extends Component {
               "ADMIN",
               this.state.hasilLaporan
             )
-          : CetakReturnSupplierRekap(
-              data.kode_supplier || "SEMUA",
-              getToday(),
-              "ADMIN",
-              getToday(),
-              "ADMIN",
-              this.state.hasilLaporan
-            )
+          : ToastError("Data Laporan Kosong")
       );
   }
   render() {

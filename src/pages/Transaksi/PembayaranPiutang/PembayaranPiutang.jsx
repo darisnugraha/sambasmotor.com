@@ -22,6 +22,7 @@ import {
 } from "../../../components/notification/function.jsx";
 import {
   getFaktur,
+  hideModal,
   onFinish,
   onProgress,
 } from "../../../actions/datamaster_action.jsx";
@@ -68,20 +69,17 @@ class PembayaranPiutang extends React.Component {
       tanggal: hasil.tanggal,
       no_bon: hasil.no_bon,
       kode_customer: hasil.kode_customer,
-      total_pembayaran: parseFloat(hasil.cash) + parseFloat(hasil.transfer),
-      cash_rp: hasil.cash,
+      total_pembayaran:
+        parseFloat(hasil.cash || 0) + parseFloat(hasil.transfer || 0),
+      cash_rp: hasil.cash || 0,
       no_ref_cash: this.props.noFaktur,
-      transfer_rp: hasil.transfer,
+      transfer_rp: hasil.transfer || 0,
       no_ref: this.props.noFaktur,
-      no_ac_asal: hasil.ac_asal,
-      no_ac_tujuan: `${hasil.ac_tujuan}`,
+      no_ac_asal: hasil.ac_asal || "-",
+      no_ac_tujuan: `${hasil.ac_tujuan || "-"}`,
     };
     console.log(JSON.stringify(data));
-    AxiosMasterPost(
-      this.props.dispatch,
-      "bayar-piutang-customer/post-transaksi",
-      data
-    )
+    AxiosMasterPost("bayar-piutang-customer/post-transaksi", data)
       .then(() => NotifSucces("Pembayaran Berhasl"))
       .then(() =>
         CetakPiutang(
@@ -102,12 +100,12 @@ class PembayaranPiutang extends React.Component {
             [
               "1",
               "Cash",
-              `${parseFloat(hasil.cash).toLocaleString("id-ID") || 0}`,
+              `${parseFloat(hasil.cash || 0).toLocaleString("id-ID") || 0}`,
             ],
             [
               "2",
               "Transfer",
-              `${parseFloat(hasil.transfer).toLocaleString("id-ID") || 0}`,
+              `${parseFloat(hasil.transfer || 0).toLocaleString("id-ID") || 0}`,
             ],
           ],
           [
@@ -130,7 +128,8 @@ class PembayaranPiutang extends React.Component {
       )
       .then(() => this.props.dispatch(getFaktur()))
       .then(() => this.props.dispatch(onFinish()))
-
+      .then(() => this.props.dispatch(hideModal()))
+      .then(() => window.location.reload())
       .catch((err) =>
         ToastError(`Gagal, Error : ${err.response.data}`).then(() =>
           this.props.dispatch(onFinish())

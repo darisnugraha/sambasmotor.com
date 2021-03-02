@@ -18,7 +18,9 @@ import HeadLaporanMekanik from "./HeadLaporanMekanik";
 class LaporanMekanik extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      listLaporan: [],
+    };
   }
 
   getLaporan(hasil) {
@@ -26,20 +28,27 @@ class LaporanMekanik extends Component {
     AxiosMasterGet(
       `laporan/service/lap-mekanik/${hasil.tanggal_awal}&${hasil.tanggal_akhir}&${hasil.kode_mekanik}`
     )
-      .then((res) =>
-        this.setState({
-          listLaporan: res && res.data,
-        })
-      )
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        } else {
+          this.setState({
+            listLaporan: res && res.data,
+          });
+        }
+      })
       .then(() =>
-        CetakMekanik(
-          hasil.tanggal_awal,
-          hasil.kode_mekanik,
-          getUserData().user_name,
-          getToday(),
-          getUserData().user_name,
-          this.state.listLaporan
-        )
+        this.state.listLaporan.length
+          ? CetakMekanik(
+              hasil.tanggal_awal,
+              hasil.kode_mekanik,
+              getUserData().user_name,
+              getToday(),
+              getUserData().user_name,
+              this.state.listLaporan
+            )
+          : ToastError("Data Laporan Kosong")
       )
       .then(() => this.props.dispatch(onFinish()))
       .catch((err) =>

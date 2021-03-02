@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, submit } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { getGudang, showModal } from "../../../actions/datamaster_action";
 import { getListStockOpname } from "../../../actions/supervisor_action";
 import {
@@ -96,11 +96,7 @@ class HeadStockOpname extends Component {
           </div>
           <div className="col-lg-12 mb-3">
             <div className="text-right">
-              <button
-                className="btn btn-primary"
-                disabled={this.props.onSend}
-                onClick={() => this.props(submit("HeadStockOpname"))}
-              >
+              <button className="btn btn-primary" disabled={this.props.onSend}>
                 {this.props.onSend ? (
                   <>
                     <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang

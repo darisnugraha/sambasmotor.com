@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, submit } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { ReanderField } from "../../../components/notification/notification";
 import ValidasiMasterKategori from "../../../validasi/ValidasiMasterKategori";
 
@@ -48,11 +48,7 @@ class FormModalKendaraan extends Component {
           label="Nama Kendaraan"
           placeholder="Masukan Nama Kendaraan"
         />
-        <button
-          className="btn btn-primary"
-          disabled={this.props.onSend}
-          onClick={() => this.props(submit("dataKendaraan"))}
-        >
+        <button className="btn btn-primary" disabled={this.props.onSend}>
           {this.props.onSend ? (
             <>
               <i className="fas fa-spinner fa-spin"></i> &nbsp; Sedang Menyimpan

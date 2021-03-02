@@ -5,8 +5,14 @@ import { createNumberMask } from "redux-form-input-masks";
 import { getListPembayaran } from "../../../actions/transaksi_action";
 import { ReanderFieldInline } from "../../../components/notification/notification";
 import Tabel from "../../../components/Tabel/tabel";
-import { required } from "../../../validasi/normalize";
 
+const validate = (value) => {
+  let errors = {};
+  if (!value.bayar && !value.piutang) {
+    errors.bayar = "Tidak boleh Kosong";
+  }
+  return errors;
+};
 const currencyMask = createNumberMask({
   prefix: "Rp. ",
   locale: "id-ID",
@@ -72,7 +78,7 @@ class ModalBayarService extends Component {
                           className=" form-control-lg"
                           onChange={(e) => this.setBayar(e)}
                           {...currencyMask}
-                          validate={required}
+                          readOnly={this.props.checkpiutang}
                         />
                       </div>
                     </div>
@@ -91,6 +97,7 @@ class ModalBayarService extends Component {
                           className=" form-control-lg"
                           onChange={(e) => this.setBayar(e)}
                           {...currencyMask}
+                          readOnly={this.props.checkpiutang}
                         />
                       </div>
                     </div>
@@ -108,6 +115,7 @@ class ModalBayarService extends Component {
                           className=" form-control-lg"
                           onChange={(e) => this.setBayar(e)}
                           {...currencyMask}
+                          readOnly={this.props.checkpiutang}
                         />
                       </div>
                     </div>
@@ -169,6 +177,7 @@ class ModalBayarService extends Component {
 ModalBayarService = reduxForm({
   form: "ModalBayarService",
   enableReinitialize: true,
+  validate: validate,
 })(ModalBayarService);
 const selector = formValueSelector("ModalBayarService");
 export default connect((state) => {
@@ -186,5 +195,6 @@ export default connect((state) => {
         state.transaksi.sum_pembayaran),
     bayar: selector(state, "bayar") || 0,
     onSend: state.datamaster.onSend,
+    checkpiutang: selector(state, "piutang") || false,
   };
 })(ModalBayarService);

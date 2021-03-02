@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { AxiosMasterGet } from "../../../../axios";
 import { getToday } from "../../../../components/helpers/function";
+import { ToastError } from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
@@ -26,14 +27,30 @@ class LaporanPenerimaanSupplier extends Component {
           data.tanggal_akhir
         }`
     )
-      .then((res) =>
-        this.setState({
-          hasilLaporan: res.data,
-        })
-      )
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        } else {
+          this.setState({
+            hasilLaporan: res.data,
+          });
+        }
+      })
       .then(() =>
         data.type === "DETAIL"
-          ? CetakPenerimaanSupplier(
+          ? this.state.hasilLaporan.length
+            ? CetakPenerimaanSupplier(
+                data.kode_supplier || "SEMUA",
+                getToday(),
+                "ADMIN",
+                getToday(),
+                "ADMIN",
+                this.state.hasilLaporan
+              )
+            : ToastError("Data Laporan Kosong")
+          : this.state.hasilLaporan.length
+          ? CetakPenerimaanSupplierRekap(
               data.kode_supplier || "SEMUA",
               getToday(),
               "ADMIN",
@@ -41,14 +58,7 @@ class LaporanPenerimaanSupplier extends Component {
               "ADMIN",
               this.state.hasilLaporan
             )
-          : CetakPenerimaanSupplierRekap(
-              data.kode_supplier || "SEMUA",
-              getToday(),
-              "ADMIN",
-              getToday(),
-              "ADMIN",
-              this.state.hasilLaporan
-            )
+          : ToastError("Data Laporan Kosong")
       );
   }
   render() {

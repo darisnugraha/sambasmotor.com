@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, submit } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { onFinish, onProgress } from "../../../actions/datamaster_action";
 import { AxiosMasterGet } from "../../../axios";
 import {
@@ -167,13 +167,7 @@ class ModalTambahStockBarang extends Component {
           </div>
           <div className="col-lg-12">
             <div className="text-right">
-              <button
-                className="btn btn-primary"
-                onKeyPress={(e) => {
-                  e.key === "Enter" &&
-                    this.props.dispatch(submit("ModalTambahStockBarang"));
-                }}
-              >
+              <button className="btn btn-primary">
                 Simpan <i className="fa fa-paper-plane"></i>
               </button>
             </div>

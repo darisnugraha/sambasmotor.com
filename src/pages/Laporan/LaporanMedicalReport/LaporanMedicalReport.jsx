@@ -1,6 +1,7 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { onFinish } from "../../../actions/datamaster_action";
+import { onFinish, onProgress } from "../../../actions/datamaster_action";
 import { AxiosMasterGet } from "../../../axios";
 import { ToastError } from "../../../components/notification/notification";
 import { Panel, PanelBody, PanelHeader } from "../../../components/panel/panel";
@@ -15,20 +16,30 @@ class LaporanMedicalReport extends Component {
     };
   }
   getLaporan(hasil) {
-    this.props.dispatch(onprogress());
-    AxiosMasterGet("")
-      .then((res) =>
-        this.setState({
-          listLaporan: res && res.data,
-        })
-      )
+    this.props.dispatch(onProgress());
+    AxiosMasterGet(
+      "laporan/service/medical-report/" +
+        `${hasil.tanggal_awal}&${hasil.tanggal_akhir}&${hasil.nopol_kendaran}`
+    )
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        } else {
+          this.setState({
+            listLaporan: res && res.data,
+          });
+        }
+      })
       .then(() =>
-        CetakMedicalReport(
-          hasil.tanggal_awal,
-          hasil.taggal_akhir,
-          hasil.nopol_kendaraan,
-          this.state.listLaporan
-        )
+        this.state.listLaporan.length
+          ? CetakMedicalReport(
+              hasil.tanggal_awal,
+              hasil.tanggal_akhir,
+              hasil.nopol_kendaran,
+              this.state.listLaporan
+            )
+          : ToastError("Data Laporan Kosong")
       )
       .then(() => this.props.dispatch(onFinish()))
       .catch((err) =>
@@ -60,4 +71,4 @@ class LaporanMedicalReport extends Component {
   }
 }
 
-export default LaporanMedicalReport;
+export default connect()(LaporanMedicalReport);

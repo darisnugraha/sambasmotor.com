@@ -86,7 +86,7 @@ class LihatService extends React.Component {
     )
       .then((res) => {
         if (res && !res.data) {
-          ToastError("Data Kosong");
+          ToastError("Data Laporan Kosong");
         } else {
           this.setState({
             listService: res && res.data,

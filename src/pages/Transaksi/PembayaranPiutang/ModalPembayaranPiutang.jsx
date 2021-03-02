@@ -13,10 +13,18 @@ const validate = (values) => {
   if (!values.cash && !values.transfer) {
     errors.cash = "Mohon isi Salah Satu / keduanya";
     errors.transfer = "Mohon isi Salah Satu / keduanya";
-  }
-  if (values.cash + values.transfer > values.total_piutang) {
-    errors.cash = "Tidak Boleh Lebih Dari Total Piutang, Mohon Kurangi";
-    errors.transfer = "Tidak Boleh Lebih Dari Total Piutang, Mohon Kurangi";
+  } else if (
+    parseFloat(values.cash) + parseFloat(values.transfer) >
+    parseFloat(values.total_piutang)
+  ) {
+    errors.cash = "Tidak Boleh melebihi piutang";
+    errors.transfer = "Tidak Boleh melebihi piutang";
+  } else if (
+    parseFloat(values.cash) + parseFloat(values.transfer) <
+    parseFloat(values.total_piutang)
+  ) {
+    errors.cash = "Tidak Boleh kurang dari piutang";
+    errors.transfer = "Tidak Boleh kurang dari piutang";
   }
 
   return errors;

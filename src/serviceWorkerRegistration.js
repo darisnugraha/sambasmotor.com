@@ -62,7 +62,7 @@ function registerValidSW(swUrl, config) {
     .then((registration) => {
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
-        const waitingServiceWorker = registration.waiting;
+        const registrationWaiting = registration.waiting;
         if (installingWorker == null) {
           return;
         }
@@ -72,29 +72,32 @@ function registerValidSW(swUrl, config) {
               // At this point, the updated precached content has been fetched,
               // but the previous service worker will still serve the older
               // content until all client tabs are closed.
+              console.log(
+                "New content is available and will be used when all " +
+                  "tabs for this page are closed. See https://bit.ly/CRA-PWA."
+              );
+
               Swal.fire({
-                title: "Update Available..",
                 text:
-                  "Please Close This Tab / Browser and Open Again, Thanks...",
+                  "Update Tersedia, Silahkan Tutup Tab Halaman ini dan buka kembali",
                 icon: "info",
                 showConfirmButton: true,
-                confirmButtonText: "OK",
-              });
-              waitingServiceWorker.postMessage({ type: "SKIP_WAITING" });
-              if (waitingServiceWorker) {
-                waitingServiceWorker.addEventListener(
-                  "statechange",
-                  (event) => {
-                    if (event.target.state === "activated") {
-                      window.location.replace(
-                        "https://octavian25.github.io/sambasmotor.com/"
-                      );
+                position: "center",
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                allowEnterKey: false,
+                footer:
+                  '<a href="https://octavian25.github.io/sambasmotor.com/">Klik untuk buka halaman baru</a>',
+              }).then((res) => {
+                if (res.isConfirmed) {
+                  registrationWaiting.postMessage({ type: "SKIP_WAITING" });
+                  registrationWaiting.addEventListener("statechange", (e) => {
+                    if (e.target.state === "activated") {
+                      window.location.reload();
                     }
-                  }
-                );
-                waitingServiceWorker.postMessage({ type: "SKIP_WAITING" });
-              }
-
+                  });
+                }
+              });
               // Execute callback
               if (config && config.onUpdate) {
                 config.onUpdate(registration);
@@ -108,7 +111,6 @@ function registerValidSW(swUrl, config) {
               // Execute callback
               if (config && config.onSuccess) {
                 config.onSuccess(registration);
-                console.log("ON SUCCESS CALL BACK");
               }
             }
           }

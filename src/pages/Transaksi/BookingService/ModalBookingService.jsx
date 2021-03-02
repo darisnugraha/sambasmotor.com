@@ -139,6 +139,7 @@ class ModalBookingService extends Component {
                   className="form-control"
                   validate={required}
                 />
+                <span>**Mohon Isi Catatan</span>
               </div>
             </div>
           </div>

@@ -65,11 +65,7 @@ class PembayaranSupplier extends React.Component {
     };
     console.log(JSON.stringify(data));
     // return false;
-    AxiosMasterPost(
-      this.props.dispatch,
-      "bayar-hutang-supplier/post-transaksi",
-      data
-    )
+    AxiosMasterPost("bayar-hutang-supplier/post-transaksi", data)
       .then(() =>
         CetakNota(
           "Tanggal",

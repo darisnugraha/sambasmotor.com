@@ -90,8 +90,8 @@ class PenjualanSparepart extends Component {
   sendData(hasil) {
     this.props.dispatch(onProgress());
     let array = JSON.parse(localStorage.getItem("headSparepart")) || [];
-    array["cash_rp"] = hasil.bayar;
-    array["status_masuk_piutang"] = hasil.piutang || false;
+    array["cash_rp"] = hasil.bayar || 0;
+    array["status_masuk_piutang"] = hasil.piutang === undefined ? false : true;
     array["detail_non_tunai"] =
       localStorage.getItem("listPembayaran_temp") === "[]"
         ? [

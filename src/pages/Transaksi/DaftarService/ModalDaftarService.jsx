@@ -7,6 +7,7 @@ import {
   ReanderSelect,
   RenderFieldGroup,
   ToastError,
+  ToastSucces,
 } from "../../../components/notification/notification";
 import Stepper from "react-stepper-horizontal";
 import NavigationStepper from "../../../components/content/NavigationStepper";
@@ -21,6 +22,7 @@ import {
 import { AxiosMasterGet } from "../../../axios";
 import { getToday } from "../../../components/notification/function";
 import Tabel from "../../../components/Tabel/tabel";
+import { getListService } from "../../../actions/transaksi_action";
 
 class ModalDaftarService extends Component {
   constructor(props) {
@@ -52,8 +54,40 @@ class ModalDaftarService extends Component {
           dataField: "keterangan",
           text: "Keterangan",
         },
+        {
+          dataField: "action",
+          text: "Action",
+          csvExport: false,
+          headerClasses: "text-center",
+          formatter: (rowcontent, row, rowIndex) => {
+            this.setState({});
+            return (
+              <div className="row text-center">
+                <div className="col-12">
+                  <button
+                    type="button"
+                    onClick={() => this.deleteBarang(rowIndex)}
+                    className="btn btn-danger"
+                  >
+                    Hapus
+                    <i className="fa fa-trash ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            );
+          },
+        },
       ],
     };
+  }
+
+  deleteBarang(index) {
+    let data =
+      JSON.parse(localStorage.getItem("list_service_daftar_temp")) || [];
+    data.splice(index, 1);
+    localStorage.setItem("list_service_daftar_temp", JSON.stringify(data));
+    ToastSucces("Berhasil Dihapus");
+    this.props.dispatch(getListService());
   }
   handleChange(nama, data) {
     let split = data || "DEFAULT|DEFAULT";

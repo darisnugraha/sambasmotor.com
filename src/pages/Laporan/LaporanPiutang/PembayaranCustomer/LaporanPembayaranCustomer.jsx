@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { AxiosMasterGet } from "../../../../axios";
+import { ToastError } from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
@@ -12,19 +13,30 @@ import HeadLaporanPembayaranCustomer from "./HeadLaporanPembayaranCustomer";
 class LaporanPembayaranCustomer extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      listLaporan: [],
+    };
   }
   getLaporan(hasil) {
     AxiosMasterGet(
       "laporan/bayar-piutang-customer/lap-pembayaran-piutang/" +
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}&${hasil.kode_customer}`
     )
-      .then((res) =>
-        this.setState({
-          listLaporan: res.data,
-        })
-      )
-      .then(() => CetakPembayaranPiutang(this.state.listLaporan));
+      .then((res) => {
+        if (res.data) {
+          ToastError("data Kosong");
+          return false;
+        } else {
+          this.setState({
+            listLaporan: res.data,
+          });
+        }
+      })
+      .then(() =>
+        this.state.listLaporan.length
+          ? CetakPembayaranPiutang(this.state.listLaporan)
+          : ToastError("Data Laporan Kosong")
+      );
   }
   render() {
     return (

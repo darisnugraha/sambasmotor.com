@@ -2,7 +2,10 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { AxiosMasterGet } from "../../../../axios";
 import { getToday } from "../../../../components/notification/function";
-import { getUserData } from "../../../../components/notification/notification";
+import {
+  getUserData,
+  ToastError,
+} from "../../../../components/notification/notification";
 import {
   Panel,
   PanelBody,
@@ -23,19 +26,26 @@ class LaporanKartuStock extends Component {
       "laporan/stocking/lap-saldo-barang/" +
         `${hasil.tanggal_awal}&${hasil.kode_kategori}&${hasil.kode_jenis}&${hasil.kode_lokasi}`
     )
-      .then((res) =>
-        this.setState({
-          Laporan: res.data,
-        })
-      )
+      .then((res) => {
+        if (res.data) {
+          ToastError("Data Laporan Kosong");
+          return false;
+        } else {
+          this.setState({
+            Laporan: res.data,
+          });
+        }
+      })
       .then(() =>
-        CetakStockPerKategori(
-          hasil.tanggal_awal,
-          getUserData().user_name,
-          getToday(),
-          getUserData().user_name,
-          this.state.Laporan
-        )
+        this.state.Laporan.length
+          ? CetakStockPerKategori(
+              hasil.tanggal_awal,
+              getUserData().user_name,
+              getToday(),
+              getUserData().user_name,
+              this.state.Laporan
+            )
+          : ToastError("Data Laporan Kosong")
       );
   }
   render() {

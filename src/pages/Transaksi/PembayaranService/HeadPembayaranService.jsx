@@ -248,14 +248,14 @@ class HeadPembayaranService extends Component {
                               <i className="fa fa-wrench ml-3"></i>
                             </button>
                           </div>
-                          <div className="col-4">
+                          {/* <div className="col-4">
                             <div className="text-right">
                               <button type="button" className="btn btn-primary">
                                 Batal
                                 <i className="fa fa-times ml-3"></i>
                               </button>
                             </div>
-                          </div>
+                          </div> */}
                         </div>
                       </div>
                       <div className="col-12">

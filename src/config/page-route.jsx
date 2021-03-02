@@ -328,9 +328,9 @@ const routes = [
   },
   // Data Selving
   {
-    path: "/master-selfing",
+    path: "/master-shelving",
     exact: true,
-    title: "Master Selfing",
+    title: "Master Shelving",
     component: () => <MasterSelfing />,
   },
   // Data Ukuran

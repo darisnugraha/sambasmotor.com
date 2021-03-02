@@ -255,12 +255,16 @@ export default connect((state) => {
   return {
     onSend: state.datamaster.onSend,
     total: parseFloat(cash || 0) + parseFloat(transfer || 0),
-    sisa_hutang: state.transaksi.sub_total,
+    sisa_hutang:
+      state.transaksi.sub_total -
+      parseFloat(localStorage.getItem("penerimaan_discount") || 0),
     retur_rp: total_return,
     kode_supplier: state.transaksi.listPembayaran.kode_supplier,
     no_terima: state.transaksi.listPembayaran.no_terima,
     tanggal_terima: state.transaksi.listPembayaran.tanggal_terima,
     total_cash:
-      parseFloat(state.transaksi.sub_total) - parseFloat(total_return),
+      parseFloat(state.transaksi.sub_total) -
+      parseFloat(total_return) -
+      parseFloat(localStorage.getItem("penerimaan_discount") || 0),
   };
 })(ModalBayarSupplierPenerimaan);

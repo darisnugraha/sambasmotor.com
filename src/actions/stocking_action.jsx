@@ -6,6 +6,7 @@ export const GET_KUNCI_BARANG_TEMP = "GET_KUNCI_BARANG_TEMP";
 export const GET_KONVERSI_BARANG_TEMP = "GET_KONVERSI_BARANG_TEMP";
 export const GET_PENGELUARAN_BARANG_TEMP = "GET_PENGELUARAN_BARANG_TEMP";
 export const GET_TAMBAH_STOCK_TEMP = "GET_TAMBAH_STOCK_TEMP";
+export const GET_LIST_PENGELUARAN_BARANG = "GET_LIST_PENGELUARAN_BARANG";
 export const GET_PENGELUARAN_BARANG_SELECTED =
   "GET_PENGELUARAN_BARANG_SELECTED";
 
@@ -65,6 +66,17 @@ export const getKunciBarang = () => {
     });
   };
 };
+export const getListPengeluaranBarang = () => {
+  let data = JSON.parse(localStorage.getItem("pengeluaran_barang")) || [];
+  return (dispatch) => {
+    dispatch({
+      type: GET_LIST_PENGELUARAN_BARANG,
+      payload: {
+        data: data,
+      },
+    });
+  };
+};
 
 export const getPengeluaranBarang = (kode) => {
   return (dispatch) => {
@@ -75,10 +87,11 @@ export const getPengeluaranBarang = (kode) => {
         for (let i = 0; i < data.length; i++) {
           arrayBaru.push(data[i].detail);
         }
+        localStorage.setItem("pengeluaran_barang", JSON.stringify(arrayBaru));
         dispatch({
           type: GET_PENGELUARAN_BARANG_TEMP,
           payload: {
-            data: arrayBaru,
+            data: JSON.parse(localStorage.getItem("pengeluaran_barang")) || [],
           },
         });
       })
