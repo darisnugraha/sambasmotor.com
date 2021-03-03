@@ -19,7 +19,7 @@ class LaporanPiutang extends Component {
   getLaporan() {
     AxiosMasterGet("laporan/piutang/saldo-piutang-global")
       .then((res) => {
-        if (res.data) {
+        if (res.data.lenght === 0) {
           ToastError("Data Laporan Kosong");
           return false;
         }

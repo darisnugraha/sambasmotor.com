@@ -6,7 +6,6 @@ import {
   PanelBody,
 } from "../../components/panel/panel.jsx";
 // import { Line } from "react-chartjs-2";
-import hasil from "../../assets/QC/QC.docx";
 import developed from "../../assets/developed.svg";
 
 class DashboardV1 extends React.Component {

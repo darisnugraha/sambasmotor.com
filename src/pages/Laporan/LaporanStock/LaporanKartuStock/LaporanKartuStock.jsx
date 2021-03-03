@@ -27,7 +27,7 @@ class LaporanKartuStock extends Component {
         `${hasil.tanggal_awal}&${hasil.kode_kategori}&${hasil.kode_jenis}&${hasil.kode_lokasi}`
     )
       .then((res) => {
-        if (res.data) {
+        if (res.data.lenght === 0) {
           ToastError("Data Laporan Kosong");
           return false;
         } else {

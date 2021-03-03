@@ -24,7 +24,7 @@ class LaporanService extends Component {
       }&${hasil.kode_jenis || "SEMUA"}`
     )
       .then((res) => {
-        if (res.data) {
+        if (res.data.lenght === 0) {
           ToastError("Data Laporan Kosong");
           return false;
         } else {

@@ -23,7 +23,7 @@ class LaporanPenjualanSales extends Component {
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}&${hasil.kode_sales}`
     )
       .then((res) => {
-        if (res.data) {
+        if (res.data.lenght === 0) {
           ToastError("Data Laporan Kosong");
           return false;
         } else {

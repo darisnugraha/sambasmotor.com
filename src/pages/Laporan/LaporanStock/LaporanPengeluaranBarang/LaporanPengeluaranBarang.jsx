@@ -27,7 +27,7 @@ class LaporanPengeluaranBarang extends Component {
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}`
     )
       .then((res) => {
-        if (res.data) {
+        if (res.data.length === 0) {
           ToastError("Data Laporan Kosong");
           return false;
         } else {

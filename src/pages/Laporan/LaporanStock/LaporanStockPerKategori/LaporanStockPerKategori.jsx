@@ -27,7 +27,7 @@ class LaporanStockPerKategori extends Component {
       `laporan/stocking/lap-kartu-barang/${hasil.kode_supplier}&${hasil.tanggal_awal}&${hasil.tanggal_akhir}&${hasil.kode_barcode}`
     )
       .then((res) => {
-        if (res.data) {
+        if (res.data.lenght === 0) {
           ToastError("Data Laporan Kosong");
           return false;
         } else {

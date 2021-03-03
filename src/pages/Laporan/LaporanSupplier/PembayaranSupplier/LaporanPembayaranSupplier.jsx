@@ -27,7 +27,7 @@ class LaporanPembayaranSupplier extends Component {
         `${data.kode_supplier}&${data.tanggal_awal}&${data.tanggal_akhir}`
     )
       .then((res) => {
-        if (res.data) {
+        if (res.data.lenght === 0) {
           ToastError("Data Laporan Kosong");
           return false;
         } else {

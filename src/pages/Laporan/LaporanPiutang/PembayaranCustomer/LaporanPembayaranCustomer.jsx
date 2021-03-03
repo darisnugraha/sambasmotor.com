@@ -23,7 +23,7 @@ class LaporanPembayaranCustomer extends Component {
         `${hasil.tanggal_awal}&${hasil.tanggal_akhir}&${hasil.kode_customer}`
     )
       .then((res) => {
-        if (res.data) {
+        if (res.data.lenght === 0) {
           ToastError("data Kosong");
           return false;
         } else {
