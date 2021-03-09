@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm } from "redux-form";
+import { Field, formValueSelector, reduxForm } from "redux-form";
 import { AxiosMasterGet } from "../../../axios";
 import { getToday } from "../../../components/notification/function";
 import {
   ReanderField,
   ReanderSelect,
+  ToastError,
   ToastSucces,
   ToastWarning,
 } from "../../../components/notification/notification";
@@ -19,6 +20,8 @@ class HeadPenjualanSparepart extends Component {
     this.state = {
       listCustomer: [],
       listDivisi: [],
+      reguler: true,
+      member: false,
       columns: [
         {
           dataField: "kode_supplier",
@@ -52,8 +55,12 @@ class HeadPenjualanSparepart extends Component {
       ],
     };
   }
-  componentDidMount() {
-    this.props.change("tanggal", getToday());
+  getCustomer() {
+    this.setState({
+      member: false,
+      reguler: true,
+    });
+    this.props.change("pelanggan", "");
     AxiosMasterGet("customer/get/all").then((res) =>
       this.setState({
         listCustomer:
@@ -67,6 +74,10 @@ class HeadPenjualanSparepart extends Component {
           }),
       })
     );
+  }
+  componentDidMount() {
+    this.props.change("tanggal", getToday());
+    this.getCustomer();
     AxiosMasterGet("pegawai/get/by-kode-divisi/SLS").then((res) =>
       this.setState({
         listDivisi:
@@ -104,6 +115,28 @@ class HeadPenjualanSparepart extends Component {
       this.props.dispatch(getListBarang());
     }
   }
+  getMember() {
+    this.setState({
+      member: true,
+      reguler: false,
+    });
+    this.props.change("pelanggan", "");
+    AxiosMasterGet("member/get-member-all")
+      .then((res) =>
+        this.setState({
+          listCustomer:
+            res &&
+            res.data.map((list) => {
+              let data = {
+                value: `${list.nama_customer}||${list.alamat}||${list.handphone}`,
+                name: list.nama_customer,
+              };
+              return data;
+            }),
+        })
+      )
+      .catch(() => ToastError("Error Get Member"));
+  }
   render() {
     return (
       <form
@@ -133,7 +166,7 @@ class HeadPenjualanSparepart extends Component {
               readOnly
             />
           </div>
-          {/* <div className="col-lg-3">
+          <div className="col-lg-3">
             <label className="mb-4">Jenis Penjualan</label>
             <div>
               <label>
@@ -143,6 +176,8 @@ class HeadPenjualanSparepart extends Component {
                   type="radio"
                   value="member"
                   className="mr-3"
+                  onClick={() => this.getMember()}
+                  checked={this.state.member}
                 />
                 Member
               </label>
@@ -153,11 +188,13 @@ class HeadPenjualanSparepart extends Component {
                   type="radio"
                   value="reguler"
                   className="mr-3"
+                  onClick={() => this.getCustomer()}
+                  checked={this.state.reguler}
                 />
                 Reguler
               </label>
             </div>
-          </div> */}
+          </div>
           <div className="col-lg-3">
             <Field
               name="kode_sales"
@@ -294,6 +331,7 @@ HeadPenjualanSparepart = reduxForm({
   form: "HeadPenjualanSparepart",
   enableReinitialize: true,
 })(HeadPenjualanSparepart);
+const selector = formValueSelector("HeadPenjualanSparepart");
 export default connect((state) => {
   return {
     initialValues: {
@@ -312,5 +350,6 @@ export default connect((state) => {
     },
     listBarangSparepart: state.transaksi.listBarangSparepart,
     totalTukar: state.transaksi.totalTukar,
+    jenis_penjualan: selector(state, "jenis_penjualan"),
   };
 })(HeadPenjualanSparepart);

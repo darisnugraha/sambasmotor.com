@@ -50,11 +50,11 @@ class LaporanService extends Component {
           <li className="breadcrumb-item">
             <Link to="#">Laporan</Link>
           </li>
-          <li className="breadcrumb-item active">Laporan Penjualan Sales</li>
+          <li className="breadcrumb-item active">Laporan Service</li>
         </ol>
-        <h1 className="page-header">Laporan Penjualan Sales </h1>
+        <h1 className="page-header">Laporan Service </h1>
         <Panel>
-          <PanelHeader>Laporan Penjualan Sales</PanelHeader>
+          <PanelHeader>Laporan Service</PanelHeader>
           <PanelBody>
             <HeadLaporanService onSubmit={(data) => this.getLaporan(data)} />
           </PanelBody>

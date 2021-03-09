@@ -6,6 +6,7 @@ import { AxiosMasterPost } from "../../../axios";
 import {
   NotifError,
   NotifSucces,
+  ToastError,
 } from "../../../components/notification/notification";
 import { Panel, PanelBody, PanelHeader } from "../../../components/panel/panel";
 import HeadTambahPointManual from "./HeadTambahPointManual";
@@ -25,11 +26,10 @@ class TambahPointManual extends Component {
 
     AxiosMasterPost("member/tambah-ambil-poin-manual", data)
       .then(() => this.props.dispatch(onFinish()))
-      .then(() =>
-        NotifSucces(`${hasil.jenis} Berhasil`).catch((err) =>
-          NotifError(
-            `Gagal ${hasil.jenis}, Error: ${err.response.data}`
-          ).then(() => this.props.dispatch(onFinish()))
+      .then(() => NotifSucces(`${hasil.jenis} Berhasil`))
+      .catch((err) =>
+        ToastError(`${err.response.data}`).then(() =>
+          this.props.dispatch(onFinish())
         )
       );
   }

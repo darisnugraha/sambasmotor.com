@@ -15,6 +15,7 @@ import axios from "axios";
 import { getToday } from "../../../components/helpers/function.jsx";
 import { AxiosMasterPost } from "../../../axios.js";
 import { onFinish, onProgress } from "../../../actions/datamaster_action.jsx";
+import { getServiceProgress } from "../../../actions/transaksi_action.jsx";
 
 const ModalBookingService = lazy(() => import("./ModalBookingService.jsx"));
 
@@ -71,6 +72,7 @@ class BookingService extends React.Component {
     AxiosMasterPost("service/booking/post-transaksi", data)
       .then(() => NotifSucces("Booking Berhasil"))
       .then(() => this.props.dispatch(reset("ModalBookingService")))
+      .then(() => this.props.dispatch(getServiceProgress()))
       .then(() => this.props.dispatch(onFinish()))
       .catch((err) =>
         NotifError(`Booking Gagal, Error : ${err.response.data}`).then(() =>

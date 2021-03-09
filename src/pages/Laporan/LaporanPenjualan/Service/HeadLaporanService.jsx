@@ -49,7 +49,7 @@ class HeadLaporanService extends Component {
               component={ReanderSelect}
               options={this.props.listkategoriservice.map((list) => {
                 let data = {
-                  value: list.jenis_service,
+                  value: list.id_kategori_service,
                   name: list.jenis_service,
                 };
                 return data;

@@ -57,6 +57,10 @@ class InputDataMember extends Component {
           text: "Handphone",
         },
         {
+          dataField: "point",
+          text: "Point",
+        },
+        {
           dataField: "nopol_kendaraan",
           text: "Nomor Polisi",
         },

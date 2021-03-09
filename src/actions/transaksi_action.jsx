@@ -16,6 +16,7 @@ export const GET_LIST_BARANG_KIRIM_SERVICE = "GET_LIST_BARANG_KIRIM_SERVICE";
 export const GET_LIST_KIRIM_SERVICE_LUAR = "GET_LIST_KIRIM_SERVICE_LUAR";
 export const SET_GRAND_TOTAL = "SET_GRAND_TOTAL";
 export const SET_BARANG_JASA = "SET_BARANG_JASA";
+export const GET_PROGRESS = "GET_PROGRESS";
 
 export const getListTerimaSupplier = () => {
   let data = JSON.parse(localStorage.getItem("PenerimaanSupplier_temp")) || [];
@@ -84,6 +85,19 @@ export const setPembayaranSupplier = (data) => {
   return (dispatch) => {
     dispatch({
       type: SET_PEMBAYARAN_SUPPLIER,
+      payload: {
+        data: data,
+      },
+    });
+  };
+};
+export const getServiceProgress = (data) => {
+  AxiosMasterGet("daftar-service/getDataPendaftaranSerivce").then((res) =>
+    localStorage.setItem("progress_service", JSON.stringify(res.data))
+  );
+  return (dispatch) => {
+    dispatch({
+      type: GET_PROGRESS,
       payload: {
         data: data,
       },

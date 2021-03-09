@@ -8,6 +8,7 @@ import {
   ReanderSelect,
 } from "../../../components/notification/notification";
 import Tabel from "../../../components/Tabel/tabel";
+import { required } from "../../../validasi/normalize";
 
 class HeadStockOpname extends Component {
   constructor(props) {
@@ -53,6 +54,7 @@ class HeadStockOpname extends Component {
               type="date"
               label="Tanggal"
               placeholder="Masukan Tanggal"
+              validate={required}
             />
           </div>
           <div className="col-lg-3">
@@ -70,6 +72,7 @@ class HeadStockOpname extends Component {
               label="Lokasi"
               placeholder="Masukan Lokasi"
               onChange={(e) => localStorage.setItem("lokasi_stock_opname", e)}
+              validate={required}
             />
           </div>
           <div className="col-lg-12 mb-3">

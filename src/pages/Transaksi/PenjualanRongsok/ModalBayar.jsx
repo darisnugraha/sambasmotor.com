@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, formValueSelector, reduxForm } from "redux-form";
 import { createNumberMask } from "redux-form-input-masks";
+import { getListPembayaran } from "../../../actions/transaksi_action";
 import { ReanderField } from "../../../components/notification/notification";
 import Tabel from "../../../components/Tabel/tabel";
 
@@ -22,11 +23,11 @@ class ModalBayar extends Component {
         {
           dataField: "no_card",
           text: "Bank",
+          formatter: (state) => {
+            return `${state}`;
+          },
         },
-        {
-          dataField: "nama_pemilik",
-          text: "Nama Pemilik",
-        },
+
         {
           dataField: "fee_rp",
           text: "Fee Card",
@@ -36,6 +37,42 @@ class ModalBayar extends Component {
           text: "Bayar",
           formatter: (data) =>
             `Rp. ${parseFloat(data).toLocaleString("id-ID")}`,
+        },
+        {
+          dataField: "action",
+          text: "Action",
+          csvExport: false,
+          headerClasses: "text-center",
+          formatter: (rowcontent, row, rowIndex) => {
+            // let dataEdit = {
+            //   kode_divisi: row.kode_divisi,
+            //   nama_divisi: row.nama_divisi,
+            // };
+            this.setState({});
+            return (
+              <div className="row text-center">
+                <div className="col-12">
+                  <button
+                    onClick={() => {
+                      let data = JSON.parse(
+                        localStorage.getItem("listPembayaran_temp")
+                      );
+                      data.splice(rowIndex, 1);
+                      localStorage.setItem(
+                        "listPembayaran_temp",
+                        JSON.stringify(data)
+                      );
+                      this.props.dispatch(getListPembayaran());
+                    }}
+                    className="btn btn-danger"
+                  >
+                    Hapus
+                    <i className="fa fa-trash ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            );
+          },
         },
       ],
     };
@@ -143,6 +180,12 @@ ModalBayar = reduxForm({
 const selector = formValueSelector("ModalBayar");
 export default connect((state) => {
   localStorage.setItem("bayar_rp_rongsok", selector(state, "bayar") || 0);
+  localStorage.setItem(
+    "kembalian_bayar",
+    (selector(state, "bayar") || 0) -
+      state.transaksi.total_bayar +
+      state.transaksi.sum_pembayaran
+  );
   return {
     grand_total_all: state.transaksi.total_bayar,
     listPembayaran_temp: state.transaksi.listpembayaran_temp,

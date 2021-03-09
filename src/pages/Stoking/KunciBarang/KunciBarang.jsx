@@ -13,6 +13,10 @@ import {
 import { hideModal } from "../../../actions/datamaster_action.jsx";
 import { getKunciBarang } from "../../../actions/stocking_action.jsx";
 import access from "../../../assets/accessDenied.svg";
+import HeadKunciBarang from "./HeadKunciBarang.jsx";
+import ModalHancurBarang from "../HancurBarang/ModalHancurBarang.jsx";
+import { reset } from "redux-form";
+import { simpanLocal } from "../../../config/Helper.jsx";
 
 const ModalKunciBarang = lazy(() => import("./ModalKunciBarang.jsx"));
 
@@ -113,23 +117,62 @@ class KunciBarang extends React.Component {
     this.props.dispatch(getKunciBarang());
   }
   handleSubmit(hasil) {
-    let array = JSON.parse(localStorage.getItem("KunciBarang_temp")) || [];
-    let data = {
-      id_mekanik: hasil.id_mekanik,
-      nama_mekanik: hasil.nama_mekanik,
-      kode_kunci: hasil.kode_kunci,
-      nama_kunci: hasil.nama_kunci,
-      qty: hasil.qty,
-      tanggal: hasil.tanggal,
-    };
-
-    array.push(data);
-    localStorage.setItem("KunciBarang_temp", JSON.stringify(array));
-    NotifSucces("Berhasil Menambahan Data")
-      .then(() => this.props.dispatch(getKunciBarang()))
-      .then(() => this.props.dispatch(hideModal()));
+    let local =
+      JSON.parse(localStorage.getItem("KunciBarang_temp_kirim")) || [];
+    let local2 = JSON.parse(localStorage.getItem("KunciBarang_temp")) || [];
+    let filtered = local.findIndex(
+      (list) => list.kode_barcode === hasil.kode_barcode
+    );
+    let filtered2 = local2.findIndex(
+      (list) => list.kode_barcode === hasil.kode_barcode
+    );
+    if (filtered !== -1) {
+      let data = {
+        kode_barcode: hasil.kode_barcode,
+        qty: parseInt(hasil.qty) + parseFloat(local[filtered].qty),
+        kode_supplier: hasil.kode_supplier,
+      };
+      let dataTable = {
+        kode_barcode: hasil.kode_barcode,
+        nama_barang: hasil.nama_barang,
+        merk_barang: hasil.merk,
+        kwalitas: hasil.kwalitas,
+        ukuran: hasil.ukuran,
+        stock: hasil.stock,
+        qty: parseInt(hasil.qty) + parseInt(local2[filtered2].qty),
+      };
+      local.splice(filtered, 1);
+      local2.splice(filtered2, 1);
+      local.push(data);
+      local2.push(dataTable);
+      localStorage.setItem("KunciBarang_temp", JSON.stringify(local2));
+      localStorage.setItem("KunciBarang_temp_kirim", JSON.stringify(local));
+      NotifSucces("Berhasil");
+      this.props.dispatch(reset("ModalReturnSupplier"));
+      this.props.dispatch(getKunciBarang());
+    } else {
+      let data = {
+        kode_barcode: hasil.kode_barcode,
+        qty: parseInt(hasil.qty),
+        kode_supplier: hasil.kode_supplier,
+      };
+      let dataTable = {
+        kode_barcode: hasil.kode_barcode,
+        nama_barang: hasil.nama_barang,
+        merk_barang: hasil.merk,
+        kwalitas: hasil.kwalitas,
+        ukuran: hasil.ukuran,
+        stock: hasil.stock,
+        qty: hasil.qty,
+      };
+      simpanLocal("KunciBarang_temp", dataTable)
+        .then(() => this.props.dispatch(reset("ModalPermintaanBarang")))
+        .then(() => this.props.dispatch(getKunciBarang()));
+      simpanLocal("KunciBarang_temp_kirim", data)
+        .then(() => this.props.dispatch(reset("ModalPermintaanBarang")))
+        .then(() => this.props.dispatch(getKunciBarang()));
+    }
   }
-
   render() {
     return (
       <div>
@@ -143,21 +186,7 @@ class KunciBarang extends React.Component {
         <Panel>
           <PanelHeader>Kunci Barang</PanelHeader>
           <PanelBody>
-            <div className="container text-center mt-5 ">
-              <div className="align-item-center">
-                <img src={access} alt="Access" width="30%" />
-                <h1> Mohon Maaf</h1>
-                <h1 className="f-w-900">Akses Di Menu Ini Tidak Di Izinkan</h1>
-                <h5>Hubungi Admin Jika Ingin Memakai Menu Ini</h5>
-                <div>
-                  <Link to="/dashboard">
-                    <button className="btn btn-primary mt-3">
-                      <i className="fa fa-chevron-left mr-3"></i> Go Home
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            </div>
+            <HeadKunciBarang onSubmit={(data) => this.handleKirim(data)} />
             {/* End Master Kategori */}
             <ModalGlobal
               title={

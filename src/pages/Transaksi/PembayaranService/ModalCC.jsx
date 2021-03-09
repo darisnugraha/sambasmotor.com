@@ -369,8 +369,7 @@ export default connect((state) => {
       parseFloat(grand_total || 0) * (parseFloat(fee_card_percent || 0) / 100),
     sub_total: state.transaksi.sub_total,
     initialValues: {
-      sub_total:
-        state.transaksi.total_bayar - (state.transaksi.totalTukar || 0),
+      sub_total: Math.abs(localStorage.getItem("kembalian_bayar") || 0),
     },
   };
 })(ModalCC);

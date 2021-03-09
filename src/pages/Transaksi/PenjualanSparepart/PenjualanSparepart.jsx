@@ -58,6 +58,42 @@ class PenjualanSparepart extends Component {
           formatter: (data) =>
             `Rp. ${parseFloat(data).toLocaleString("id-ID")}`,
         },
+        {
+          dataField: "action",
+          text: "Action",
+          csvExport: false,
+          headerClasses: "text-center",
+          formatter: (rowcontent, row, rowIndex) => {
+            // let dataEdit = {
+            //   kode_divisi: row.kode_divisi,
+            //   nama_divisi: row.nama_divisi,
+            // };
+            this.setState({});
+            return (
+              <div className="row text-center">
+                <div className="col-12">
+                  <button
+                    onClick={() => {
+                      let data = JSON.parse(
+                        localStorage.getItem("listPembayaran_temp")
+                      );
+                      data.splice(rowIndex, 1);
+                      localStorage.setItem(
+                        "listPembayaran_temp",
+                        JSON.stringify(data)
+                      );
+                      this.props.dispatch(getListPembayaran());
+                    }}
+                    className="btn btn-danger"
+                  >
+                    Hapus
+                    <i className="fa fa-trash ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            );
+          },
+        },
       ],
     };
   }

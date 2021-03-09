@@ -144,11 +144,11 @@ class PembayaranPiutang extends React.Component {
           <li className="breadcrumb-item">
             <Link to="#">Transaksi</Link>
           </li>
-          <li className="breadcrumb-item active">Pembayaran Supplier</li>
+          <li className="breadcrumb-item active">Pembayaran Piutang</li>
         </ol>
-        <h1 className="page-header">Pembayaran Supplier </h1>
+        <h1 className="page-header">Pembayaran Piutang </h1>
         <Panel>
-          <PanelHeader>Pembayaran Supplier</PanelHeader>
+          <PanelHeader>Pembayaran Piutang</PanelHeader>
           <PanelBody>
             <br />
             <HeadPembayaranPiutang

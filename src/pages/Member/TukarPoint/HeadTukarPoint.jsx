@@ -22,6 +22,10 @@ class HeadTukarPoint extends Component {
           text: "Nama Customer",
         },
         {
+          dataField: "point",
+          text: "Point",
+        },
+        {
           dataField: "alamat",
           text: "Alamat",
         },

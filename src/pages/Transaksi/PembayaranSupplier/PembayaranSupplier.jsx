@@ -15,6 +15,7 @@ import { getToday } from "../../../components/helpers/function.jsx";
 import {
   NotifError,
   NotifSucces,
+  ToastError,
 } from "../../../components/notification/notification.jsx";
 import {
   getFaktur,
@@ -120,11 +121,15 @@ class PembayaranSupplier extends React.Component {
         `${data.kode_supplier || "-"}&${data.tanggal || getToday}&${
           data.no_bon || "-"
         }`
-    ).then((res) =>
-      this.setState({
-        listTransaksi: res.data,
-      })
-    );
+    )
+      .then((res) =>
+        this.setState({
+          listTransaksi: res.data,
+        })
+      )
+      .catch((err) =>
+        ToastError(`Get Data Gagal, Detail : ${err.response.data}`)
+      );
   }
 
   render() {

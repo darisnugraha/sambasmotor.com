@@ -4,6 +4,7 @@ import { Field, reduxForm } from "redux-form";
 import {
   ReanderField,
   ReanderSelect,
+  ToastError,
 } from "../../../components/notification/notification";
 import {
   getCustomer,
@@ -12,11 +13,16 @@ import {
 } from "../../../actions/datamaster_action";
 import { required } from "../../../validasi/normalize";
 import { getToday } from "../../../components/notification/function";
+import { AxiosMasterGet } from "../../../axios";
 
 class ModalBookingService extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      member: false,
+      reguler: false,
+      listCustomer: [],
+    };
   }
   handleChange(nama, data) {
     let split = data || "DEFAULT|DEFAULT";
@@ -28,8 +34,50 @@ class ModalBookingService extends Component {
     this.props.dispatch(getKategoriService());
     this.props.dispatch(getSales());
     this.props.change("tanggal", getToday());
+    getCustomer();
   }
-
+  getMember() {
+    this.setState({
+      member: true,
+      reguler: false,
+    });
+    this.props.change("pelaggan", "");
+    AxiosMasterGet("member/get-member-all")
+      .then((res) =>
+        this.setState({
+          listCustomer:
+            res &&
+            res.data.map((list) => {
+              let data = {
+                value: `${list.nama_customer}||${list.alamat}||${list.handphone}||${list.nopol_kendaraan}`,
+                name: list.nama_customer,
+              };
+              return data;
+            }),
+        })
+      )
+      .catch(() => ToastError("Error Get Member"));
+  }
+  getCustomer() {
+    this.setState({
+      member: false,
+      reguler: true,
+    });
+    this.props.change("pelaggan", "");
+    AxiosMasterGet("customer/get/all").then((res) =>
+      this.setState({
+        listCustomer:
+          res &&
+          res.data.map((list) => {
+            let data = {
+              value: `${list.nama_customer}||${list.alamat}||${list.handphone}||${list.nopol_kendaraan}`,
+              name: list.nama_customer,
+            };
+            return data;
+          }),
+      })
+    );
+  }
   render() {
     return (
       <div>
@@ -41,23 +89,46 @@ class ModalBookingService extends Component {
         >
           <div className="col-lg-12">
             <div className="row">
-              <div className="col-lg-3">
+              <div className="col-lg-2">
+                <label className="mb-4">Jenis Penjualan</label>
+                <div>
+                  <label>
+                    <Field
+                      name="jenis_penjualan"
+                      component="input"
+                      type="radio"
+                      value="member"
+                      className="mr-3"
+                      onClick={() => this.getMember()}
+                      checked={this.state.member}
+                    />
+                    Member
+                  </label>
+                  <label className="ml-3">
+                    <Field
+                      name="jenis_penjualan"
+                      component="input"
+                      type="radio"
+                      value="reguler"
+                      className="mr-3"
+                      onClick={() => this.getCustomer()}
+                      checked={this.state.reguler}
+                    />
+                    Reguler
+                  </label>
+                </div>
+              </div>
+              <div className="col-lg-2">
                 <Field
                   name="pelaggan"
                   component={ReanderSelect}
-                  options={this.props.listCustomer.map((list) => {
-                    let data = {
-                      value: `${list.kode_customer}||${list.nama_customer}||${list.alamat}||${list.handphone}||${list.nopol_kendaraan}||${list.merk_kendaraan}||${list.warna_kendaraann}`,
-                      name: list.nama_customer,
-                    };
-                    return data;
-                  })}
+                  options={this.state.listCustomer}
                   onChange={(data) =>
-                    this.props.change("nopol_kendaraan", data.split("||")[4])
+                    this.props.change("nopol_kendaraan", data.split("||")[3])
                   }
                   type="text"
                   label="Nama customer"
-                  placeholder="Masukan Nama customer"
+                  placeholder="Nama customer"
                   validate={required}
                   loading={this.props.listCustomer === [] ? true : false}
                 />
@@ -71,7 +142,7 @@ class ModalBookingService extends Component {
                   placeholder="Masukan nopol"
                 />
               </div>
-              <div className="col-lg-3">
+              <div className="col-lg-2">
                 <Field
                   name="kategori_service"
                   component={ReanderSelect}
@@ -84,7 +155,7 @@ class ModalBookingService extends Component {
                   })}
                   type="text"
                   label="Jenis Service"
-                  placeholder="Masukan Jenis Service"
+                  placeholder="Jenis Service"
                   validate={required}
                   loading={this.props.listkategoriservice === [] ? true : false}
                 />

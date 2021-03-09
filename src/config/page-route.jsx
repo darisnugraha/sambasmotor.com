@@ -1,6 +1,7 @@
 import React, { lazy } from "react";
 import LaporanKartuHutangSupplier from "../pages/Laporan/LaporanSupplier/KartuHutangSupplier/LaporanKartuHutangSupplier.jsx";
 import TambahStockBarang from "../pages/Stoking/TambahStockBarang/TambahStockBarang.jsx";
+import ProgressService from "../pages/Transaksi/ProgressService/ProgressService.jsx";
 const MasterUkuran = lazy(() =>
   import("../pages/DataMaster/DataUkurann/MasterUkuran.jsx")
 );
@@ -504,6 +505,12 @@ const routes = [
     exact: true,
     title: "Service Lihat",
     component: () => <LihatService />,
+  },
+  {
+    path: "/service-progress",
+    exact: true,
+    title: "Progress Service",
+    component: () => <ProgressService />,
   },
   {
     path: "/service-luar",

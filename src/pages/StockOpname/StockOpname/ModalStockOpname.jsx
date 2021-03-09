@@ -1,9 +1,12 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
+import { onFinish, onProgress } from "../../../actions/datamaster_action";
 import { AxiosMasterGet } from "../../../axios";
 import {
   ReanderField,
   ReanderSelect,
+  ToastError,
 } from "../../../components/notification/notification";
 import { required } from "../../../validasi/normalize";
 
@@ -15,11 +18,15 @@ class ModalStockOpname extends Component {
     };
   }
   getBarcode(e) {
+    this.props.dispatch(onProgress());
     let lokasi_hancur = localStorage.getItem("lokasi_hancur") || "";
     AxiosMasterGet(
       "hancur-barang/get/BarangByBarcodeLokasi/" +
         `${e.target.value}&${lokasi_hancur}`
-    ).then((res) => this.setBarang(res.data));
+    )
+      .then((res) => this.setBarang(res.data))
+      .then(() => this.props.dispatch(onFinish()))
+      .catch((err) => this.props.dispatch(onFinish()));
   }
   setBarang(res) {
     console.log(res);
@@ -75,6 +82,7 @@ class ModalStockOpname extends Component {
                   label="Nama Barang"
                   placeholder="Masukan Nama Barang"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -85,6 +93,7 @@ class ModalStockOpname extends Component {
                   label="Nama Barang"
                   placeholder="Masukan Nama Barang"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -95,6 +104,7 @@ class ModalStockOpname extends Component {
                   label="Merk"
                   placeholder="Masukan Merk"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -104,6 +114,7 @@ class ModalStockOpname extends Component {
                   label="Kualitas"
                   placeholder="Masukan Kualitas"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -114,6 +125,7 @@ class ModalStockOpname extends Component {
                   label="Satuan"
                   placeholder="Masukan Satuan"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-3">
@@ -144,6 +156,7 @@ class ModalStockOpname extends Component {
                   label="Stock"
                   placeholder="Masukan Stock"
                   readOnly
+                  loading={this.props.onSend}
                 />
               </div>
               <div className="col-lg-2">
@@ -175,4 +188,8 @@ ModalStockOpname = reduxForm({
   form: "ModalStockOpname",
   enableReinitialize: true,
 })(ModalStockOpname);
-export default ModalStockOpname;
+export default connect((state) => {
+  return {
+    onSend: state.datamaster.onSend,
+  };
+})(ModalStockOpname);

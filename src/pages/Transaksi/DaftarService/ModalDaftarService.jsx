@@ -29,6 +29,9 @@ class ModalDaftarService extends Component {
     super(props);
     this.state = {
       dataBooking: [],
+      member: false,
+      reguler: false,
+      listCustomer: [],
       customer: "col-lg-12 row",
       step: 0,
       step1: "row",
@@ -243,6 +246,48 @@ class ModalDaftarService extends Component {
     this.props.change("warna_kendaraan", hasil[7]);
     this.props.change("nomesin_kendaraan", hasil[8]);
   }
+  getMember() {
+    this.setState({
+      member: true,
+      reguler: false,
+    });
+    this.props.change("pelaggan", "");
+    AxiosMasterGet("member/get-member-all")
+      .then((res) =>
+        this.setState({
+          listCustomer:
+            res &&
+            res.data.map((list) => {
+              let data = {
+                value: `${list.kode_customer}||${list.alamat}||${list.kota}||${list.handphone}||${list.nopol_kendaraan}||${list.merk_kendaraan}||${list.type_kendaraan}||${list.warna_kendaraan}||${list.nomesin_kendaraan}`,
+                name: list.nama_customer,
+              };
+              return data;
+            }),
+        })
+      )
+      .catch(() => ToastError("Error Get Member"));
+  }
+  getCustomer() {
+    this.setState({
+      member: false,
+      reguler: true,
+    });
+    this.props.change("pelaggan", "");
+    AxiosMasterGet("customer/get/all").then((res) =>
+      this.setState({
+        listCustomer:
+          res &&
+          res.data.map((list) => {
+            let data = {
+              value: `${list.kode_customer}||${list.alamat}||${list.kota}||${list.handphone}||${list.nopol_kendaraan}||${list.merk_kendaraan}||${list.type_kendaraan}||${list.warna_kendaraan}||${list.nomesin_kendaraan}`,
+              name: list.nama_customer,
+            };
+            return data;
+          }),
+      })
+    );
+  }
   render() {
     return (
       <div>
@@ -327,16 +372,39 @@ class ModalDaftarService extends Component {
                   <h4>Data Customer</h4>
                 </div>
                 <div className="col-lg-3">
+                  <label className="mb-4">Jenis Penjualan</label>
+                  <div>
+                    <label>
+                      <Field
+                        name="jenis_penjualan"
+                        component="input"
+                        type="radio"
+                        value="member"
+                        className="mr-3"
+                        onClick={() => this.getMember()}
+                        checked={this.state.member}
+                      />
+                      Member
+                    </label>
+                    <label className="ml-3">
+                      <Field
+                        name="jenis_penjualan"
+                        component="input"
+                        type="radio"
+                        value="reguler"
+                        className="mr-3"
+                        onClick={() => this.getCustomer()}
+                        checked={this.state.reguler}
+                      />
+                      Reguler
+                    </label>
+                  </div>
+                </div>
+                <div className="col-lg-3">
                   <Field
                     name="nama"
                     component={ReanderSelect}
-                    options={this.props.listcustomer.map((list) => {
-                      let data = {
-                        value: `${list.kode_customer}||${list.alamat}||${list.kota}||${list.handphone}||${list.nopol_kendaraan}||${list.merk_kendaraan}||${list.type_kendaraan}||${list.warna_kendaraan}||${list.nomesin_kendaraan}`,
-                        name: list.nama_customer,
-                      };
-                      return data;
-                    })}
+                    options={this.state.listCustomer}
                     type="text"
                     label="Nama"
                     placeholder="Masukan Nama"

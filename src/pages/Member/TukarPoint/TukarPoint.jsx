@@ -33,9 +33,9 @@ class TukarPoint extends Component {
       .then(() => this.props.dispatch(hideModal()))
       .then(() => this.props.dispatch(onFinish()))
       .catch((err) =>
-        NotifError(`Gagal Tukar Point , ${err}`).then(() =>
-          this.props.dispatch(onFinish())
-        )
+        NotifError(
+          `Gagal Tukar Point , Detail :  ${err.response.data}`
+        ).then(() => this.props.dispatch(onFinish()))
       );
   }
   render() {

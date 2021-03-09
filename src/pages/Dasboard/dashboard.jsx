@@ -160,6 +160,14 @@ class DashboardV1 extends React.Component {
     }
   }
 
+  openNewTab() {
+    let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,
+width=0,height=0,left=-500,top=-1000`;
+
+    var base_url = window.location.origin;
+    console.log(base_url);
+    window.open(`${base_url}/sambasmotor.com/service-progress`, "test", params);
+  }
   render() {
     return (
       <div>
@@ -170,7 +178,12 @@ class DashboardV1 extends React.Component {
           <li className="breadcrumb-item active">Dashboard</li>
         </ol>
         <h1 className="page-header">Dashboard</h1>
-
+        <button
+          className="btn btn-primary mb-2 mt-2"
+          onClick={() => this.openNewTab()}
+        >
+          Lihat Daftar Service
+        </button>
         <div className="row">
           {/* <div className="col-xl-12">
             <Panel>

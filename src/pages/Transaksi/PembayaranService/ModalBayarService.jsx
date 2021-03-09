@@ -65,7 +65,7 @@ class ModalBayarService extends Component {
                     )}
                   </p>
 
-                  <h3>Bayar</h3>
+                  <h3 className="mt-2">Bayar</h3>
                   <div className="col-lg-12">
                     <div className="row">
                       <div className="col-lg-3"></div>
@@ -139,6 +139,9 @@ class ModalBayarService extends Component {
                   <p style={{ fontSize: 35, fontWeight: 700 }}>
                     {parseFloat(this.props.kembali).toLocaleString("id-ID")}
                   </p>
+                  <span style={{ color: "red" }}>
+                    <b> **Harga Sudah Termasuk PPN 10%</b>
+                  </span>
                 </div>
                 <div className="col-lg-6">
                   <div className="col-lg-12">
@@ -182,17 +185,27 @@ ModalBayarService = reduxForm({
 const selector = formValueSelector("ModalBayarService");
 export default connect((state) => {
   localStorage.setItem("bayar_rp_rongsok", selector(state, "bayar") || 0);
+  localStorage.setItem(
+    "kembalian_bayar",
+    (selector(state, "bayar") || 0) -
+      (state.transaksi.total_bayar -
+        (selector(state, "jasa") || 0) -
+        (selector(state, "barang") || 0) -
+        state.transaksi.sum_pembayaran) *
+        1
+  );
   return {
     grand_total_all: state.transaksi.total_bayar,
     listPembayaran_temp: state.transaksi.listpembayaran_temp,
     sum_pembayaran: state.transaksi.sum_pembayaran,
-    total_bayar: state.transaksi.total_bayar,
+    total_bayar: state.transaksi.total_bayar * 1.1,
     kembali:
       (selector(state, "bayar") || 0) -
       (state.transaksi.total_bayar -
         (selector(state, "jasa") || 0) -
         (selector(state, "barang") || 0) -
-        state.transaksi.sum_pembayaran),
+        state.transaksi.sum_pembayaran) *
+        1.1,
     bayar: selector(state, "bayar") || 0,
     onSend: state.datamaster.onSend,
     checkpiutang: selector(state, "piutang") || false,

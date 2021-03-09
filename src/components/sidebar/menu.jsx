@@ -73,7 +73,7 @@ const Menu = [
       { path: "stocking-konversi", title: "Konversi Barang" },
       { path: "stocking-hancur", title: "Hancur Barang" },
       { path: "stocking-tambah", title: "Tambah Stock Barang" },
-      { path: "stocking-kunci", title: "Kunci Barang" },
+      // { path: "stocking-kunci", title: "Kunci Barang" },
     ],
   },
   {

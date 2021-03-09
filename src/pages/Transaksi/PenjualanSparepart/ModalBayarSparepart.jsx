@@ -8,7 +8,11 @@ import Tabel from "../../../components/Tabel/tabel";
 
 const validate = (value) => {
   let errors = {};
-  if (!value.bayar && !value.piutang) {
+  if (
+    !value.bayar &&
+    !value.piutang &&
+    localStorage.getItem("listPembayaran_temp") === null
+  ) {
     errors.bayar = "Tidak boleh Kosong";
   }
   return errors;
@@ -149,6 +153,13 @@ ModalBayarSparepart = reduxForm({
 const selector = formValueSelector("ModalBayarSparepart");
 export default connect((state) => {
   localStorage.setItem("bayar_rp_rongsok", selector(state, "bayar") || 0);
+  localStorage.setItem(
+    "kembalian_bayar",
+    (selector(state, "bayar") || 0) -
+      state.transaksi.total_bayar +
+      state.transaksi.totalTukar +
+      state.transaksi.sum_pembayaran
+  );
   return {
     grand_total_all: state.transaksi.total_bayar,
     listPembayaran_temp: state.transaksi.listpembayaran_temp,
