@@ -36,7 +36,7 @@ const store = createStore(
 );
 
 ReactDOM.render(
-  <BrowserRouter basename="/sambasmotor.com">
+  <BrowserRouter>
     <Provider store={store}>
       <App />
     </Provider>

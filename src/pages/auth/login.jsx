@@ -102,9 +102,9 @@ class Login extends React.Component {
           ></div>
           <div className="news-caption">
             <h4 className="caption-title">
-              <b>Sambas</b> Motor
+              <b>Nagatech</b> Motor
             </h4>
-            <p>Sambas Motor Admin Website ( PROGRESS : QC-8 5/3/2021 )</p>
+            <p>Nagatech Motor Admin Website ( PROGRESS : QC-8 5/3/2021 )</p>
           </div>
         </div>
         <div className="right-content">

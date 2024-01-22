@@ -47,7 +47,7 @@ class FormLogin extends Component {
 
         <hr />
         <p className="text-center text-grey-darker">
-          &copy; Sambas Motor All Right Reserved {new Date().getFullYear()}
+          &copy; Nagatech Motor All Right Reserved {new Date().getFullYear()}
         </p>
       </form>
     );
