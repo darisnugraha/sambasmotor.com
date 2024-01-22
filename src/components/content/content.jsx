@@ -50,27 +50,6 @@ class Content extends React.Component {
                 pageContentClass
               }
             >
-              {this.checkAcces() === -1 ? (
-                <>
-                  <div className="container text-center mt-5 ">
-                    <div className="align-item-center">
-                      <img src={access} alt="Access" width="30%" />
-                      <h1> Mohon Maaf</h1>
-                      <h1 className="f-w-900">
-                        Akses Di Menu Ini Tidak Di Izinkan
-                      </h1>
-                      <h5>Hubungi Admin Jika Ingin Memakai Menu Ini</h5>
-                      <div>
-                        <Link to="/dashboard">
-                          <button className="btn btn-primary mt-3">
-                            <i className="fa fa-chevron-left mr-3"></i> Go Home
-                          </button>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
                 <>
                   {routes.map((route, index) => (
                     <Route
@@ -81,7 +60,6 @@ class Content extends React.Component {
                     />
                   ))}
                 </>
-              )}
             </div>
           )}
         </PageSettings.Consumer>
