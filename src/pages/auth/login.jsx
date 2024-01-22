@@ -110,7 +110,7 @@ class Login extends React.Component {
         <div className="right-content">
           <div className="login-header">
             <div className="brand">
-              <span className="logo"></span> <b>Sambas</b> Motor
+              <span className="logo"></span> <b>Nagatech</b> Motor
             </div>
             <div className="icon">
               <i className="fa fa-sign-in"></i>
